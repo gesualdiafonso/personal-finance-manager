@@ -1,13 +1,18 @@
 import { uuidv7 } from "@/domain/ids";
+import { overlappingBudget } from "@/domain/rules/budgets";
 import { validateCategoryTree } from "@/domain/rules/categories";
+import { goalProgress } from "@/domain/rules/goals";
 import {
   CATEGORY_MAX_DEPTH,
   CONTROL_FIELDS,
   ENTITY_SCHEMAS,
+  type Budget,
   type Category,
   type ControlFields,
   type EntityName,
   type EntityOf,
+  type Goal,
+  type GoalContribution,
 } from "@/domain/schemas";
 import { AppError } from "@/lib/errors/app-error";
 import { toIsoWithOffset } from "@/lib/formatting/date";
@@ -105,7 +110,9 @@ async function checkRules(tx: ReadWriteTx, entity: EntityName, r: AnyRecord): Pr
     case "bills": {
       const account = await requireRef(tx, "accounts", r.accountId as string | null, "accountId");
       if (account) sameCurrency("the account", r.currency, account.currency);
-      await requireRef(tx, "categories", r.categoryId as string | null, "categoryId");
+      const category = await requireRef(tx, "categories", r.categoryId as string | null, "categoryId");
+      if (category && category.type !== "expense") throw new AppError("VALIDATION_FAILED", "A bill uses an expense category (D5-15)");
+      await requireRef(tx, "recurrences", (r.recurrenceId ?? null) as string | null, "recurrenceId");
       break;
     }
     case "recurrences": {
@@ -116,8 +123,32 @@ async function checkRules(tx: ReadWriteTx, entity: EntityName, r: AnyRecord): Pr
       break;
     }
     case "budgets": {
-      const category = await requireRef(tx, "categories", r.categoryId as string, "categoryId");
-      if (category!.type !== "expense") throw new AppError("VALIDATION_FAILED", "Budgets apply to expense categories");
+      // categoryId null = general budget (2.3.0).
+      const category = await requireRef(tx, "categories", r.categoryId as string | null, "categoryId");
+      if (category && category.type !== "expense") throw new AppError("VALIDATION_FAILED", "Budgets apply to expense categories");
+      const twin = overlappingBudget(r as unknown as Budget, (await tx.objectStore("budgets").getAll()) as Budget[]);
+      if (twin) throw new AppError("POSSIBLE_DUPLICATE", "An active budget for the same category, currency and period type overlaps these dates", { details: [twin.id] });
+      break;
+    }
+    case "goals":
+      break;
+    case "goalContributions": {
+      const goal = await requireRef(tx, "goals", r.goalId as string, "goalId");
+      sameCurrency("the goal", r.currency, goal!.currency);
+      const account = await requireRef(tx, "accounts", r.accountId as string | null, "accountId");
+      if (account) sameCurrency("the account", r.currency, account.currency);
+      const t = await requireRef(tx, "transactions", r.transactionId as string | null, "transactionId");
+      if (t) {
+        sameCurrency("the transaction", r.currency, t.currency);
+        // The same money cannot be a contribution and a new income (no double counting).
+        if (t.type === "income") throw new AppError("VALIDATION_FAILED", "A contribution can only point at a transfer or an expense, never an income");
+        if (t.status === "cancelled") throw new AppError("VALIDATION_FAILED", "A contribution cannot point at a cancelled transaction");
+        if (r.cancelledAt === null) {
+          const others = (await tx.objectStore("goalContributions").index("transactionId").getAll(t.id as string)) as AnyRecord[];
+          const other = others.find((c) => c.id !== r.id && c.deletedAt === null && c.cancelledAt === null);
+          if (other) throw new AppError("PROTECTED_OPERATION", "This transaction already backs another contribution", { details: [other.id] });
+        }
+      }
       break;
     }
     case "categories": {
@@ -165,6 +196,86 @@ function assertTransactionEditAllowed(current: AnyRecord, next: AnyRecord): void
   }
 }
 
+/**
+ * Bill policy (Step 05, D5-03/D5-04/D5-07), enforced here so no screen can bypass it:
+ * - a new bill is always pending;
+ * - "paid" is never set by hand: it follows the payments;
+ * - a cancelled bill is final, and a paid one is closed: only their notes change.
+ */
+const BILL_FREE_FIELDS = ["notes", "rev", "updatedAt", "deviceId"];
+function assertBillCreateAllowed(record: AnyRecord): void {
+  if (record.status !== "pending") throw new AppError("PROTECTED_OPERATION", "A new bill is always pending; payments mark it as paid");
+}
+function assertBillEditAllowed(current: AnyRecord, next: AnyRecord): void {
+  if (next.status === "paid" && current.status !== "paid") throw new AppError("PROTECTED_OPERATION", "A bill is marked as paid by its payments, not by hand");
+  if (current.status !== "pending") {
+    const changed = Object.keys(next).filter((k) => !BILL_FREE_FIELDS.includes(k) && JSON.stringify(next[k]) !== JSON.stringify(current[k]));
+    if (changed.length > 0) throw new AppError("PROTECTED_OPERATION", `A ${String(current.status)} bill is closed: only its notes can change`, { details: changed });
+  }
+}
+
+/**
+ * Budget policy (Step 06): a new budget is active and has a positive limit.
+ */
+function assertBudgetCreateAllowed(record: AnyRecord): void {
+  if ((record.amount as number) <= 0) throw new AppError("VALIDATION_FAILED", "A budget limit must be greater than zero");
+  if ((record.status ?? "active") !== "active") throw new AppError("PROTECTED_OPERATION", "A new budget is always active");
+}
+
+/**
+ * Goal policy (Step 06):
+ * - a new goal is active, neither completed nor archived;
+ * - completed only from active, by the user, once the target is reached (never automatic);
+ * - cancelled only from active; completed and cancelled goals are final — only their
+ *   description and archive flag change;
+ * - the currency cannot change once there are contributions.
+ */
+const GOAL_FREE_FIELDS = ["description", "archivedAt", "rev", "updatedAt", "deviceId"];
+function assertGoalCreateAllowed(record: AnyRecord): void {
+  if (record.status !== "active" || record.archivedAt !== null) throw new AppError("PROTECTED_OPERATION", "A new goal is always active");
+}
+async function assertGoalEditAllowed(tx: ReadWriteTx, current: AnyRecord, next: AnyRecord): Promise<void> {
+  const contributions = (await tx.objectStore("goalContributions").index("goalId").getAll(current.id)) as GoalContribution[];
+  if (current.status !== "active") {
+    const changed = Object.keys(next).filter((k) => !GOAL_FREE_FIELDS.includes(k) && JSON.stringify(next[k]) !== JSON.stringify(current[k]));
+    if (changed.length > 0) throw new AppError("PROTECTED_OPERATION", `A ${String(current.status)} goal is closed: only its description and archive flag change`, { details: changed });
+    return;
+  }
+  if (next.currency !== current.currency && contributions.some((c) => c.deletedAt === null)) {
+    throw new AppError("REFERENCE_CONSTRAINT", "The currency of a goal with contributions cannot change");
+  }
+  if (next.status === "completed") {
+    const progress = goalProgress(next as unknown as Goal, contributions, "0000-01-01");
+    if (!progress.reached) throw new AppError("PROTECTED_OPERATION", "A goal is completed only once its target is reached");
+  }
+}
+
+/**
+ * Contribution policy (Step 06): new ones go to an active, non-archived goal and are not
+ * cancelled; afterwards only the description changes or the contribution is cancelled (kept
+ * in the history) — always while the goal is active. Amount, currency, date, goal and links
+ * never change: cancel and register it again. Contributions are never deleted.
+ */
+async function assertContributionCreateAllowed(tx: ReadWriteTx, record: AnyRecord): Promise<void> {
+  if (record.cancelledAt !== null) throw new AppError("PROTECTED_OPERATION", "A new contribution cannot be cancelled");
+  const goal = await live(tx, "goals", record.goalId as string);
+  if (goal && (goal.status !== "active" || goal.archivedAt !== null)) throw new AppError("PROTECTED_OPERATION", "Contributions go to an active goal");
+}
+async function assertContributionEditAllowed(tx: ReadWriteTx, current: AnyRecord, next: AnyRecord): Promise<void> {
+  const changed = Object.keys(next).filter((k) => !["description", "cancelledAt", "rev", "updatedAt", "deviceId"].includes(k) && JSON.stringify(next[k]) !== JSON.stringify(current[k]));
+  if (changed.length > 0) throw new AppError("PROTECTED_OPERATION", "A contribution only changes its description or is cancelled", { details: changed });
+  if (current.cancelledAt !== null && next.cancelledAt !== current.cancelledAt) throw new AppError("PROTECTED_OPERATION", "A cancelled contribution is final");
+  const goal = await live(tx, "goals", current.goalId as string);
+  if (!goal || goal.status !== "active") throw new AppError("PROTECTED_OPERATION", "Contributions of a closed goal cannot change");
+}
+
+/** A transaction that backs a live contribution cannot be cancelled: cancel the contribution first. */
+async function assertNotBackingContribution(tx: ReadWriteTx, current: AnyRecord, next: AnyRecord): Promise<void> {
+  if (next.status !== "cancelled" || current.status === "cancelled") return;
+  const backing = ((await tx.objectStore("goalContributions").index("transactionId").getAll(current.id)) as AnyRecord[]).find((c) => c.deletedAt === null && c.cancelledAt === null);
+  if (backing) throw new AppError("PROTECTED_OPERATION", "This transaction backs a goal contribution: cancel the contribution first", { details: [backing.id] });
+}
+
 /** Live records that still point at `id` (D2-06): their presence blocks deletion. */
 export const REFERRERS: Partial<Record<EntityName, { entity: EntityName; fields: string[] }[]>> = {
   accounts: [
@@ -172,6 +283,7 @@ export const REFERRERS: Partial<Record<EntityName, { entity: EntityName; fields:
     { entity: "cards", fields: ["accountId"] },
     { entity: "bills", fields: ["accountId"] },
     { entity: "recurrences", fields: ["accountId"] },
+    { entity: "goalContributions", fields: ["accountId"] },
   ],
   cards: [{ entity: "transactions", fields: ["cardId"] }],
   categories: [
@@ -182,7 +294,12 @@ export const REFERRERS: Partial<Record<EntityName, { entity: EntityName; fields:
     { entity: "budgets", fields: ["categoryId"] },
   ],
   bills: [{ entity: "transactions", fields: ["billId"] }],
-  recurrences: [{ entity: "transactions", fields: ["recurrenceId"] }],
+  recurrences: [
+    { entity: "transactions", fields: ["recurrenceId"] },
+    { entity: "bills", fields: ["recurrenceId"] },
+  ],
+  transactions: [{ entity: "goalContributions", fields: ["transactionId"] }],
+  goals: [{ entity: "goalContributions", fields: ["goalId"] }],
 };
 
 /** Pure count of live records referencing `id`, given the referrer stores' records (single rule, D2-06). */
@@ -286,8 +403,19 @@ export class UnitOfWork {
         if (await store().get(id)) throw new AppError("DUPLICATE_ID", `${entity} id already exists`, { details: [id] });
         const draft: Record<string, unknown> = { ...input, id, rev: 1, createdAt: stamp, updatedAt: stamp, deletedAt: null, deviceId: this.deviceId };
         const record = this.validate(entity, draft) as unknown as AnyRecord;
+        if (entity === "bills") assertBillCreateAllowed(record);
+        if (entity === "budgets") assertBudgetCreateAllowed(record);
+        if (entity === "goals") assertGoalCreateAllowed(record);
+        if (entity === "goalContributions") await assertContributionCreateAllowed(this.tx, record);
         await checkRules(this.tx, entity, record);
-        if (entity === "transactions") await assertActiveReferences(this.tx, record, null);
+        if (entity === "transactions" || entity === "bills" || entity === "goalContributions") await assertActiveReferences(this.tx, record, null);
+        if (entity === "goalContributions" && !options.allowPossibleDuplicate && record.transactionId === null) {
+          // Double submit or the same contribution typed twice: same goal, day, amount and text.
+          const twin = ((await this.tx.objectStore("goalContributions").index("goalId").getAll(record.goalId as string)) as AnyRecord[]).find(
+            (c) => c.deletedAt === null && c.cancelledAt === null && c.date === record.date && c.amount === record.amount && (c.description ?? "") === (record.description ?? ""),
+          );
+          if (twin) throw new AppError("POSSIBLE_DUPLICATE", "A contribution with the same goal, date, amount and description exists", { details: [twin.id] });
+        }
         if (entity === "transactions" && !options.allowPossibleDuplicate) {
           const key = transactionDuplicateKey(record as never);
           const twin = ((await store().getAll()) as AnyRecord[]).find((r) => r.deletedAt === null && transactionDuplicateKey(r as never) === key);
@@ -314,8 +442,12 @@ export class UnitOfWork {
           throw new AppError("REFERENCE_CONSTRAINT", "The paying account of a card with movements cannot change");
         }
         if (entity === "transactions") assertTransactionEditAllowed(current, record);
+        if (entity === "bills") assertBillEditAllowed(current, record);
+        if (entity === "transactions") await assertNotBackingContribution(this.tx, current, record);
+        if (entity === "goals") await assertGoalEditAllowed(this.tx, current, record);
+        if (entity === "goalContributions") await assertContributionEditAllowed(this.tx, current, record);
         await checkRules(this.tx, entity, record);
-        if (entity === "transactions") await assertActiveReferences(this.tx, record, current);
+        if (entity === "transactions" || entity === "bills") await assertActiveReferences(this.tx, record, current);
         await this.write(entity, "update", record, current.rev);
         return record as EntityOf<N>;
       },
@@ -325,6 +457,10 @@ export class UnitOfWork {
         if (entity === "transactions" && current.status === "completed") {
           // D4-04: a completed movement is cancelled (kept, audited), never deleted directly.
           throw new AppError("PROTECTED_OPERATION", "A completed transaction must be cancelled before it can be deleted");
+        }
+        if (entity === "goalContributions") {
+          // History of a goal (Step 06): a contribution is cancelled, never deleted.
+          throw new AppError("PROTECTED_OPERATION", "A contribution is cancelled, never deleted");
         }
         const refs = await countReferrers(this.tx, entity, id);
         if (refs > 0) {

@@ -9,6 +9,8 @@ import {
   type Account,
   type Bill,
   type Budget,
+  type Goal,
+  type GoalContribution,
   type Card,
   type Category,
   type EntityName,
@@ -40,7 +42,8 @@ import { validateIntegrity, type DataFileMap, type OfficialDataSet } from "@/ser
  * - `rollback`: the state right before the last applied import (one level of undo).
  */
 export const LOCAL_DB_NAME = "pfm-local";
-export const LOCAL_DB_VERSION = 2;
+/** v3 (Step 06): adds the goals and goalContributions stores; nothing else changes. */
+export const LOCAL_DB_VERSION = 3;
 
 export const ENTITY_STORES = ENTITY_NAMES;
 /** @deprecated Step 01 name; the entity stores are now working stores. */
@@ -117,6 +120,8 @@ export interface PfmLocalSchema extends DBSchema {
   bills: { key: string; value: Bill; indexes: { dueDate: string; accountId: string } };
   recurrences: { key: string; value: Recurrence; indexes: { accountId: string } };
   budgets: { key: string; value: Budget; indexes: { startDate: string; categoryId: string } };
+  goals: { key: string; value: Goal; indexes: { status: string } };
+  goalContributions: { key: string; value: GoalContribution; indexes: { goalId: string; transactionId: string } };
   transactions: {
     key: string;
     value: Transaction;
@@ -163,6 +168,14 @@ function createV2Stores(db: IDBPDatabase<PfmLocalSchema>): void {
   db.createObjectStore("rollback", { keyPath: "key" });
 }
 
+/** v3 (Step 06): goals and their contributions. */
+function createV3Stores(db: IDBPDatabase<PfmLocalSchema>): void {
+  db.createObjectStore("goals", { keyPath: "id" }).createIndex("status", "status");
+  const contributions = db.createObjectStore("goalContributions", { keyPath: "id" });
+  contributions.createIndex("goalId", "goalId");
+  contributions.createIndex("transactionId", "transactionId");
+}
+
 const V1_STORES = ["accounts", "categories", "cards", "bills", "recurrences", "budgets", "transactions", "outbox", "publications"] as const;
 
 /** Opens the local store, creating it or upgrading it (v1 → v2 never discards a record). */
@@ -173,6 +186,7 @@ export async function openLocalStore(now: () => Date = () => new Date()): Promis
       async upgrade(db, oldVersion, _newVersion, transaction) {
         if (oldVersion < 1) {
           createV2Stores(db);
+          createV3Stores(db);
           db.createObjectStore("device", { keyPath: "key" });
           return;
         }
@@ -193,6 +207,11 @@ export async function openLocalStore(now: () => Date = () => new Date()): Promis
           createV2Stores(db);
           for (const item of legacy) await transaction.objectStore("legacy_v1").add(item);
           await transaction.objectStore("migration_log").add({ from: 1, to: 2, at: movedAt, moved });
+        }
+        if (oldVersion < 3) {
+          // Additive: two new, empty stores. Every existing record stays where it is.
+          createV3Stores(db);
+          await transaction.objectStore("migration_log").add({ from: Math.max(oldVersion, 2), to: 3, at: toIsoWithOffset(now()), moved: {} });
         }
       },
       blocking() {
@@ -275,6 +294,8 @@ function recordsOf(dataSet: OfficialDataSet): Record<EntityName, { id: string }[
     recurrences: dataSet.recurrences,
     budgets: Object.values(dataSet.budgets).flat(),
     transactions: Object.values(dataSet.transactions).flat(),
+    goals: dataSet.goals,
+    goalContributions: dataSet.goalContributions,
   };
 }
 
@@ -364,7 +385,7 @@ export interface LocalIntegrityReport {
 export async function readWorkingDataSet(db: LocalDb): Promise<OfficialDataSet> {
   const tx = db.transaction([...ENTITY_STORES, "settings", "publications"], "readonly");
   const all = Object.fromEntries(await Promise.all(ENTITY_STORES.map(async (n) => [n, await tx.objectStore(n).getAll()] as const))) as Record<EntityName, unknown[]>;
-  const { accounts, cards, categories, bills, recurrences, budgets, transactions } = all;
+  const { accounts, cards, categories, bills, recurrences, budgets, transactions, goals, goalContributions } = all;
   const settings = (await tx.objectStore("settings").get("financial"))?.settings;
   const latest = (await tx.objectStore("publications").openCursor(null, "prev"))?.value;
   await tx.done;
@@ -382,6 +403,8 @@ export async function readWorkingDataSet(db: LocalDb): Promise<OfficialDataSet> 
     recurrences: recurrences as Recurrence[],
     budgets: byYear,
     transactions: byMonth,
+    goals: goals as Goal[],
+    goalContributions: goalContributions as GoalContribution[],
   };
 }
 

@@ -29,7 +29,7 @@ const ids = (files: DataFileMap) =>
 describe("migration 1.0.0 → 2.0.0", () => {
   it("is registered and targets the current version", () => {
     expect(DATA_MIGRATIONS.map((m) => `${m.from}→${m.to}`)).toEqual(["1.0.0→2.0.0"]);
-    expect(SCHEMA_VERSION).toBe("2.1.0"); // 2.1.0 is additive: migrated 2.0.0 data is current
+    expect(SCHEMA_VERSION).toBe("2.3.0"); // 2.1.0, 2.2.0 and 2.3.0 are additive: migrated 2.0.0 data is current
   });
 
   it("produces data that passes every validation layer", () => {

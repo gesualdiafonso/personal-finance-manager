@@ -4,7 +4,7 @@
 
 | Número | Onde | Significado |
 | --- | --- | --- |
-| `schemaVersion` | Todos os ficheiros de `data/` e das exportações | Formato dos dados (semver). Atual: **2.1.0** (`SCHEMA_VERSION`, `DATA_COMPATIBILITY`) |
+| `schemaVersion` | Todos os ficheiros de `data/` e das exportações | Formato dos dados (semver). Atual: **2.3.0** (`SCHEMA_VERSION`, `DATA_COMPATIBILITY`) |
 | `dataRevision` | `meta.json` | Revisão dos dados publicados. Só sobe. |
 | `LOCAL_DB_VERSION` | IndexedDB | Estrutura dos stores no dispositivo. Atual: **2** |
 
@@ -25,6 +25,14 @@ Cada migração é `{ from, to, description, migrate(files, ctx) }`, registada e
 - **valida o resultado** nas quatro camadas antes de o devolver;
 - **é idempotente:** dados já atuais voltam iguais (`changed: false`);
 - **produz um relatório** com versões, contagens, campos renomeados, valores por omissão aplicados, fusões e avisos — nunca valores nem descrições.
+
+### 2.2.0 → 2.3.0 (Step 06)
+
+Só aditiva. `Budget`: `categoryId` pode ser `null` (orçamento geral), `period` aceita `weekly` e `quarterly`, `description?` e `status?` (`active` · `archived`; ausente = ativo). Entidades novas `Goal` e `GoalContribution`, nos ficheiros **opcionais** `goals.json` e `goal-contributions.json` (ausentes = nenhum registo; só entram nos checksums quando têm registos). Dados 2.0–2.2 leem-se sem migração. IndexedDB passa à versão 3 (duas stores novas, nenhum registo movido).
+
+### 2.1.0 → 2.2.0 (Step 05, D5-01)
+
+Só aditiva: `Bill.description/recurrenceId/occurrenceDate`, `Recurrence.cancelledAt/notes` e as frequências `daily`, `biweekly`, `quarterly`, `semiannual`.
 
 ### 2.0.0 → 2.1.0 (Step 03, D3-01)
 

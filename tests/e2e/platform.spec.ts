@@ -38,12 +38,12 @@ test.describe("local fonts", () => {
 });
 
 test.describe("IndexedDB", () => {
-  test("initialises the local store at version 2 and reports integrity", async ({ page }) => {
+  test("initialises the local store at version 3 (Step 06) and reports integrity", async ({ page }) => {
     await page.goto("/configuracion");
-    await expect(page.getByTestId("local-store-ready")).toHaveText("Listo · versión 2");
+    await expect(page.getByTestId("local-store-ready")).toHaveText("Listo · versión 3");
     await expect(page.getByTestId("integrity-ok")).toBeVisible();
     const dbs = await page.evaluate(async () => (await indexedDB.databases()).map((d) => `${d.name}@${d.version}`));
-    expect(dbs).toContain("pfm-local@2");
+    expect(dbs).toContain("pfm-local@3");
   });
 });
 

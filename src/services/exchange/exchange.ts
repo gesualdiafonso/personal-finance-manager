@@ -292,7 +292,7 @@ function collect(ds: OfficialDataSet, entity: EntityName): Rec[] {
   return (Array.isArray(v) ? v : Object.values(v as Record<string, unknown[]>).flat()) as Rec[];
 }
 function emptyWorking(ds: OfficialDataSet): OfficialDataSet {
-  return { ...ds, accounts: [], cards: [], categories: [], bills: [], recurrences: [], budgets: {}, transactions: {} };
+  return { ...ds, accounts: [], cards: [], categories: [], bills: [], recurrences: [], budgets: {}, transactions: {}, goals: [], goalContributions: [] };
 }
 function rebuild(base: OfficialDataSet, byId: Map<string, Rec>, settings: FinancialSettings): OfficialDataSet {
   const of = (e: EntityName) => [...byId.entries()].filter(([k]) => k.startsWith(`${e}:`)).map(([, r]) => r);
@@ -310,6 +310,8 @@ function rebuild(base: OfficialDataSet, byId: Map<string, Rec>, settings: Financ
     recurrences: of("recurrences"),
     budgets,
     transactions,
+    goals: of("goals"),
+    goalContributions: of("goalContributions"),
   } as unknown as OfficialDataSet;
 }
 

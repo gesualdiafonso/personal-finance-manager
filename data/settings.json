@@ -1,6 +1,6 @@
 {
   "schema": "pfm.settings",
-  "schemaVersion": "2.1.0",
+  "schemaVersion": "2.3.0",
   "settings": {
     "baseCurrency": "ARS",
     "timezone": "America/Argentina/Buenos_Aires",

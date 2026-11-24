@@ -6,6 +6,8 @@ import {
   budgetsFileSchema,
   cardsFileSchema,
   categoriesFileSchema,
+  goalContributionsFileSchema,
+  goalsFileSchema,
   metaSchema,
   recurrencesFileSchema,
   settingsFileSchema,
@@ -16,6 +18,8 @@ import {
   type Card,
   type Category,
   type FinancialSettings,
+  type Goal,
+  type GoalContribution,
   type Meta,
   type Recurrence,
   type Transaction,
@@ -38,6 +42,9 @@ export interface OfficialDataSet {
   budgets: Record<string, Budget[]>;
   /** Keyed by file path, e.g. "transactions/2026/2026-11.json". */
   transactions: Record<string, Transaction[]>;
+  /** 2.3.0 (Step 06). Optional files: absent = none. */
+  goals: Goal[];
+  goalContributions: GoalContribution[];
 }
 
 /** Map of data file path (relative to data/) to parsed JSON content. */
@@ -62,6 +69,12 @@ const SINGLE_FILES = {
   "recurrences.json": recurrencesFileSchema,
 } as const;
 type SingleKey = "accounts" | "categories" | "cards" | "bills" | "recurrences";
+
+/** 2.3.0 files that older data folders do not have (absent = no records). */
+const OPTIONAL_FILES = {
+  "goals.json": { key: "goals", schema: goalsFileSchema },
+  "goal-contributions.json": { key: "goalContributions", schema: goalContributionsFileSchema },
+} as const;
 
 export const BUDGET_FILE = /^budgets\/(\d{4})\.json$/;
 export const TRANSACTION_FILE = /^transactions\/(\d{4})\/(\d{4}-\d{2})\.json$/;
@@ -96,7 +109,7 @@ function earlyVersionIssue(file: string, content: unknown): ValidationIssue | nu
 /** Layer 1: structure and version compatibility of every file. */
 export function parseDataFiles(files: DataFileMap): { dataSet: OfficialDataSet | null; issues: ValidationIssue[] } {
   const issues: ValidationIssue[] = [];
-  const partial: Partial<OfficialDataSet> = { budgets: {}, transactions: {} };
+  const partial: Partial<OfficialDataSet> = { budgets: {}, transactions: {}, goals: [], goalContributions: [] };
 
   for (const [path, content] of Object.entries(files)) {
     const early = earlyVersionIssue(path, content);
@@ -121,6 +134,13 @@ export function parseDataFiles(files: DataFileMap): { dataSet: OfficialDataSet |
       const r = SINGLE_FILES[path as keyof typeof SINGLE_FILES].safeParse(content);
       if (!r.success) issues.push(...zodIssues(path, r.error));
       else (partial as Record<SingleKey, unknown>)[key] = r.data.records;
+      continue;
+    }
+    if (path in OPTIONAL_FILES) {
+      const { key, schema } = OPTIONAL_FILES[path as keyof typeof OPTIONAL_FILES];
+      const r = schema.safeParse(content);
+      if (!r.success) issues.push(...zodIssues(path, r.error));
+      else (partial as Record<string, unknown>)[key] = r.data.records;
       continue;
     }
     const budget = BUDGET_FILE.exec(path);
@@ -166,6 +186,9 @@ export function computeChecksums(dataSet: OfficialDataSet): Record<string, { cou
     ["bills.json", dataSet.bills],
     ["recurrences.json", dataSet.recurrences],
   ];
+  // Optional files are counted only when present (a 2.2 publication has no entry for them).
+  if (dataSet.goals.length > 0) single.push(["goals.json", dataSet.goals]);
+  if (dataSet.goalContributions.length > 0) single.push(["goal-contributions.json", dataSet.goalContributions]);
   for (const [file, records] of single) out[file] = { count: records.length, amountSum: sum(records) };
   for (const [file, records] of Object.entries(dataSet.budgets)) out[file] = { count: records.length, amountSum: sum(records) };
   for (const [file, records] of Object.entries(dataSet.transactions)) out[file] = { count: records.length, amountSum: sum(records) };
@@ -198,6 +221,8 @@ export function validateIntegrity(dataSet: OfficialDataSet): ValidationIssue[] {
   dataSet.recurrences.forEach((r) => register("recurrences.json", r.id));
   allBudgets.forEach(({ file, r }) => register(file, r.id));
   allTx.forEach(({ file, r }) => register(file, r.id));
+  dataSet.goals.forEach((r) => register("goals.json", r.id));
+  dataSet.goalContributions.forEach((r) => register("goal-contributions.json", r.id));
 
   // Layer 2 — references point to existing, non-deleted records (I-05) and agree on type and currency.
   const activeMap = <T extends { id: string; deletedAt: string | null }>(rs: T[]) => new Map(rs.filter((r) => r.deletedAt === null).map((r) => [r.id, r]));
@@ -229,6 +254,7 @@ export function validateIntegrity(dataSet: OfficialDataSet): ValidationIssue[] {
     const account = ref("bills.json", b.id, "accountId", b.accountId, accounts);
     if (account) sameCurrency("bills.json", b.id, "its account", b.currency, account.currency);
     categoryType("bills.json", b.id, ref("bills.json", b.id, "categoryId", b.categoryId, categories), "expense");
+    ref("bills.json", b.id, "recurrenceId", b.recurrenceId ?? null, recurrences);
   }
   for (const r of dataSet.recurrences.filter((x) => x.deletedAt === null)) {
     const account = ref("recurrences.json", r.id, "accountId", r.accountId, accounts);
@@ -251,6 +277,30 @@ export function validateIntegrity(dataSet: OfficialDataSet): ValidationIssue[] {
     }
     ref(file, r.id, "billId", r.billId, bills);
     ref(file, r.id, "recurrenceId", r.recurrenceId, recurrences);
+  }
+
+  // Goals (Step 06): a contribution belongs to a live goal of the same currency; its account
+  // and transaction (when given) agree on currency; a transaction backs at most one live
+  // contribution and is a transfer or an expense — never an income (no double counting).
+  const goals = activeMap(dataSet.goals);
+  const transactions = new Map(allTx.filter((x) => x.r.deletedAt === null).map((x) => [x.r.id, x.r]));
+  const backed = new Map<string, string>();
+  const CONTRIB = "goal-contributions.json";
+  for (const c of dataSet.goalContributions.filter((x) => x.deletedAt === null)) {
+    const goal = ref(CONTRIB, c.id, "goalId", c.goalId, goals);
+    if (goal) sameCurrency(CONTRIB, c.id, "its goal", c.currency, goal.currency);
+    const account = ref(CONTRIB, c.id, "accountId", c.accountId, accounts);
+    if (account) sameCurrency(CONTRIB, c.id, "its account", c.currency, account.currency);
+    const t = ref(CONTRIB, c.id, "transactionId", c.transactionId, transactions);
+    if (t) {
+      sameCurrency(CONTRIB, c.id, "its transaction", c.currency, t.currency);
+      if (t.type === "income") issues.push(err("references", CONTRIB, "transactionId must be a transfer or an expense, never an income", c.id));
+    }
+    if (c.transactionId !== null && c.cancelledAt === null) {
+      const other = backed.get(c.transactionId);
+      if (other) issues.push(err("invariants", CONTRIB, `transactionId already backs contribution ${other}`, c.id));
+      else backed.set(c.transactionId, c.id);
+    }
   }
 
   // Layer 3b — partition: each record lives in the file of its period (I-06).
@@ -283,7 +333,8 @@ export function validateIntegrity(dataSet: OfficialDataSet): ValidationIssue[] {
     else if (d.count !== c.count || d.amountSum !== c.amountSum) issues.push(err("invariants", file, "I-10: count or sum does not match meta.json"));
   }
   for (const file of Object.keys(declared)) {
-    if (!(file in computed)) issues.push(err("invariants", "meta.json", `I-10: checksum for a file that does not exist (${file})`));
+    const emptyOptional = file in OPTIONAL_FILES && declared[file]!.count === 0;
+    if (!(file in computed) && !emptyOptional) issues.push(err("invariants", "meta.json", `I-10: checksum for a file that does not exist (${file})`));
   }
   return issues;
 }
@@ -312,6 +363,8 @@ export function dataSetToFiles(dataSet: OfficialDataSet, schemaVersion: string):
     "bills.json": env("pfm.bills", dataSet.bills),
     "recurrences.json": env("pfm.recurrences", dataSet.recurrences),
   };
+  if (dataSet.goals.length > 0) files["goals.json"] = env("pfm.goals", dataSet.goals);
+  if (dataSet.goalContributions.length > 0) files["goal-contributions.json"] = env("pfm.goal-contributions", dataSet.goalContributions);
   for (const [path, records] of Object.entries(dataSet.budgets)) files[path] = { schema: "pfm.budgets", schemaVersion, period: BUDGET_FILE.exec(path)![1], records };
   for (const [path, records] of Object.entries(dataSet.transactions)) files[path] = { schema: "pfm.transactions", schemaVersion, period: TRANSACTION_FILE.exec(path)![2], records };
   return files;

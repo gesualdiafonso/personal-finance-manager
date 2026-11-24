@@ -38,7 +38,7 @@ describe("IndexedDB v2 initialization", () => {
   it("reports an empty, healthy store", async () => {
     const db = await openLocalStore();
     const status = await getLocalStoreStatus(db);
-    expect(status.version).toBe(2);
+    expect(status.version).toBe(3);
     expect(status.latestPublication).toBeNull();
     expect(status.pendingOperations).toBe(0);
     expect(await checkLocalIntegrity(db)).toEqual({ ok: true, problems: [] });
@@ -70,7 +70,7 @@ describe("upgrade from the Step 01 (v1) database", () => {
     v1.close();
 
     const db = await openLocalStore();
-    expect(db.version).toBe(2);
+    expect(db.version).toBe(3);
     const legacy = await db.getAll("legacy_v1");
     expect(legacy).toHaveLength(4); // device stays in its own store
     expect(legacy.filter((l) => l.store === "transactions").map((l) => (l.record as { id: string }).id).sort()).toEqual(["t1", "t2"]);
@@ -78,6 +78,32 @@ describe("upgrade from the Step 01 (v1) database", () => {
     expect((await db.getAll("migration_log"))[0]).toMatchObject({ from: 1, to: 2, moved: { accounts: 1, transactions: 2, outbox: 1 } });
     expect(await db.count("transactions")).toBe(0);
     expect((await getLocalStoreStatus(db)).legacyRecords).toBe(4);
+    expect((await db.getAll("migration_log"))[1]).toMatchObject({ from: 2, to: 3, moved: {} });
+    db.close();
+  });
+});
+
+describe("upgrade from the Step 02–05 (v2) database (Step 06)", () => {
+  it("adds the goal stores and keeps every existing record", async () => {
+    const v2 = await openDB(LOCAL_DB_NAME, 2, {
+      upgrade(db) {
+        for (const s of ["accounts", "categories", "cards", "bills", "recurrences", "budgets", "transactions"]) db.createObjectStore(s, { keyPath: "id" });
+        db.createObjectStore("outbox", { keyPath: "seq", autoIncrement: true });
+        db.createObjectStore("migration_log", { keyPath: "id", autoIncrement: true });
+        db.createObjectStore("device", { keyPath: "key" });
+      },
+    });
+    await v2.put("budgets", { id: "b1", name: "EJEMPLO-FICTICIO" });
+    await v2.add("outbox", { operationId: "o" });
+    v2.close();
+
+    const db = await openLocalStore();
+    expect(db.version).toBe(3);
+    expect([...db.objectStoreNames]).toEqual(expect.arrayContaining(["goals", "goalContributions"]));
+    expect([...db.transaction("goalContributions").store.indexNames].sort()).toEqual(["goalId", "transactionId"]);
+    expect(await db.get("budgets", "b1")).toEqual({ id: "b1", name: "EJEMPLO-FICTICIO" });
+    expect(await db.count("outbox")).toBe(1);
+    expect(await db.getAll("migration_log")).toMatchObject([{ from: 2, to: 3, moved: {} }]);
     db.close();
   });
 });

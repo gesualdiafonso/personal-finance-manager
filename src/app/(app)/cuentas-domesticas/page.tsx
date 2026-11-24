@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { ObligationsSwitcher } from "@/components/layout/obligations-switcher";
-import { PlaceholderPage } from "@/components/layout/placeholder-page";
+import { BillsPage } from "@/features/bills/bills-page";
 import { AREAS } from "@/lib/config/navigation";
-import { es } from "@/lib/i18n/es";
 
 export const metadata: Metadata = { title: AREAS.bills.label };
 
+/** Static shell; bills are read and written on the client, in this device's IndexedDB. */
 export default function Page() {
-  return <PlaceholderPage label={es.nav.groups.obligations} title={AREAS.bills.label} before={<ObligationsSwitcher current="bills" />} />;
+  return <BillsPage />;
 }

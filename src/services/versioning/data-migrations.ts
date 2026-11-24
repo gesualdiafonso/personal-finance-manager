@@ -396,6 +396,8 @@ const v1ToV2: DataMigration = {
       recurrences,
       budgets: budgets as OfficialDataSet["budgets"],
       transactions: transactions as OfficialDataSet["transactions"],
+      goals: [],
+      goalContributions: [],
     } as OfficialDataSet;
     v2.meta.checksums = computeChecksums(v2);
 

@@ -21,7 +21,18 @@ import { currencyCodeSchema } from "./currency";
  * 2.1.0 (Step 03, D3-01): adds cardType "prepaid". Additive only: every 2.0.x file is valid
  * 2.1.0 data and is read as-is; new exports are written as 2.1.0.
  */
-export const SCHEMA_VERSION = "2.1.0";
+/**
+ * 2.2.0 (Step 05, D5-01): adds Bill.description/recurrenceId/occurrenceDate, Recurrence
+ * cancelledAt/notes and the frequencies daily, biweekly, quarterly, semiannual. Additive only:
+ * every 2.1.x and 2.0.x file is valid 2.2.0 data (the new fields are optional).
+ */
+/**
+ * 2.3.0 (Step 06): Budget gains general budgets (categoryId null), the periods weekly and
+ * quarterly, description and status (active | archived); new entities Goal and
+ * GoalContribution (files goals.json and goal-contributions.json, optional). Additive only:
+ * every 2.0–2.2 file is valid 2.3.0 data; a data folder without the goal files has no goals.
+ */
+export const SCHEMA_VERSION = "2.3.0";
 
 /* ----------------------------------------------------------------------------- */
 /* Primitives                                                                    */
@@ -154,19 +165,38 @@ export const categorySchema = z
   })
   .refine((c) => c.parentId !== c.id, { path: ["parentId"], message: "A category cannot be its own parent" });
 
-export const billSchema = z.strictObject({
-  ...controlFields,
-  name: requiredText(80),
-  categoryId: uuid.nullable(),
-  amount: positiveAmount,
-  currency: currencyCodeSchema,
-  dueDate: localDate,
-  accountId: uuid.nullable(),
-  status: z.enum(["pending", "paid", "cancelled"]),
-  notes: safeText(500).nullable(),
-});
+/**
+ * A bill (cuenta doméstica) to pay. `status` is stored; "overdue" and "partial" are derived
+ * (D5-03). Payments are expense transactions with `billId` (D5-02): the repository keeps
+ * `paid` consistent with them (D5-04). A bill generated from a recurrence carries the
+ * recurrence and the occurrence date it stands for (D5-08).
+ */
+export const BILL_STATUSES = ["pending", "paid", "cancelled"] as const;
+export const billSchema = z
+  .strictObject({
+    ...controlFields,
+    name: requiredText(80),
+    /** 2.2.0: optional free text (what the bill is for). */
+    description: safeText(200).nullable().optional(),
+    categoryId: uuid.nullable(),
+    amount: positiveAmount,
+    currency: currencyCodeSchema,
+    dueDate: localDate,
+    /** Account planned for the payment (optional). */
+    accountId: uuid.nullable(),
+    status: z.enum(BILL_STATUSES),
+    notes: safeText(500).nullable(),
+    /** 2.2.0: the recurrence that generated this bill, and which of its occurrences it is. */
+    recurrenceId: uuid.nullable().optional(),
+    occurrenceDate: localDate.nullable().optional(),
+  })
+  .refine((b) => (b.recurrenceId ?? null) === null || (b.occurrenceDate ?? null) !== null, {
+    path: ["occurrenceDate"],
+    message: "A bill generated from a recurrence needs its occurrenceDate",
+  });
 
-export const RECURRENCE_FREQUENCIES = ["weekly", "monthly", "yearly"] as const;
+/** 2.2.0 adds daily, biweekly (every 14 days), quarterly and semiannual (D5-01, D5-11). */
+export const RECURRENCE_FREQUENCIES = ["daily", "weekly", "biweekly", "monthly", "quarterly", "semiannual", "yearly"] as const;
 export const recurrenceSchema = z
   .strictObject({
     ...controlFields,
@@ -179,36 +209,100 @@ export const recurrenceSchema = z
     endDate: localDate.nullable(),
     categoryId: uuid.nullable(),
     accountId: uuid,
+    /** false = paused (can be resumed). */
     isActive: z.boolean(),
+    /** 2.2.0: set when cancelled — final, never generates again (D5-10). */
+    cancelledAt: isoDateTime.nullable().optional(),
+    notes: safeText(500).nullable().optional(),
   })
-  .refine((r) => r.endDate === null || r.endDate >= r.startDate, { path: ["endDate"], message: "endDate is before startDate" });
+  .refine((r) => r.endDate === null || r.endDate >= r.startDate, { path: ["endDate"], message: "endDate is before startDate" })
+  .refine((r) => (r.cancelledAt ?? null) === null || !r.isActive, { path: ["isActive"], message: "A cancelled recurrence cannot be active" });
 
-export const BUDGET_PERIODS = ["monthly", "yearly", "custom"] as const;
+/**
+ * A spending limit for a period. `categoryId` null = general budget (every expense in the
+ * currency); otherwise the category and its subcategories (Step 06). Spending is derived from
+ * transactions, never stored (src/domain/rules/budgets.ts).
+ */
+export const BUDGET_PERIODS = ["weekly", "monthly", "quarterly", "yearly", "custom"] as const;
+export const BUDGET_STATUSES = ["active", "archived"] as const;
 export const budgetSchema = z
   .strictObject({
     ...controlFields,
     name: requiredText(80),
-    categoryId: uuid,
+    /** 2.3.0: null = general budget. */
+    categoryId: uuid.nullable(),
     amount: nonNegativeAmount,
     currency: currencyCodeSchema,
     period: z.enum(BUDGET_PERIODS),
     startDate: localDate,
     endDate: localDate,
+    /** 2.3.0, optional (absent = active). */
+    description: safeText(200).nullable().optional(),
+    status: z.enum(BUDGET_STATUSES).optional(),
   })
   .superRefine((b, ctx) => {
     if (b.endDate < b.startDate) ctx.addIssue({ code: "custom", path: ["endDate"], message: "endDate is before startDate" });
-    const [y, m] = b.startDate.split("-").map(Number) as [number, number];
-    if (b.period === "monthly") {
-      const last = new Date(Date.UTC(y, m, 0)).getUTCDate();
-      const expectedEnd = `${b.startDate.slice(0, 8)}${String(last).padStart(2, "0")}`;
-      if (!b.startDate.endsWith("-01") || b.endDate !== expectedEnd) {
-        ctx.addIssue({ code: "custom", path: ["period"], message: "A monthly budget runs from the 1st to the last day of one month" });
-      }
+    const [y, m, d] = b.startDate.split("-").map(Number) as [number, number, number];
+    const lastOfMonth = (yy: number, mm: number) => `${yy}-${String(mm).padStart(2, "0")}-${String(new Date(Date.UTC(yy, mm, 0)).getUTCDate()).padStart(2, "0")}`;
+    if (b.period === "weekly") {
+      const end = new Date(Date.UTC(y, m - 1, d + 6)).toISOString().slice(0, 10);
+      if (b.endDate !== end) ctx.addIssue({ code: "custom", path: ["period"], message: "A weekly budget runs for 7 days" });
+    }
+    if (b.period === "monthly" && (d !== 1 || b.endDate !== lastOfMonth(y, m))) {
+      ctx.addIssue({ code: "custom", path: ["period"], message: "A monthly budget runs from the 1st to the last day of one month" });
+    }
+    if (b.period === "quarterly" && (d !== 1 || (m - 1) % 3 !== 0 || b.endDate !== lastOfMonth(y, m + 2))) {
+      ctx.addIssue({ code: "custom", path: ["period"], message: "A quarterly budget runs from the 1st of January, April, July or October to the end of that quarter" });
     }
     if (b.period === "yearly" && (b.startDate !== `${y}-01-01` || b.endDate !== `${y}-12-31`)) {
       ctx.addIssue({ code: "custom", path: ["period"], message: "A yearly budget runs from 1 January to 31 December" });
     }
   });
+
+/**
+ * A savings goal (Step 06). `amount` is the target; `initialAmount` what was already saved
+ * before tracking. Progress is derived (initial + live contributions), never stored. A goal is
+ * completed only by the user and only once the target is reached (repository).
+ */
+export const GOAL_KINDS = ["emergency", "purchase", "vehicle", "travel", "home", "reserve", "other"] as const;
+export const GOAL_STATUSES = ["active", "completed", "cancelled"] as const;
+export const goalSchema = z
+  .strictObject({
+    ...controlFields,
+    name: requiredText(80),
+    description: safeText(200).nullable(),
+    kind: z.enum(GOAL_KINDS),
+    amount: positiveAmount,
+    initialAmount: nonNegativeAmount,
+    currency: currencyCodeSchema,
+    startDate: localDate,
+    targetDate: localDate.nullable(),
+    status: z.enum(GOAL_STATUSES),
+    completedAt: isoDateTime.nullable(),
+    /** Hidden from the active list; only a completed or cancelled goal is archived. */
+    archivedAt: isoDateTime.nullable(),
+  })
+  .refine((g) => g.targetDate === null || g.targetDate >= g.startDate, { path: ["targetDate"], message: "targetDate is before startDate" })
+  .refine((g) => (g.status === "completed") === (g.completedAt !== null), { path: ["completedAt"], message: "completedAt is set exactly when the goal is completed" })
+  .refine((g) => g.archivedAt === null || g.status !== "active", { path: ["archivedAt"], message: "An active goal cannot be archived" });
+
+/**
+ * Money set aside for a goal. It is a record of its own, NOT an income or expense: it never
+ * changes an account balance. It may point at the account it came from and at an existing
+ * transfer or expense that moved the money (each transaction backs at most one contribution).
+ * Undo = cancel (kept in the history, no longer counted).
+ */
+export const goalContributionSchema = z.strictObject({
+  ...controlFields,
+  goalId: uuid,
+  amount: positiveAmount,
+  currency: currencyCodeSchema,
+  date: localDate,
+  description: safeText(200).nullable(),
+  accountId: uuid.nullable(),
+  transactionId: uuid.nullable(),
+  cancelledAt: isoDateTime.nullable(),
+});
 
 /* ----------------------------------------------------------------------------- */
 /* Financial settings (separate from UI preferences in LocalStorage)             */
@@ -262,6 +356,8 @@ export const categoriesFileSchema = envelope("pfm.categories", categorySchema);
 export const cardsFileSchema = envelope("pfm.cards", cardSchema);
 export const billsFileSchema = envelope("pfm.bills", billSchema);
 export const recurrencesFileSchema = envelope("pfm.recurrences", recurrenceSchema);
+export const goalsFileSchema = envelope("pfm.goals", goalSchema);
+export const goalContributionsFileSchema = envelope("pfm.goal-contributions", goalContributionSchema);
 export const budgetsFileSchema = z.strictObject({
   schema: z.literal("pfm.budgets"),
   schemaVersion: semver,
@@ -286,6 +382,8 @@ export type Category = z.infer<typeof categorySchema>;
 export type Bill = z.infer<typeof billSchema>;
 export type Recurrence = z.infer<typeof recurrenceSchema>;
 export type Budget = z.infer<typeof budgetSchema>;
+export type Goal = z.infer<typeof goalSchema>;
+export type GoalContribution = z.infer<typeof goalContributionSchema>;
 export type FinancialSettings = z.infer<typeof financialSettingsSchema>;
 export type Meta = z.infer<typeof metaSchema>;
 export type ControlFields = { [K in keyof typeof controlFields]: z.infer<(typeof controlFields)[K]> };
@@ -298,6 +396,8 @@ export const ENTITY_SCHEMAS = {
   bills: billSchema,
   recurrences: recurrenceSchema,
   budgets: budgetSchema,
+  goals: goalSchema,
+  goalContributions: goalContributionSchema,
 } as const;
 export type EntityName = keyof typeof ENTITY_SCHEMAS;
 export const ENTITY_NAMES = Object.keys(ENTITY_SCHEMAS) as EntityName[];
@@ -314,4 +414,6 @@ export const JSON_SCHEMA_EXPORTS = {
   "bill.schema.json": billsFileSchema,
   "recurrence.schema.json": recurrencesFileSchema,
   "budget.schema.json": budgetsFileSchema,
+  "goal.schema.json": goalsFileSchema,
+  "goal-contribution.schema.json": goalContributionsFileSchema,
 } as const;
