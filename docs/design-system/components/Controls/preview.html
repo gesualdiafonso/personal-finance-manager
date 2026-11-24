@@ -1,0 +1,32 @@
+<!-- @dsCard group="Fundamentos" height=380 width=960 subtitle="Botões, campos, chips e estados — shadcn/ui personalizado" -->
+<div class="pfm ctl">
+  <style>
+    .ctl { padding: 32px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 10px 0 28px; }
+    .err-msg { font-size: 13px; color: var(--alert-text); }
+    .help { font-size: 13px; color: var(--ink-2); }
+    .num-in { justify-content: flex-end; font-variant-numeric: tabular-nums; font-weight: 500; }
+  </style>
+  <div>
+    <div class="lbl">Botões</div>
+    <div class="row">
+      <button class="btn btn-primary">Guardar</button>
+      <button class="btn btn-secondary">Cancelar</button>
+      <button class="btn btn-ghost">Marcar como paga</button>
+      <button class="btn btn-destructive">Apagar</button>
+    </div>
+    <div class="lbl">Chips de filtro</div>
+    <div class="row">
+      <span class="chip on">Novembro</span><span class="chip">Conta corrente</span><span class="chip">Categoria</span>
+    </div>
+    <div class="lbl">Estados</div>
+    <div class="row">
+      <span class="badge badge-paid">Paga</span><span class="badge badge-soon">2 dias</span><span class="badge badge-late">Vencida</span><span class="badge badge-sync">Na fatura</span>
+    </div>
+  </div>
+  <div style="display:grid;gap:18px;align-content:start">
+    <div class="field"><span class="lbl">Descrição</span><div class="input">Supermercado Día</div></div>
+    <div class="field"><span class="lbl">Valor</span><div class="input focus num-in">$ 42.310,00</div><span class="help">Valores em ARS. Usa vírgula para centavos.</span></div>
+    <div class="field"><span class="lbl">Data de vencimento</span><div class="input err" style="color:var(--ink-3)">dd/mm/aaaa</div><span class="err-msg">Indica a data em que a conta vence.</span></div>
+  </div>
+</div>

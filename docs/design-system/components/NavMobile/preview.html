@@ -1,0 +1,91 @@
+<!-- @dsCard group="Navegação" height=844 width=840 subtitle="iPhone: Obrigações abre a área própria (Cartões) · Mais é o índice das nove áreas" -->
+<div class="pfm navm">
+  <style>
+    .navm { display: flex; gap: 60px; padding: 0 0 0 0; background: var(--bg-paper); }
+    .ph { width: 390px; height: 844px; position: relative; overflow: hidden; background: var(--bg-paper); border-right: 1px solid var(--line); }
+    .ph + .ph { border-left: 1px solid var(--line); }
+    .top { padding: 54px 20px 0; }
+    .crumb { display: flex; justify-content: space-between; align-items: center; }
+    h1 { font-family: var(--font-serif); font-weight: 400; font-size: 34px; line-height: 1.05; margin: 4px 0 16px; }
+    .seg { display: grid; grid-template-columns: 1.25fr 1fr 1.1fr; background: var(--bg-paper-2); border-radius: var(--radius-sm); padding: 3px; }
+    .seg span { height: 32px; display: grid; place-items: center; font-size: 13px; font-weight: 500; color: var(--ink-2); border-radius: 4px; }
+    .seg .on { background: var(--bg-surface); color: var(--ink); box-shadow: 0 0 0 1px var(--line); font-weight: 600; }
+    .url { font-size: 12px; color: var(--ink-2); margin-top: 10px; font-variant-numeric: tabular-nums; }
+    .card { padding: 18px 20px; border-bottom: 1px solid var(--line); }
+    .card .r1 { display: flex; justify-content: space-between; align-items: baseline; }
+    .card .v { font-size: 22px; line-height: 28px; letter-spacing: -0.01em; }
+    .card .track { margin: 14px 0 8px; }
+    .card .meta-row { display: flex; justify-content: space-between; }
+    .sum { margin: 24px 20px 0; padding-top: 12px; border-top: 3px double var(--ink); display: flex; justify-content: space-between; align-items: baseline; }
+    .sum .num { font-size: 22px; }
+    .tabbar { position: absolute; left: 0; right: 0; bottom: 0; height: 84px; background: var(--bg-paper); box-shadow: var(--shadow-tabbar); display: grid; grid-template-columns: repeat(5, 1fr); padding: 6px 8px 22px; }
+    .tb { display: grid; justify-items: center; align-content: center; gap: 3px; font-size: 12px; font-weight: 500; color: var(--ink-2); }
+    .tb svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .tb.on { color: var(--forest); font-weight: 600; }
+    .plus { width: 52px; height: 52px; border-radius: 50%; background: var(--forest); display: grid; place-items: center; }
+    .plus svg { stroke: var(--on-primary); stroke-width: 1.75; }
+    .behind { padding: 54px 20px; }
+    .scrim { position: absolute; inset: 0; background: var(--scrim); }
+    .sheet { position: absolute; left: 0; right: 0; bottom: 0; top: 150px; background: var(--bg-surface); border-radius: var(--radius-lg) var(--radius-lg) 0 0; box-shadow: var(--shadow-overlay); padding: 8px 0 24px; }
+    .grab { width: 36px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto 14px; }
+    .sheet .h { padding: 0 20px 4px; }
+    .sheet .lbl { padding: 18px 20px 6px; }
+    .area { display: flex; justify-content: space-between; align-items: center; height: 48px; padding: 0 20px; border-bottom: 1px solid var(--line); font-size: 15px; }
+    .area .meta { font-size: 13px; }
+    .area .late { color: var(--alert-text); font-weight: 600; font-size: 13px; }
+    .area.here { color: var(--forest); font-weight: 600; }
+  </style>
+
+  <div class="ph">
+    <div class="top">
+      <div class="crumb"><span class="lbl">Obrigações</span></div>
+      <h1>Cartões</h1>
+      <div class="seg"><span>Contas domésticas</span><span class="on">Cartões</span><span>Recorrências</span></div>
+      <div class="url">Rota própria: /cartoes</div>
+    </div>
+    <div style="margin-top:16px;border-top:1px solid var(--line)">
+      <div class="card">
+        <div class="r1"><span class="h">Visa ··4417</span><span class="v num">$ 742.300</span></div>
+        <div class="track"><div class="fill warn" style="width:87%"></div></div>
+        <div class="meta-row"><span class="meta">Fatura aberta · fecha 28 nov</span><span class="meta num">87% do limite</span></div>
+        <div class="meta-row" style="margin-top:4px"><span class="meta">Vence 10 dez</span><span class="badge badge-soon">Fecha em 5 dias</span></div>
+      </div>
+      <div class="card">
+        <div class="r1"><span class="h">Mastercard ··0932</span><span class="v num">$ 384.600</span></div>
+        <div class="track"><div class="fill" style="width:32%"></div></div>
+        <div class="meta-row"><span class="meta">Fatura aberta · fecha 2 dez</span><span class="meta num">32% do limite</span></div>
+        <div class="meta-row" style="margin-top:4px"><span class="meta">Vence 15 dez</span></div>
+      </div>
+    </div>
+    <div class="sum"><span class="h">Comprometido</span><span class="num">$ 1.126.900</span></div>
+    <nav class="tabbar">
+      <div class="tb"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20H4z"/></svg>Início</div>
+      <div class="tb"><svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h9"/></svg>Transações</div>
+      <div class="tb"><div class="plus"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div></div>
+      <div class="tb on"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Obrigações</div>
+      <div class="tb"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/></svg>Mais</div>
+    </nav>
+  </div>
+
+  <div class="ph">
+    <div class="behind"><div class="lbl">Segunda, 23 nov</div><h1>Novembro</h1></div>
+    <div class="scrim"></div>
+    <div class="sheet">
+      <div class="grab"></div>
+      <div class="h">Todas as áreas</div>
+      <div class="lbl">Dia a dia</div>
+      <div class="area"><span>Dashboard</span><span class="meta">Início</span></div>
+      <div class="area"><span>Transações</span></div>
+      <div class="lbl">Obrigações</div>
+      <div class="area"><span>Contas domésticas</span><span class="late">1 vencida</span></div>
+      <div class="area here"><span>Cartões</span><span class="meta">Aberta agora</span></div>
+      <div class="area"><span>Recorrências</span></div>
+      <div class="lbl">Património e plano</div>
+      <div class="area"><span>Contas</span></div>
+      <div class="area"><span>Orçamento</span></div>
+      <div class="area"><span>Relatórios</span></div>
+      <div class="area" style="border-bottom:0;color:var(--ink-2)"><span>Configurações</span></div>
+    </div>
+    
+  </div>
+</div>

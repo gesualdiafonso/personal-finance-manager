@@ -1,0 +1,68 @@
+<!-- @dsCard group="Dados" height=900 width=1100 subtitle="Extrato de Transações: 5 colunas no desktop, 4 no tablet, lista no iPhone (D4)" -->
+<div class="pfm led">
+  <style>
+    .led { display: grid; grid-template-columns: 1fr 340px; gap: 40px; padding: 28px; align-items: start; }
+    .filters { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; }
+    .filters .search { flex: 1; max-width: 260px; height: 32px; border-radius: var(--radius-sm); border: 1px solid var(--line-strong); background: var(--bg-surface); display: flex; align-items: center; padding: 0 10px; color: var(--ink-3); font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; background: var(--bg-surface); border-radius: var(--radius-md); overflow: hidden; box-shadow: 0 0 0 1px var(--line); }
+    th { text-align: left; height: 36px; padding: 0 16px; border-bottom: 1px solid var(--line); }
+    th.r, td.r { text-align: right; }
+    td { height: 52px; padding: 0 16px; border-bottom: 1px solid var(--line); font-size: 15px; }
+    tr.day td { height: 36px; background: var(--bg-paper-2); font-size: 13px; color: var(--ink-2); font-weight: 600; }
+    tr.hover td { background: var(--bg-surface-hover); }
+    tr.sel td { background: var(--lake-tint); }
+    td .sub { display: block; font-size: 13px; line-height: 18px; color: var(--ink-2); }
+    .mob { width: 340px; background: var(--bg-paper); border: 1px solid var(--line); border-radius: 28px; padding: 18px 0 8px; overflow: hidden; }
+    .mob .t { font-family: var(--font-serif); font-size: 30px; padding: 6px 16px 12px; }
+    .mob .dh { display: flex; justify-content: space-between; padding: 8px 16px; background: var(--bg-paper-2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: 13px; color: var(--ink-2); font-weight: 600; }
+    .mob .row { display: flex; justify-content: space-between; align-items: center; min-height: 60px; padding: 0 16px; border-bottom: 1px solid var(--line); }
+    .mob .row .meta { display: block; }
+    .mob .row .meta.pend { display: flex; gap: 6px; align-items: center; }
+    .vh { margin: 0 0 10px; }
+    .gap { height: 36px; }
+    .pend::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--ink-3); }
+  </style>
+
+  <div>
+    <div class="lbl vh">Desktop · 5 colunas</div>
+    <div class="filters">
+      <div class="search">Pesquisar  /</div>
+      <span class="chip on">Novembro</span><span class="chip">Todas as contas</span><span class="chip">Tipo</span><span class="chip">Categoria</span>
+    </div>
+    <table>
+      <thead><tr><th class="lbl" style="width:76px">Data</th><th class="lbl">Descrição</th><th class="lbl">Conta</th><th class="lbl">Estado</th><th class="lbl r">Valor</th></tr></thead>
+      <tbody>
+        <tr class="day"><td colspan="4">Sexta, 20 nov</td><td class="r num">−$ 66.850,00</td></tr>
+        <tr><td class="meta">20 nov</td><td>Supermercado Día<span class="sub">Supermercado</span></td><td>Conta corrente</td><td><span class="badge badge-paid">Paga</span></td><td class="r num">−$ 42.310<span class="cents">,00</span></td></tr>
+        <tr class="hover"><td class="meta">20 nov</td><td>Farmácia<span class="sub">Saúde</span></td><td>Visa ··4417</td><td><span class="badge badge-sync">Na fatura</span></td><td class="r num">−$ 18.140<span class="cents">,00</span></td></tr>
+        <tr class="sel"><td class="meta">20 nov</td><td>SUBE<span class="sub">Transporte</span></td><td>Carteira digital</td><td><span class="badge badge-paid">Paga</span></td><td class="r num">−$ 6.400<span class="cents">,00</span></td></tr>
+        <tr class="day"><td colspan="4">Quinta, 19 nov</td><td class="r num">+$ 3.388.500,00</td></tr>
+        <tr><td class="meta">19 nov</td><td>Salário<span class="sub">Receita</span></td><td>Conta corrente</td><td><span class="badge badge-paid">Recebida</span></td><td class="r num">+$ 3.450.000<span class="cents">,00</span></td></tr>
+        <tr><td class="meta">19 nov</td><td>Restaurante<span class="sub">Restaurantes</span></td><td>Visa ··4417</td><td><span class="badge badge-sync">Na fatura</span></td><td class="r num">−$ 61.500<span class="cents">,00</span></td></tr>
+      </tbody>
+    </table>
+    <div class="gap"></div>
+    <div class="lbl vh">Tablet · 4 colunas (conta na área da descrição)</div>
+    <table style="max-width:600px">
+      <thead><tr><th class="lbl" style="width:76px">Data</th><th class="lbl">Descrição</th><th class="lbl">Estado</th><th class="lbl r">Valor</th></tr></thead>
+      <tbody>
+        <tr class="day"><td colspan="3">Sexta, 20 nov</td><td class="r num">−$ 66.850,00</td></tr>
+        <tr><td class="meta">20 nov</td><td>Supermercado Día<span class="sub">Conta corrente · Supermercado</span></td><td><span class="badge badge-paid">Paga</span></td><td class="r num">−$ 42.310<span class="cents">,00</span></td></tr>
+        <tr><td class="meta">20 nov</td><td>Farmácia<span class="sub">Visa ··4417 · Saúde</span></td><td><span class="badge badge-sync">Na fatura</span></td><td class="r num">−$ 18.140<span class="cents">,00</span></td></tr>
+        <tr><td class="meta">20 nov</td><td>SUBE<span class="sub">Carteira digital · Transporte</span></td><td><span class="badge badge-paid">Paga</span></td><td class="r num">−$ 6.400<span class="cents">,00</span></td></tr>
+      </tbody>
+    </table>
+
+  </div>
+
+  <div class="mob">
+    <div class="lbl" style="padding:0 16px">iPhone · lista · novembro</div>
+    <div class="t">Transações</div>
+    <div class="dh"><span>Hoje, 23</span><span class="num">−$ 3.200</span></div>
+    <div class="row"><div>Padaria<span class="meta pend">Só neste dispositivo</span></div><span class="num">−$ 3.200</span></div>
+    <div class="dh"><span>Sexta, 20</span><span class="num">−$ 66.850</span></div>
+    <div class="row"><div>Supermercado Día<span class="meta">Conta corrente · Supermercado</span></div><span class="num">−$ 42.310</span></div>
+    <div class="row"><div>Farmácia<span class="meta">Visa ··4417 · Saúde</span></div><span class="num">−$ 18.140</span></div>
+    <div class="row"><div>SUBE<span class="meta">Carteira digital · Transporte</span></div><span class="num">−$ 6.400</span></div>
+  </div>
+</div>

@@ -1,0 +1,87 @@
+/* PFM — estilos de referência partilhados pelos previews.
+   Não é a implementação: documenta como os tokens se combinam.
+   Fontes: locais (fonts/, @font-face gerado a partir de tokens.json). Sem Google Fonts (D3). */
+
+.pfm {
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: var(--bg-paper);
+  font-size: 15px;
+  line-height: 22px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.pfm * { box-sizing: border-box; }
+.pfm .serif { font-family: var(--font-serif); font-weight: 400; }
+
+/* Rótulos suíços */
+.pfm .lbl {
+  font-size: 11px; line-height: 14px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2);
+}
+.pfm .meta { font-size: 13px; line-height: 18px; color: var(--ink-2); }
+.pfm .h { font-size: 17px; line-height: 24px; font-weight: 600; letter-spacing: -0.005em; }
+
+/* Números: sempre tabulares */
+.pfm .num { font-variant-numeric: tabular-nums lining-nums; font-feature-settings: "tnum" 1, "lnum" 1; font-weight: 500; white-space: nowrap; }
+.pfm .cents { color: var(--ink-2); }
+.pfm .neg-alert { color: var(--alert-text); }
+
+/* Hairlines */
+.pfm .rule { height: 1px; background: var(--line); border: 0; margin: 0; }
+.pfm .rule-ink { height: 1px; background: var(--ink); }
+
+/* Botões */
+.pfm .btn {
+  display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px;
+  border-radius: var(--radius-sm); font: 500 14px/20px var(--font-sans); border: 1px solid transparent;
+  cursor: pointer; white-space: nowrap; background: transparent; color: var(--ink);
+}
+.pfm .btn-primary { background: var(--forest); color: var(--on-primary); }
+.pfm .btn-primary:hover { background: var(--forest-hover); }
+.pfm .btn-primary:active { background: var(--forest-pressed); }
+.pfm .btn-secondary { border-color: var(--line-strong); }
+.pfm .btn-secondary:hover { background: var(--bg-paper-2); }
+.pfm .btn-ghost:hover { background: var(--bg-paper-2); }
+.pfm .btn-destructive { background: var(--alert); color: var(--on-alert); }
+.pfm .btn-destructive:hover { background: var(--alert-text); }
+.pfm .btn:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.pfm .kbd {
+  font: 500 12px/16px var(--font-sans); padding: 0 5px; border-radius: 3px;
+  border: 1px solid currentColor; color: inherit; opacity: 0.6;
+}
+.pfm .btn-secondary .kbd, .pfm .btn-ghost .kbd { border-color: var(--line); color: var(--ink-2); }
+
+/* Badges de estado */
+.pfm .badge {
+  display: inline-flex; align-items: center; gap: 6px; height: 20px; padding: 0 7px;
+  border-radius: var(--radius-xs); font: 500 12px/16px var(--font-sans); letter-spacing: 0;
+}
+.pfm .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.pfm .badge-paid { background: var(--forest-tint); color: var(--forest); }
+.pfm .badge-soon { background: var(--warning-tint); color: var(--warning-text); }
+.pfm .badge-late { background: var(--alert-tint); color: var(--alert-text); }
+.pfm .badge-sync { background: var(--bg-paper-2); color: var(--ink-2); }
+
+/* Chips */
+.pfm .chip {
+  display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: var(--radius-full);
+  border: 1px solid var(--line); font: 500 13px/18px var(--font-sans); color: var(--ink); background: transparent;
+}
+.pfm .chip.on { background: var(--lake-tint); border-color: transparent; color: var(--lake); }
+
+/* Inputs */
+.pfm .field { display: grid; gap: 6px; }
+.pfm .input {
+  height: 40px; padding: 0 12px; border-radius: var(--radius-sm); border: 1px solid var(--line-strong);
+  background: var(--bg-surface); font: 400 15px/22px var(--font-sans); color: var(--ink); display: flex; align-items: center;
+}
+.pfm .input.focus { outline: 2px solid var(--lake); outline-offset: 1px; border-color: var(--lake); }
+.pfm .input.err { border-color: var(--alert); }
+
+/* Barras de progresso / dados */
+.pfm .track { height: 4px; background: var(--line); border-radius: 2px; position: relative; }
+.pfm .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; background: var(--forest); }
+.pfm .fill.warn { background: var(--warning); }
+.pfm .fill.over { background: var(--alert); }
+.pfm .pace { position: absolute; top: -4px; width: 1px; height: 12px; background: var(--ink); }

@@ -1,0 +1,5 @@
+
+> personal-finance-manager@0.1.0 tokens:check
+> tsx scripts/design-tokens/build-tokens-css.ts --check
+
+tokens.css matches tokens.json

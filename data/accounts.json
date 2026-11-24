@@ -1,0 +1,28 @@
+{
+  "schema": "pfm.accounts",
+  "schemaVersion": "1.0.0",
+  "records": [
+    {
+      "id": "0193a1b0-0001-7000-8000-000000000001",
+      "rev": 1,
+      "createdAt": "2026-11-01T10:00:00-03:00",
+      "updatedAt": "2026-11-01T10:00:00-03:00",
+      "deletedAt": null,
+      "deviceId": "sample-data",
+      "name": "EJEMPLO-FICTICIO Cuenta A",
+      "openingBalanceMinor": 100000000,
+      "openingDate": "2026-11-01"
+    },
+    {
+      "id": "0193a1b0-0002-7000-8000-000000000002",
+      "rev": 1,
+      "createdAt": "2026-11-01T10:00:00-03:00",
+      "updatedAt": "2026-11-01T10:00:00-03:00",
+      "deletedAt": null,
+      "deviceId": "sample-data",
+      "name": "EJEMPLO-FICTICIO Cuenta B",
+      "openingBalanceMinor": 0,
+      "openingDate": "2026-11-01"
+    }
+  ]
+}

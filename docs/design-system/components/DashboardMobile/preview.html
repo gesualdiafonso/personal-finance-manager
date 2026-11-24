@@ -1,0 +1,116 @@
+<!-- @dsCard group="Páginas" height=1560 width=390 subtitle="Início no iPhone: mesma ordem de leitura, composição própria" -->
+<div class="pfm phone">
+  <style>
+    .phone { width: 390px; position: relative; padding: 0 0 96px; }
+    .top { padding: 54px 20px 0; display: flex; justify-content: space-between; align-items: flex-end; }
+    .top h1 { font-family: var(--font-serif); font-weight: 400; font-size: 34px; line-height: 1.05; margin: 4px 0 0; }
+    .per { display: flex; gap: 2px; color: var(--ink-2); font-size: 14px; }
+    .per span { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; }
+    .hero { padding: 32px 20px 0; }
+    .hero .amt { font-family: var(--font-serif); font-size: 52px; line-height: 1; letter-spacing: -0.02em; margin: 10px 0 14px; }
+    .hero .amt .cents { font-size: 0.42em; vertical-align: 0.95em; letter-spacing: 0; }
+    .split { display: flex; gap: 2px; height: 4px; }
+    .hero .meta { margin-top: 8px; }
+    .stmt { margin: 28px 20px 0; }
+    .stmt .row { display: flex; justify-content: space-between; align-items: baseline; padding: 11px 0; border-bottom: 1px solid var(--line); }
+    .stmt .k { color: var(--ink-2); }
+    .stmt .net { border-bottom: 0; border-top: 3px double var(--ink); margin-top: -1px; }
+    .stmt .net .k { color: var(--ink); font-weight: 600; }
+    .stmt .net .num { font-size: 22px; line-height: 28px; }
+    .band { margin-top: 28px; background: var(--bg-paper-2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 1fr 1fr; }
+    .band > div { padding: 16px 20px; }
+    .band > div + div { border-left: 1px solid var(--line); }
+    .band .v { font-size: 20px; line-height: 26px; margin: 4px 0 2px; }
+    .sec { padding: 32px 20px 0; }
+    .sec-h { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 10px; border-bottom: 1px solid var(--ink); }
+    .sec-h a { color: var(--lake); font-size: 13px; font-weight: 500; }
+    .it { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; min-height: 60px; border-bottom: 1px solid var(--line); }
+    .it .d { font-size: 20px; line-height: 22px; font-weight: 500; font-variant-numeric: tabular-nums; }
+    .it .d small { display: block; font-size: 11px; line-height: 14px; letter-spacing: 0.08em; color: var(--ink-2); font-weight: 600; }
+    .it .r { display: grid; justify-items: end; gap: 3px; }
+    .it.late .d, .it.late .num { color: var(--alert-text); }
+    .tabs { display: flex; gap: 20px; border-bottom: 1px solid var(--line); margin-top: 4px; }
+    .tabs span { padding: 10px 0; font-size: 14px; font-weight: 500; color: var(--ink-2); }
+    .tabs .on { color: var(--ink); box-shadow: inset 0 -2px 0 var(--ink); }
+    .br { padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .br .l { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 15px; }
+    .br .of { color: var(--ink-2); font-weight: 400; }
+    .tabbar { position: absolute; left: 0; right: 0; bottom: 0; height: 84px; background: var(--bg-paper); box-shadow: var(--shadow-tabbar); display: grid; grid-template-columns: repeat(5, 1fr); padding: 6px 8px 22px; }
+    .tb { display: grid; justify-items: center; align-content: center; gap: 3px; font-size: 12px; font-weight: 500; color: var(--ink-2); }
+    .tb svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .tb.on { color: var(--forest); font-weight: 600; }
+    .plus { width: 52px; height: 52px; border-radius: 50%; background: var(--forest); color: var(--on-primary); display: grid; place-items: center; margin: -2px auto 0; }
+    .plus svg { width: 24px; height: 24px; stroke: var(--on-primary); stroke-width: 1.75; }
+  </style>
+
+  <div class="top">
+    <div><div class="lbl">Segunda, 23 nov</div><h1>Novembro</h1></div>
+    <div class="per"><span>‹</span><span>›</span></div>
+  </div>
+
+  <div class="hero">
+    <div class="lbl">Saldo disponível</div>
+    <div class="amt">$ 4.812.340<span class="cents">,56</span></div>
+    <div class="split">
+      <span style="flex:2940120;background:var(--forest)"></span>
+      <span style="flex:1420000;background:var(--sage)"></span>
+      <span style="flex:386220;background:var(--lake)"></span>
+      <span style="flex:66000;background:var(--chart-muted)"></span>
+    </div>
+    <div class="meta">4 contas · toca para ver detalhe</div>
+  </div>
+
+  <div class="stmt">
+    <div class="row"><span class="k">Receitas</span><span class="num">+$ 3.450.000</span></div>
+    <div class="row"><span class="k">Despesas</span><span class="num">−$ 2.187.420</span></div>
+    <div class="row net"><span class="k">Líquido</span><span class="num">$ 1.262.580</span></div>
+  </div>
+
+  <div class="band">
+    <div><div class="lbl">Por pagar</div><div class="v num">$ 684.200</div><div class="meta">5 contas · 1 vencida</div></div>
+    <div><div class="lbl">Cartões</div><div class="v num">$ 1.126.900</div><div class="meta">Visa fecha 28 nov</div></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h"><span class="h">A vencer</span><a>Ver todas</a></div>
+    <div class="it late"><div class="d">20<small>NOV</small></div><div>Gás<div class="meta">Venceu há 3 dias</div></div><div class="r"><span class="num">$ 21.400</span><span class="badge badge-late">Vencida</span></div></div>
+    <div class="it"><div class="d">25<small>NOV</small></div><div>Expensas<div class="meta">Quarta</div></div><div class="r"><span class="num">$ 210.000</span><span class="badge badge-soon">2 dias</span></div></div>
+    <div class="it"><div class="d">27<small>NOV</small></div><div>Electricidade<div class="meta">Sexta · Débito automático</div></div><div class="r"><span class="num">$ 48.700</span></div></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h"><span class="h">Despesas</span><span class="meta">Média $ 2,13 M</span></div>
+    <div class="tabs"><span class="on">Seis meses</span><span>Por categoria</span></div>
+    <svg viewBox="0 0 350 190" width="350" style="display:block;margin-top:16px" aria-label="Despesas mensais">
+      <line x1="0" x2="350" y1="150" y2="150" style="stroke:var(--ink)"/>
+      <line x1="0" x2="350" y1="39" y2="39" style="stroke:var(--ink-2)" stroke-dasharray="2 4"/>
+      <g style="fill:var(--chart-muted)">
+        <rect x="8" y="54" width="44" height="96" rx="2"/>
+        <rect x="66" y="43" width="44" height="107" rx="2"/>
+        <rect x="124" y="50" width="44" height="100" rx="2"/>
+        <rect x="182" y="30" width="44" height="120" rx="2"/>
+        <rect x="240" y="22" width="44" height="128" rx="2"/>
+      </g>
+      <rect x="298" y="36" width="44" height="114" rx="2" style="fill:var(--forest)"/>
+      <g font-family="Instrument Sans" font-size="12" style="fill:var(--ink-2)" text-anchor="middle">
+        <text x="30" y="170">Jun</text><text x="88" y="170">Jul</text><text x="146" y="170">Ago</text><text x="204" y="170">Set</text><text x="262" y="170">Out</text><text x="320" y="170" style="fill:var(--ink)" font-weight="600">Nov</text>
+        <text x="320" y="186" font-weight="600" style="fill:var(--ink);font-variant-numeric:tabular-nums">2,19 M</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h"><span class="h">Orçamento em risco</span><a>Orçamento</a></div>
+    <div class="br"><div class="l"><span>Restaurantes</span><span class="num"><span class="neg-alert">$ 231.600</span> <span class="of">/ 200.000</span></span></div><div class="track"><div class="fill over" style="width:100%"></div><div class="pace" style="left:77%"></div></div></div>
+    <div class="br"><div class="l"><span>Casa</span><span class="num">$ 612.000 <span class="of">/ 650.000</span></span></div><div class="track"><div class="fill warn" style="width:94%"></div><div class="pace" style="left:77%"></div></div></div>
+    <div class="br"><div class="l"><span>Transporte</span><span class="num">$ 274.100 <span class="of">/ 300.000</span></span></div><div class="track"><div class="fill warn" style="width:91%"></div><div class="pace" style="left:77%"></div></div></div>
+  </div>
+
+  <nav class="tabbar">
+    <div class="tb on"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20H4z"/></svg>Início</div>
+    <div class="tb"><svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h9"/></svg>Transações</div>
+    <div class="tb"><div class="plus"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div></div>
+    <div class="tb"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Obrigações</div>
+    <div class="tb"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/></svg>Mais</div>
+  </nav>
+</div>

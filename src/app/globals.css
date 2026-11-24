@@ -1,0 +1,64 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+
+/* Dark theme follows the data-theme attribute, never prefers-color-scheme directly:
+   the ThemeProvider resolves "system" and writes the attribute (docs/design-system/modo-escuro.md). */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@layer base {
+  html {
+    background: var(--bg-paper);
+    color: var(--ink);
+    font-family: var(--pfm-font-sans);
+    font-size: 15px;
+    line-height: 22px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    min-height: 100dvh;
+  }
+
+  *,
+  ::before,
+  ::after {
+    border-color: var(--line);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--lake-tint);
+    color: var(--ink);
+  }
+}
+
+/* Every monetary or comparable number goes through <Money> or these classes (rule O-05). */
+@utility num {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  white-space: nowrap;
+}
+
+@utility safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* The PFM wordmark (no logo yet: docs/design-system/README.md §6). 24/28 Instrument Serif,
+   as in the approved DashboardDesktop preview. */
+@utility brand-wordmark {
+  font-family: var(--pfm-font-serif);
+  font-size: 24px;
+  line-height: 28px;
+  font-weight: 400;
+}
+
+/* Tablet landscape: rail instead of tab bar (docs/design-system/responsivo.md). */
+@theme {
+  --breakpoint-landscape: 1024px;
+}

@@ -1,0 +1,17 @@
+
+> personal-finance-manager@0.1.0 test
+> vitest run
+
+
+ RUN  v5.1.0 .
+
+
+ Test Files  9 passed (9)
+      Tests  87 passed (87)
+   Start at  06:59:27
+   Duration  6.58s (environment 51%, tests 24%, setup 15%, import 5%, transform 4%, worker 1%)
+
+Environment  jsdom was created 9 times · 2.97s total, 51% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+

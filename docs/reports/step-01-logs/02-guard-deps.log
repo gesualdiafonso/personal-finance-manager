@@ -1,0 +1,5 @@
+
+> personal-finance-manager@0.1.0 guard:deps
+> node scripts/guards/check-forbidden-deps.mjs
+
+✓ No database or ORM dependency (32 declared, 620 installed packages checked)

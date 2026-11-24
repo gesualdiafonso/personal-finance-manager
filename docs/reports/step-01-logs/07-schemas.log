@@ -1,0 +1,5 @@
+
+> personal-finance-manager@0.1.0 schemas:check
+> tsx scripts/data/generate-json-schemas.ts --check
+
+schemas/ matches the Zod schemas (8 files)

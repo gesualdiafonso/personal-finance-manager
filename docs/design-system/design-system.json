@@ -1,0 +1,33 @@
+{
+  "v": 3,
+  "layout": "files",
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-11-24T01:50:00Z"
+  },
+  "title": "PFM",
+  "namespace": "PFM",
+  "libraries": [],
+  "sections": {},
+  "groups": [
+    "Fontes"
+  ],
+  "assetGroups": {
+    "Fontes": {
+      "name": "Fontes",
+      "tile": "s",
+      "order": [],
+      "files": {}
+    }
+  },
+  "blobs": {},
+  "docs": {
+    "sections": []
+  },
+  "lastChange": {
+    "by": "Claude",
+    "at": "2026-11-24T09:40:00Z",
+    "via": "Claude (chat)",
+    "note": "Step 00 auditoria final: D1–D6 aplicadas, fontes locais, tabela 5/4/lista, mínimos de texto. Não publicado (D7)."
+  }
+}

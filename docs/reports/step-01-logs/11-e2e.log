@@ -1,0 +1,48 @@
+
+> personal-finance-manager@0.1.0 test:e2e
+> playwright test
+
+
+Running 38 tests using 1 worker
+
+  ✓   1 [desktop] › tests/e2e/foundation.spec.ts:20:3 › application foundation › starts and renders the Dashboard empty state in Spanish (957ms)
+  ✓   2 [desktop] › tests/e2e/foundation.spec.ts:28:3 › application foundation › shows today in Buenos Aires even when the device is in Tokyo (650ms)
+  ✓   3 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area / has its own route and title (379ms)
+  ✓   4 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /transacciones has its own route and title (377ms)
+  ✓   5 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /cuentas-domesticas has its own route and title (433ms)
+  ✓   6 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /tarjetas has its own route and title (410ms)
+  ✓   7 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /recurrencias has its own route and title (460ms)
+  ✓   8 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /cuentas has its own route and title (447ms)
+  ✓   9 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /presupuesto has its own route and title (408ms)
+  ✓  10 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /informes has its own route and title (408ms)
+  ✓  11 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /configuracion has its own route and title (544ms)
+  ✓  12 [desktop] › tests/e2e/foundation.spec.ts:45:3 › navigation › desktop: sidebar lists the nine areas, text only (742ms)
+  -  13 [desktop] › tests/e2e/foundation.spec.ts:56:3 › navigation › iPhone: tab bar, Obligaciones reopens the last area, Más lists all nine
+  ✓  14 [desktop] › tests/e2e/platform.spec.ts:4:3 › theme preference › persists across reloads and is applied before hydration (1.0s)
+  ✓  15 [desktop] › tests/e2e/platform.spec.ts:21:3 › local fonts › load from the app itself, with no request to Google Fonts or any other host (498ms)
+  ✓  16 [desktop] › tests/e2e/platform.spec.ts:41:3 › IndexedDB › initialises the local store at version 1 and reports integrity (771ms)
+  ✓  17 [desktop] › tests/e2e/platform.spec.ts:51:3 › PWA groundwork › serves a valid web app manifest (65ms)
+  ✓  18 [desktop] › tests/e2e/platform.spec.ts:61:3 › PWA groundwork › service worker installs, precaches the shell and fonts, and serves it offline (999ms)
+  ✓  19 [desktop] › tests/e2e/platform.spec.ts:88:3 › PWA groundwork › cache names are versioned and /sw.js is never cached by the browser (15ms)
+  ✓  20 [iphone] › tests/e2e/foundation.spec.ts:20:3 › application foundation › starts and renders the Dashboard empty state in Spanish (451ms)
+  ✓  21 [iphone] › tests/e2e/foundation.spec.ts:28:3 › application foundation › shows today in Buenos Aires even when the device is in Tokyo (409ms)
+  ✓  22 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area / has its own route and title (301ms)
+  ✓  23 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /transacciones has its own route and title (399ms)
+  ✓  24 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /cuentas-domesticas has its own route and title (423ms)
+  ✓  25 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /tarjetas has its own route and title (433ms)
+  ✓  26 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /recurrencias has its own route and title (388ms)
+  ✓  27 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /cuentas has its own route and title (359ms)
+  ✓  28 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /presupuesto has its own route and title (315ms)
+  ✓  29 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /informes has its own route and title (354ms)
+  ✓  30 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /configuracion has its own route and title (352ms)
+  -  31 [iphone] › tests/e2e/foundation.spec.ts:45:3 › navigation › desktop: sidebar lists the nine areas, text only
+  ✓  32 [iphone] › tests/e2e/foundation.spec.ts:56:3 › navigation › iPhone: tab bar, Obligaciones reopens the last area, Más lists all nine (1.0s)
+  ✓  33 [iphone] › tests/e2e/platform.spec.ts:4:3 › theme preference › persists across reloads and is applied before hydration (702ms)
+  ✓  34 [iphone] › tests/e2e/platform.spec.ts:21:3 › local fonts › load from the app itself, with no request to Google Fonts or any other host (433ms)
+  ✓  35 [iphone] › tests/e2e/platform.spec.ts:41:3 › IndexedDB › initialises the local store at version 1 and reports integrity (507ms)
+  ✓  36 [iphone] › tests/e2e/platform.spec.ts:51:3 › PWA groundwork › serves a valid web app manifest (33ms)
+  ✓  37 [iphone] › tests/e2e/platform.spec.ts:61:3 › PWA groundwork › service worker installs, precaches the shell and fonts, and serves it offline (726ms)
+  ✓  38 [iphone] › tests/e2e/platform.spec.ts:88:3 › PWA groundwork › cache names are versioned and /sw.js is never cached by the browser (17ms)
+
+  2 skipped
+  36 passed (19.5s)

@@ -1,0 +1,36 @@
+<!-- @dsCard group="Fundamentos" height=420 width=960 subtitle="Valores monetários em ARS: escala, sinal, centavos, alinhamento" -->
+<div class="pfm money">
+  <style>
+    .money { padding: 32px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 56px; }
+    .scale > div { display: grid; grid-template-columns: 110px 1fr; align-items: baseline; padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .scale .hero { font-family: var(--font-serif); font-size: 64px; line-height: 1; letter-spacing: -0.02em; }
+    .scale .hero .cents { font-size: 0.42em; vertical-align: 0.95em; letter-spacing: 0; }
+    .xl { font-size: 32px; line-height: 36px; letter-spacing: -0.02em; }
+    .lg { font-size: 22px; line-height: 28px; letter-spacing: -0.01em; }
+    .sm { font-size: 13px; line-height: 18px; }
+    .col { border-top: 1px solid var(--ink); }
+    .col div { display: flex; justify-content: space-between; height: 44px; align-items: center; border-bottom: 1px solid var(--line); }
+    .col .tot { border-bottom: 0; border-top: 3px double var(--ink); margin-top: -1px; font-weight: 600; }
+    .rules { margin-top: 20px; font-size: 13px; line-height: 20px; color: var(--ink-2); }
+    .rules b { color: var(--ink); font-weight: 600; }
+  </style>
+  <div class="scale">
+    <div><span class="lbl">Herói</span><span class="hero">$ 4.812.340<span class="cents">,56</span></span></div>
+    <div><span class="lbl">amount-xl</span><span class="num xl">$ 1.262.580</span></div>
+    <div><span class="lbl">amount-lg</span><span class="num lg">$ 684.200</span></div>
+    <div><span class="lbl">amount</span><span class="num">−$ 48.300<span class="cents">,00</span></span></div>
+    <div><span class="lbl">amount-sm</span><span class="num sm">$ 312.000</span></div>
+  </div>
+  <div>
+    <div class="lbl" style="margin-bottom:10px">Alinhamento em coluna (tabular-nums)</div>
+    <div class="col">
+      <div><span>Salário</span><span class="num">+$ 3.450.000<span class="cents">,00</span></span></div>
+      <div><span>Expensas</span><span class="num">−$ 210.000<span class="cents">,00</span></span></div>
+      <div><span>Supermercado</span><span class="num">−$ 42.310<span class="cents">,00</span></span></div>
+      <div><span>SUBE</span><span class="num">−$ 6.400<span class="cents">,00</span></span></div>
+      <div><span>Gás <span class="badge badge-late" style="margin-left:6px">Vencida</span></span><span class="num neg-alert">−$ 21.400<span class="cents">,00</span></span></div>
+      <div class="tot"><span>Saldo</span><span class="num">$ 3.169.890<span class="cents">,00</span></span></div>
+    </div>
+    <div class="rules"><b>Sinal explícito</b> com − (U+2212). <b>Receitas</b> em ink, não a verde. <b>Vermelho</b> só para o que exige ação. Centavos em ink-2.</div>
+  </div>
+</div>

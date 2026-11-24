@@ -1,0 +1,227 @@
+<!-- @dsCard group="Páginas" height=1060 width=1440 subtitle="Composição editorial do Dashboard, desktop ≥1200px" -->
+<div class="pfm app">
+  <style>
+    .app { display: grid; grid-template-columns: 232px 1fr; min-height: 1060px; }
+    .side { background: var(--bg-paper-2); border-right: 1px solid var(--line); padding: 24px 16px; display: flex; flex-direction: column; gap: 4px; }
+    .brand { font-family: var(--font-serif); font-size: 24px; line-height: 28px; padding: 0 8px 20px; }
+    .side .btn-primary { width: 100%; justify-content: space-between; margin-bottom: 20px; }
+    .nav { display: flex; justify-content: space-between; align-items: center; height: 36px; padding: 0 10px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; color: var(--ink-2); }
+    .nav.on { background: var(--forest-tint); color: var(--forest); font-weight: 600; }
+    .nav .ct { font-size: 12px; font-variant-numeric: tabular-nums; }
+    .nav .ct.late { color: var(--alert-text); font-weight: 600; }
+    .side .lbl { padding: 20px 10px 6px; }
+    .side .foot { margin-top: auto; border-top: 1px solid var(--line); padding-top: 12px; }
+    .dstate { font-size: 12px; color: var(--ink-2); padding: 8px 10px 0; display: flex; gap: 6px; align-items: center; }
+    .dstate::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--forest); }
+    .dstate.quiet { padding-top: 2px; padding-left: 22px; }
+    .dstate.quiet::before { display: none; }
+
+    .main { padding: 40px 48px 64px; max-width: 1240px; }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); column-gap: 24px; }
+    .head { align-items: end; margin-bottom: 48px; }
+    .head .t { grid-column: 1 / 8; }
+    .head h1 { font-family: var(--font-serif); font-weight: 400; font-size: 44px; line-height: 1; letter-spacing: -0.01em; margin: 8px 0 0; }
+    .head .act { grid-column: 8 / 13; display: flex; justify-content: flex-end; gap: 8px; align-items: center; }
+    .period { display: flex; align-items: center; gap: 2px; font-size: 14px; font-weight: 500; margin-right: 8px; }
+    .period .arr { width: 32px; height: 32px; display: grid; place-items: center; color: var(--ink-2); border-radius: var(--radius-sm); }
+
+    .hero { grid-column: 1 / 8; }
+    .hero .amt { font-family: var(--font-serif); font-size: 76px; line-height: 0.95; letter-spacing: -0.02em; margin: 14px 0 22px; font-variant-numeric: lining-nums; }
+    .hero .amt .cents { font-size: 0.42em; letter-spacing: 0; vertical-align: 0.95em; margin-left: 2px; }
+    .split { display: flex; height: 6px; gap: 2px; max-width: 520px; }
+    .split span { display: block; height: 100%; }
+    .legend { display: flex; gap: 24px; margin-top: 12px; max-width: 560px; flex-wrap: wrap; }
+    .legend div { font-size: 13px; line-height: 18px; color: var(--ink-2); }
+    .legend b { display: block; color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+    .sw { display: inline-block; width: 8px; height: 8px; margin-right: 6px; vertical-align: 0; }
+
+    .month { grid-column: 9 / 13; padding-top: 2px; }
+    .stmt { margin-top: 14px; }
+    .stmt .row { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+    .stmt .row .k { color: var(--ink-2); }
+    .stmt .net { border-bottom: 0; border-top: 3px double var(--ink); margin-top: -1px; padding-top: 14px; }
+    .stmt .net .k { color: var(--ink); font-weight: 600; }
+    .stmt .net .num { font-size: 32px; line-height: 36px; letter-spacing: -0.02em; }
+    .delta { font-size: 13px; color: var(--ink-2); margin-top: 6px; text-align: right; }
+
+    .band { background: var(--bg-paper-2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: 56px -48px 48px; padding: 22px 48px; display: grid; grid-template-columns: repeat(12, 1fr); column-gap: 24px; align-items: center; }
+    .ind { grid-column: span 3; }
+    .ind + .ind { border-left: 1px solid var(--line); padding-left: 24px; }
+    .ind .v { font-size: 22px; line-height: 28px; letter-spacing: -0.01em; margin: 6px 0 2px; }
+    .quick { grid-column: 8 / 13; display: flex; justify-content: flex-end; gap: 4px; }
+
+    .due { grid-column: 1 / 6; }
+    .evo { grid-column: 7 / 13; }
+    .sec-h { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 12px; border-bottom: 1px solid var(--ink); }
+    .sec-h a { font-size: 13px; color: var(--lake); text-decoration: none; font-weight: 500; }
+    .dl .it { display: grid; grid-template-columns: 52px 1fr auto; align-items: center; gap: 12px; height: 56px; border-bottom: 1px solid var(--line); }
+    .dl .d { font-size: 22px; line-height: 24px; font-weight: 500; font-variant-numeric: tabular-nums; }
+    .dl .d small { display: block; font-size: 11px; line-height: 14px; letter-spacing: 0.08em; color: var(--ink-2); font-weight: 600; }
+    .dl .n { font-size: 15px; line-height: 20px; }
+    .dl .n .meta { display: block; }
+    .dl .r { text-align: right; display: grid; justify-items: end; gap: 3px; }
+    .dl .late .d, .dl .late .num { color: var(--alert-text); }
+
+    .lower { margin-top: 56px; }
+    .cat { grid-column: 1 / 6; }
+    .bud { grid-column: 7 / 13; }
+    .cr { display: grid; grid-template-columns: 120px 1fr 92px 40px; gap: 12px; align-items: center; height: 40px; font-size: 14px; }
+    .cr .bar { height: 8px; background: var(--sage); border-radius: 0 2px 2px 0; }
+    .cr .num, .cr .p { text-align: right; font-size: 13px; }
+    .cr .p { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+    .br { display: grid; grid-template-columns: 120px 1fr 190px; gap: 16px; align-items: center; height: 48px; border-bottom: 1px solid var(--line); font-size: 14px; }
+    .br .num { text-align: right; font-size: 13px; }
+    .br .num .of { color: var(--ink-2); font-weight: 400; }
+    .br .over { color: var(--alert-text); }
+    .pace-note { font-size: 12px; color: var(--ink-2); margin-top: 12px; display: flex; gap: 8px; align-items: center; }
+    .pace-note i { width: 1px; height: 12px; background: var(--ink); display: inline-block; }
+  </style>
+
+  <aside class="side">
+    <div class="brand">PFM</div>
+    <button class="btn btn-primary">Nova transação <span class="kbd">N</span></button>
+    <div class="nav on">Dashboard</div>
+    <div class="nav">Transações</div>
+    <div class="lbl">Obrigações</div>
+    <div class="nav">Contas domésticas <span class="ct late">1</span></div>
+    <div class="nav">Cartões</div>
+    <div class="nav">Recorrências</div>
+    <div class="lbl">Património</div>
+    <div class="nav">Contas</div>
+    <div class="lbl">Plano</div>
+    <div class="nav">Orçamento</div>
+    <div class="nav">Relatórios</div>
+    <div class="foot">
+      <div class="nav">Configurações</div>
+      <div class="dstate">Dados de 23 nov, 09:10</div>
+      <div class="dstate quiet">Nada por exportar</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="grid head">
+      <div class="t">
+        <div class="lbl">Segunda, 23 de novembro</div>
+        <h1>Novembro</h1>
+      </div>
+      <div class="act">
+        <div class="period"><span class="arr">‹</span>Nov 2026<span class="arr">›</span></div>
+      </div>
+    </header>
+
+    <section class="grid">
+      <div class="hero">
+        <div class="lbl">Saldo disponível</div>
+        <div class="amt">$ 4.812.340<span class="cents">,56</span></div>
+        <div class="split">
+          <span style="flex:2940120;background:var(--forest)"></span>
+          <span style="flex:1420000;background:var(--sage)"></span>
+          <span style="flex:386220;background:var(--lake)"></span>
+          <span style="flex:66000;background:var(--chart-muted)"></span>
+        </div>
+        <div class="legend">
+          <div><span class="sw" style="background:var(--forest)"></span>Conta corrente<b>$ 2.940.120</b></div>
+          <div><span class="sw" style="background:var(--sage)"></span>Poupança<b>$ 1.420.000</b></div>
+          <div><span class="sw" style="background:var(--lake)"></span>Carteira digital<b>$ 386.220</b></div>
+          <div><span class="sw" style="background:var(--chart-muted)"></span>Dinheiro<b>$ 66.000</b></div>
+        </div>
+      </div>
+
+      <div class="month">
+        <div class="lbl">Novembro até hoje</div>
+        <div class="stmt">
+          <div class="row"><span class="k">Receitas</span><span class="num">+$ 3.450.000</span></div>
+          <div class="row"><span class="k">Despesas</span><span class="num">−$ 2.187.420</span></div>
+          <div class="row net"><span class="k">Líquido</span><span class="num">$ 1.262.580</span></div>
+        </div>
+        <div class="delta">+8% face a outubro no mesmo dia</div>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="ind">
+        <div class="lbl">Por pagar este mês</div>
+        <div class="v num">$ 684.200</div>
+        <div class="meta">5 contas até 30 nov · 1 vencida</div>
+      </div>
+      <div class="ind">
+        <div class="lbl">Comprometido em cartões</div>
+        <div class="v num">$ 1.126.900</div>
+        <div class="meta">Visa fecha a 28 nov</div>
+      </div>
+      <div class="quick">
+        <button class="btn btn-ghost">Pagar conta</button>
+        <button class="btn btn-ghost">Ver fatura Visa</button>
+        <button class="btn btn-secondary">Registar despesa <span class="kbd">N</span></button>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="due">
+        <div class="sec-h"><span class="h">A vencer</span><a>Contas domésticas →</a></div>
+        <div class="dl">
+          <div class="it late"><div class="d">20<small>NOV</small></div><div class="n">Gás<span class="meta">Venceu há 3 dias</span></div><div class="r"><span class="num">$ 21.400</span><span class="badge badge-late">Vencida</span></div></div>
+          <div class="it"><div class="d">25<small>NOV</small></div><div class="n">Expensas<span class="meta">Quarta · Conta corrente</span></div><div class="r"><span class="num">$ 210.000</span><span class="badge badge-soon">2 dias</span></div></div>
+          <div class="it"><div class="d">27<small>NOV</small></div><div class="n">Electricidade<span class="meta">Sexta · Débito automático</span></div><div class="r"><span class="num">$ 48.700</span></div></div>
+          <div class="it"><div class="d">28<small>NOV</small></div><div class="n">Internet<span class="meta">Sábado · Visa ··4417</span></div><div class="r"><span class="num">$ 32.500</span></div></div>
+          <div class="it"><div class="d">30<small>NOV</small></div><div class="n">Seguro do carro<span class="meta">Segunda · Conta corrente</span></div><div class="r"><span class="num">$ 371.600</span></div></div>
+        </div>
+      </div>
+
+      <div class="evo">
+        <div class="sec-h"><span class="h">Despesas, últimos seis meses</span><span class="meta">Média $ 2,13 M</span></div>
+        <svg viewBox="0 0 560 300" width="100%" style="display:block;margin-top:16px" aria-label="Despesas mensais de junho a novembro">
+          <g font-family="Instrument Sans" font-size="13" style="fill:var(--ink-2);font-variant-numeric:tabular-nums">
+            <text x="0" y="24">2,5 M</text><text x="0" y="128">1,25 M</text><text x="0" y="232">0</text>
+          </g>
+          <g style="stroke:var(--line)"><line x1="44" x2="560" y1="20" y2="20"/><line x1="44" x2="560" y1="124" y2="124"/></g>
+          <line x1="44" x2="560" y1="228" y2="228" style="stroke:var(--ink)"/>
+          <!-- escala: 2.5M = 208px -->
+          <g style="fill:var(--chart-muted)">
+            <rect x="64" y="75" width="56" height="153" rx="2"/>
+            <rect x="148" y="57" width="56" height="171" rx="2"/>
+            <rect x="232" y="68" width="56" height="160" rx="2"/>
+            <rect x="316" y="36" width="56" height="192" rx="2"/>
+            <rect x="400" y="23" width="56" height="205" rx="2"/>
+          </g>
+          <rect x="484" y="46" width="56" height="182" rx="2" style="fill:var(--forest)"/>
+          <line x1="44" x2="560" y1="51" y2="51" style="stroke:var(--ink-2)" stroke-dasharray="2 4"/>
+          <g font-family="Instrument Sans" font-size="13" style="fill:var(--ink-2)" text-anchor="middle">
+            <text x="92" y="250">Jun</text><text x="176" y="250">Jul</text><text x="260" y="250">Ago</text><text x="344" y="250">Set</text><text x="428" y="250">Out</text>
+            <text x="512" y="250" style="fill:var(--ink)" font-weight="600">Nov</text>
+          </g>
+          <g font-family="Instrument Sans" font-size="13" text-anchor="middle" style="font-variant-numeric:tabular-nums;fill:var(--ink-2)">
+            <text x="92" y="270">1,84 M</text><text x="176" y="270">2,05 M</text><text x="260" y="270">1,92 M</text><text x="344" y="270">2,31 M</text><text x="428" y="270">2,46 M</text>
+            <text x="512" y="270" style="fill:var(--ink)" font-weight="600">2,19 M</text>
+          </g>
+          <text x="512" y="290" font-family="Instrument Sans" font-size="13" style="fill:var(--ink-2)" text-anchor="middle">até dia 23</text>
+        </svg>
+      </div>
+    </section>
+
+    <section class="grid lower">
+      <div class="cat">
+        <div class="sec-h"><span class="h">Por categoria</span><span class="meta">Novembro</span></div>
+        <div style="margin-top:8px">
+          <div class="cr"><span>Casa</span><div><div class="bar" style="width:100%"></div></div><span class="num">$ 612.000</span><span class="p">28%</span></div>
+          <div class="cr"><span>Supermercado</span><div><div class="bar" style="width:81%"></div></div><span class="num">$ 498.300</span><span class="p">23%</span></div>
+          <div class="cr"><span>Transporte</span><div><div class="bar" style="width:45%"></div></div><span class="num">$ 274.100</span><span class="p">13%</span></div>
+          <div class="cr"><span>Restaurantes</span><div><div class="bar" style="width:38%"></div></div><span class="num">$ 231.600</span><span class="p">11%</span></div>
+          <div class="cr"><span>Saúde</span><div><div class="bar" style="width:30%"></div></div><span class="num">$ 186.400</span><span class="p">9%</span></div>
+          <div class="cr"><span>Lazer</span><div><div class="bar" style="width:23%"></div></div><span class="num">$ 142.020</span><span class="p">6%</span></div>
+          <div class="cr" style="color:var(--ink-2)"><span>Outras (4)</span><div><div class="bar" style="width:40%;background:var(--chart-muted)"></div></div><span class="num">$ 243.000</span><span class="p">11%</span></div>
+        </div>
+      </div>
+
+      <div class="bud">
+        <div class="sec-h"><span class="h">Orçamento vs. real</span><a>Orçamento →</a></div>
+        <div class="br"><span>Restaurantes</span><div class="track"><div class="fill over" style="width:100%"></div><div class="pace" style="left:77%"></div></div><span class="num"><span class="over">$ 231.600</span> <span class="of">/ 200.000</span></span></div>
+        <div class="br"><span>Casa</span><div class="track"><div class="fill warn" style="width:94%"></div><div class="pace" style="left:77%"></div></div><span class="num">$ 612.000 <span class="of">/ 650.000</span></span></div>
+        <div class="br"><span>Transporte</span><div class="track"><div class="fill warn" style="width:91%"></div><div class="pace" style="left:77%"></div></div><span class="num">$ 274.100 <span class="of">/ 300.000</span></span></div>
+        <div class="br"><span>Supermercado</span><div class="track"><div class="fill" style="width:83%"></div><div class="pace" style="left:77%"></div></div><span class="num">$ 498.300 <span class="of">/ 600.000</span></span></div>
+        <div class="br"><span>Lazer</span><div class="track"><div class="fill" style="width:57%"></div><div class="pace" style="left:77%"></div></div><span class="num">$ 142.020 <span class="of">/ 250.000</span></span></div>
+        <div class="pace-note"><i></i>Ritmo do mês: dia 23 de 30 (77%)</div>
+      </div>
+    </section>
+  </main>
+</div>

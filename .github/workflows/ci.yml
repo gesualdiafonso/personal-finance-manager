@@ -1,0 +1,81 @@
+# PFM — continuous integration (Step 01, Task 08).
+# Every step is mandatory: any failure fails the workflow.
+# This workflow publishes NOTHING. Encrypted data publication is not implemented yet
+# (open decisions OD-1 and OD-7, docs/decisions/open-decisions.md).
+# TODO(SEC-06, proposed): pin third-party actions to commit SHAs once the repository exists.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+  CI: "true"
+
+jobs:
+  verify:
+    name: Lint, types, tests, data, build, E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: 1. Install dependencies
+        run: npm ci
+
+      - name: Guard — no database or ORM dependency (ADR-001)
+        run: npm run guard:deps
+
+      - name: 2. Lint
+        run: npm run lint
+
+      - name: 3. TypeScript validation (strict)
+        run: npm run typecheck
+
+      - name: Design tokens match the approved Design System
+        run: npm run tokens:check
+
+      - name: 4. Unit and integration tests
+        run: npm test
+
+      - name: 5. JSON schema validation
+        run: |
+          npm run schemas:check
+          npm run data:validate
+
+      - name: 6. Build
+        run: npm run build
+
+      - name: Guard — no plaintext data in public artifacts (SEC-01)
+        run: npm run guard:artifacts
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: 7. E2E tests (production build)
+        run: npm run test:e2e
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

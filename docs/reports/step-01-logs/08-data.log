@@ -1,0 +1,12 @@
+
+> personal-finance-manager@0.1.0 data:validate
+> tsx scripts/data/validate-data.ts
+
+✓ data/ valid — schemaVersion 1.0.0, dataRevision 1
+  accounts.json: 2 record(s)
+  bills.json: 1 record(s)
+  budgets/2026.json: 1 record(s)
+  cards.json: 1 record(s)
+  categories.json: 3 record(s)
+  recurrences.json: 1 record(s)
+  transactions/2026/2026-11.json: 4 record(s)

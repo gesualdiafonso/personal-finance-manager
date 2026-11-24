@@ -1,0 +1,43 @@
+
+> personal-finance-manager@0.1.0 prebuild
+> tsx scripts/pwa/build-sw.ts
+
+public/sw.js written (cache version 0.1.0+20261124095934)
+
+> personal-finance-manager@0.1.0 build
+> next build
+
+▲ Next.js 16.4.6 (Turbopack)
+✓ Running next.config.ts took 44ms
+- Cache Components enabled
+- Partial Prefetching enabled
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 5.7s
+  Running TypeScript ...
+  Finished TypeScript in 4.3s ...
+  Collecting page data using 1 worker ...
+  Generating static pages using 1 worker (0/13) ...
+  Generating static pages using 1 worker (3/13) 
+  Generating static pages using 1 worker (6/13) 
+  Generating static pages using 1 worker (9/13) 
+✓ Generating static pages using 1 worker (13/13) in 409ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /configuracion
+├ ○ /cuentas
+├ ○ /cuentas-domesticas
+├ ○ /informes
+├ ○ /manifest.webmanifest
+├ ○ /offline
+├ ○ /presupuesto
+├ ○ /recurrencias
+├ ○ /tarjetas
+└ ○ /transacciones
+
+
+○  (Static)  prerendered as static content
+

@@ -1,0 +1,49 @@
+<!-- @dsCard group="Fluxos" height=844 width=390 subtitle="Registo rápido no iPhone: valor → categoria → Guardar" -->
+<div class="pfm qa">
+  <style>
+    .qa { width: 390px; height: 844px; position: relative; background: var(--bg-paper); overflow: hidden; }
+    .behind { position: absolute; inset: 0; padding: 54px 20px; }
+    .behind h1 { font-family: var(--font-serif); font-weight: 400; font-size: 34px; margin: 4px 0; }
+    .scrim { position: absolute; inset: 0; background: var(--scrim); }
+    .sheet { position: absolute; left: 0; right: 0; bottom: 0; top: 56px; background: var(--bg-surface); border-radius: var(--radius-lg) var(--radius-lg) 0 0; box-shadow: var(--shadow-overlay); padding: 8px 20px 28px; display: flex; flex-direction: column; }
+    .grab { width: 36px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto 12px; }
+    .bar { display: flex; justify-content: space-between; align-items: center; height: 40px; }
+    .bar .x { color: var(--ink-2); font-size: 15px; }
+    .seg { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--bg-paper-2); border-radius: var(--radius-sm); padding: 3px; margin: 8px 0 0; }
+    .seg span { height: 32px; display: grid; place-items: center; font-size: 14px; font-weight: 500; color: var(--ink-2); border-radius: 4px; }
+    .seg .on { background: var(--bg-surface); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
+    .amt { text-align: center; padding: 26px 0 18px; }
+    .amt .v { font-size: 52px; line-height: 56px; letter-spacing: -0.02em; font-weight: 500; font-variant-numeric: tabular-nums; }
+    .amt .v .sym { color: var(--ink-2); font-weight: 400; margin-right: 4px; }
+    .amt .v .caret { display: inline-block; width: 2px; height: 44px; background: var(--lake); vertical-align: -6px; margin-left: 2px; }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .meta-row { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-top: 18px; }
+    .meta-row div { padding: 10px 0; font-size: 15px; }
+    .meta-row div + div { border-left: 1px solid var(--line); padding-left: 16px; }
+    .pad { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: auto; }
+    .pad span { height: 54px; display: grid; place-items: center; font-size: 24px; font-weight: 400; font-variant-numeric: tabular-nums; }
+    .pad .k { color: var(--ink-2); font-size: 20px; }
+    .save { margin-top: 10px; width: 100%; height: 50px; justify-content: center; font-size: 16px; border-radius: 10px; }
+  </style>
+  <div class="behind"><div class="lbl">Segunda, 23 nov</div><h1>Novembro</h1></div>
+  <div class="scrim"></div>
+  <div class="sheet">
+    <div class="grab"></div>
+    <div class="bar"><span class="x">Cancelar</span><span class="h">Nova transação</span><span style="width:60px"></span></div>
+    <div class="seg"><span class="on">Despesa</span><span>Receita</span><span>Transferência</span></div>
+    <div class="amt">
+      <div class="v"><span class="sym">−$</span>18.450<span class="caret"></span></div>
+    </div>
+    <div class="chips">
+      <span class="chip on">Supermercado</span><span class="chip">Restaurantes</span><span class="chip">Transporte</span><span class="chip">Casa</span><span class="chip">Mais…</span>
+    </div>
+    <div class="meta-row">
+      <div><div class="lbl">Conta</div>Conta corrente</div>
+      <div><div class="lbl">Data</div>Hoje, 23 nov</div>
+    </div>
+    <div class="pad">
+      <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span class="k">,</span><span>0</span><span class="k">⌫</span>
+    </div>
+    <button class="btn btn-primary save">Guardar despesa</button>
+  </div>
+</div>

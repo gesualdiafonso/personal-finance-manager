@@ -1,0 +1,5 @@
+
+> personal-finance-manager@0.1.0 guard:artifacts
+> node scripts/guards/check-public-artifacts.mjs
+
+✓ No plaintext data in public artifacts (357 files scanned)

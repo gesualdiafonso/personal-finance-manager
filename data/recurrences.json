@@ -1,0 +1,22 @@
+{
+  "schema": "pfm.recurrences",
+  "schemaVersion": "1.0.0",
+  "records": [
+    {
+      "id": "0193a1b0-0008-7000-8000-000000000008",
+      "rev": 1,
+      "createdAt": "2026-11-01T10:00:00-03:00",
+      "updatedAt": "2026-11-01T10:00:00-03:00",
+      "deletedAt": null,
+      "deviceId": "sample-data",
+      "description": "EJEMPLO-FICTICIO Alquiler",
+      "kind": "expense",
+      "amountMinor": 30000000,
+      "frequency": "monthly",
+      "startDate": "2026-11-01",
+      "endDate": null,
+      "accountId": "0193a1b0-0001-7000-8000-000000000001",
+      "categoryId": "0193a1b0-0005-7000-8000-000000000005"
+    }
+  ]
+}
