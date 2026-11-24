@@ -11,7 +11,7 @@ Lê também o [README](README.md) e, antes de mexer em interface, o [Design Syst
 3. **Nunca publicar dados financeiros em texto simples.** `data/` não é servido; `npm run guard:artifacts` verifica o build.
 4. **Não inventar dados reais.** `data/` só tem exemplos fictícios marcados `EJEMPLO-FICTICIO`.
 5. **Dinheiro em inteiros (centavos)**, sempre com moeda (`Money` em `src/domain/money.ts`; ARS e USD, nunca somadas entre si). Formatar só com `formatMoney`/`formatCurrencyAmount`/`<Money>`.
-5b. **O IndexedDB não está cifrado** (OD-3). Não o afirmar, não guardar chaves nem frase-passe junto dos dados, não inventar algoritmos de cifragem. Qualquer cifragem nova precisa de desenho revisto e aprovado ([data-security.md](docs/architecture/data-security.md)).
+5b. **O IndexedDB não está cifrado** (OD-3 decidida: "recordar neste dispositivo", por implementar). Não o afirmar, não guardar chaves nem frase-passe junto dos dados, não inventar algoritmos de cifragem. Qualquer cifragem nova precisa de desenho revisto e aprovado ([data-security.md](docs/architecture/data-security.md)).
 5c. **Escritas só pelos repositórios** (`src/services/repositories/`): validam, verificam referências e moedas e gravam registo + `outbox` numa transação. Apagar = tombstone.
 6. **Datas financeiras são datas de calendário em Buenos Aires** (`src/lib/formatting/date.ts`), nunca a hora do dispositivo.
 7. **Design System:** só tokens (o tema do Tailwind está fechado: não há `bg-green-600`, `shadow-lg`, `text-sm`). Tipografia com as utilidades `type-*`. Sem gradientes, glassmorphism, sombras em conteúdo, cards por defeito, ícones decorativos ou emojis. Fontes só por `next/font/local`.

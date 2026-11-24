@@ -11,7 +11,7 @@ Aplicação web de finanças pessoais: responsiva, instalável como PWA, single-
 - **Dados publicados sempre cifrados** ([ADR-003](docs/decisions/ADR-003-cifragem.md)). Nada de texto simples num artefacto público; a CI verifica-o.
 - **O Design System aprovado manda** ([`docs/design-system/`](docs/design-system/README.md)). Os tokens são gerados de `tokens.json`; o tema do Tailwind está fechado aos valores do sistema; as fontes são locais ([ADR-004](docs/decisions/ADR-004-fontes-locais.md)).
 - **Dinheiro em inteiros** (centavos), sempre com moeda. Nunca vírgula flutuante como valor de referência.
-- **O armazenamento local não está cifrado** (OD-3, em aberto): só dados fictícios até essa decisão ([segurança dos dados](docs/architecture/data-security.md)).
+- **O armazenamento local não está cifrado** (OD-3 decidida — "recordar neste dispositivo" —, por implementar): só dados fictícios até estar implementado ([segurança dos dados](docs/architecture/data-security.md)).
 
 ## Começar
 

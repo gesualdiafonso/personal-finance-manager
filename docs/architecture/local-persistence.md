@@ -9,7 +9,7 @@ Dois mecanismos do navegador, com papéis que não se misturam (decisão D1):
 
 O IndexedDB é uma API de armazenamento do navegador neste dispositivo: não é um serviço de base de dados, não tem servidor e não sincroniza. A biblioteca `idb` é só um invólucro tipado de Promises.
 
-> **O IndexedDB não está cifrado.** Guardar localmente não é cifrar. A cifragem em repouso é a OD-3, ainda em aberto ([segurança dos dados](data-security.md)). Um teste (`tests/unit/data-security.test.ts`) confirma que os registos ficam legíveis, para que ninguém o presuma.
+> **O IndexedDB não está cifrado.** Guardar localmente não é cifrar. A cifragem em repouso (OD-3) está decidida — "recordar neste dispositivo" — mas ainda não implementada ([segurança dos dados](data-security.md)). Um teste (`tests/unit/data-security.test.ts`) confirma que os registos ficam legíveis, para que ninguém o presuma.
 
 ## IndexedDB versão 2 — [`src/services/storage/local-store.ts`](../../src/services/storage/local-store.ts)
 

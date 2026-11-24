@@ -41,7 +41,7 @@ A CI no GitHub só corre depois do push (não tenho acesso de escrita ao reposit
 | 9 | Deteção de duplicados funciona | **PASS** | `DUPLICATE_ID`; `POSSIBLE_DUPLICATE` nos repositórios; avisos em `data/`; ids repetidos no ficheiro importado; testes em `repositories.test.ts` e `data-validation.test.ts` |
 | 10 | Compatibilidade de versões funciona | **PASS** | `classifySchemaVersion` (atual / migrar / atualizar app), `dataRevision` só sobe; `compatibility.test.ts`, importação recusa versões antigas/novas |
 | 11 | Infraestrutura de migração testada | **PASS** | `data-migrations.ts` + `npm run data:migrate`; `migrations.test.ts` (10): nada descartado, montantes preservados, idempotente, sem downgrade, sem adivinhar direções |
-| 12 | Desenho de segurança documentado | **PASS** | [data-security.md](../architecture/data-security.md): estado real (IndexedDB e exportações **não** cifrados), desenho proposto para OD-3/OD-5, condições para produção. **Porta de aprovação:** nenhuma cifragem nova foi ativada; o desenho aguarda revisão e aprovação |
+| 12 | Desenho de segurança documentado | **PASS** | [data-security.md](../architecture/data-security.md): estado real (IndexedDB e exportações **não** cifrados), desenho para OD-3/OD-5, condições para produção. **Porta de aprovação:** desenho aprovado em 2026-11-24; nenhuma cifragem nova foi ativada |
 | 13 | Nenhuma dependência de base de dados | **PASS** | `guard:deps` alargado (Redis, Upstash, Vercel KV, RxDB, PouchDB, Octokit) + verificação de endpoints em `src/` ✓ |
 | 14 | Nenhum artefacto financeiro em texto simples publicado | **PASS** | `guard:artifacts` ✓ (366 ficheiros); `data/` não é servido; só dados fictícios |
 | 15 | A CI valida a nova camada de dados | **PASS** | `.github/workflows/ci.yml`: passos 4a–4j com nome (domínio, schemas, 4 camadas, migrações, repositórios, importação/exportação + changeset, segurança). Nenhum passo anterior removido. Execução no GitHub pendente do push |
@@ -67,7 +67,7 @@ tests/                         domain, migrations, data-security, repositories, 
 
 ## Limitações e pontos honestos
 
-- **Nada está cifrado no dispositivo nem nas exportações.** É intencional enquanto a OD-3 e a OD-5 estiverem abertas; está escrito na documentação e coberto por testes. Por isso, continuam a não dever entrar dados reais.
+- **Nada está cifrado no dispositivo nem nas exportações.** É intencional enquanto a OD-3 e a OD-5 (já decididas) não estiverem implementadas; está escrito na documentação e coberto por testes. Por isso, continuam a não dever entrar dados reais.
 - **A integração de changesets é manual** (D2-08). O script só verifica.
 - **Anular importações tem um nível.**
 - **Os E2E "iPhone" correm em Chromium**, não em Safari (limite já registado no Step 01).
@@ -76,6 +76,8 @@ tests/                         domain, migrations, data-security, repositories, 
 
 ## Decisões em aberto (inalteradas)
 
-ADR-005 (idioma) · OD-1 (frase-passe na CI) · OD-2 (repositório em claro ou cifrado) · OD-3 (cifragem do IndexedDB — desenho proposto) · OD-4 (onde se aplicam changesets) · OD-5 (exportações cifradas — desenho proposto) · OD-6 (fechada no Step 00: PBKDF2) · OD-7 (publicação no Vercel) · OD-8 (cartões e saldos) · Brief §11–14 por verificar.
+ADR-005 (idioma) · OD-1 (frase-passe na CI) · OD-2 (repositório em claro ou cifrado) · OD-3 (decidida em 2026-11-24: "recordar neste dispositivo", por implementar) · OD-4 (onde se aplicam changesets) · OD-5 (decidida em 2026-11-24: cifradas, desenho A, por implementar) · OD-6 (fechada no Step 00: PBKDF2) · OD-7 (publicação no Vercel) · OD-8 (cartões e saldos) · Brief §11–14 por verificar.
 
-**Para aprovação:** o desenho de segurança da fase 07 ([data-security.md](../architecture/data-security.md), secções A–C).
+**Fase 07:** o desenho de segurança ([data-security.md](../architecture/data-security.md), secções A–C) foi **aprovado em 2026-11-24**. Com isso, a OD-5 fica decidida (exportações cifradas, desenho A). A OD-3 também ficou decidida: opção 2, "recordar neste dispositivo". Nada disto está implementado.
+
+**CI no GitHub:** CI #4 (`3bfdf8f`) e CI #5 (`d9586f8`, workflow com os passos 4a–4j) passaram.
