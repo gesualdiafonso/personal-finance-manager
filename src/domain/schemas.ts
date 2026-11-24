@@ -17,7 +17,11 @@ import { currencyCodeSchema } from "./currency";
  *   they are computed by src/domain/rules (D2-10).
  */
 
-export const SCHEMA_VERSION = "2.0.0";
+/**
+ * 2.1.0 (Step 03, D3-01): adds cardType "prepaid". Additive only: every 2.0.x file is valid
+ * 2.1.0 data and is read as-is; new exports are written as 2.1.0.
+ */
+export const SCHEMA_VERSION = "2.1.0";
 
 /* ----------------------------------------------------------------------------- */
 /* Primitives                                                                    */
@@ -75,13 +79,15 @@ export const accountSchema = z.strictObject({
   status: z.enum(["active", "archived"]),
 });
 
+/** Debit and prepaid cards behave alike in the model: no limit, no statement days (D3-01). */
+export const CARD_TYPES = ["credit", "debit", "prepaid"] as const;
 export const cardSchema = z
   .strictObject({
     ...controlFields,
     /** Paying account. Nullable only for cards migrated from 1.x, which had no account link. */
     accountId: uuid.nullable(),
     name: requiredText(60),
-    cardType: z.enum(["credit", "debit"]),
+    cardType: z.enum(CARD_TYPES),
     lastFourDigits: z.string().regex(/^\d{4}$/, "Exactly 4 digits").nullable(),
     creditLimit: nonNegativeAmount.nullable(),
     closingDay: z.number().int().min(1).max(31).nullable(),
@@ -93,8 +99,8 @@ export const cardSchema = z
     if (c.cardType === "credit" && (c.closingDay === null || c.dueDay === null)) {
       ctx.addIssue({ code: "custom", path: ["closingDay"], message: "A credit card needs closingDay and dueDay" });
     }
-    if (c.cardType === "debit" && (c.creditLimit !== null || c.closingDay !== null || c.dueDay !== null)) {
-      ctx.addIssue({ code: "custom", path: ["cardType"], message: "A debit card has no credit limit, closing day or due day" });
+    if (c.cardType !== "credit" && (c.creditLimit !== null || c.closingDay !== null || c.dueDay !== null)) {
+      ctx.addIssue({ code: "custom", path: ["cardType"], message: "Only credit cards have a credit limit, closing day and due day" });
     }
   });
 

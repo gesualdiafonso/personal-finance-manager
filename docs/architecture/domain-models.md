@@ -1,8 +1,8 @@
-# Modelos de domínio (schemaVersion 2.0.0)
+# Modelos de domínio (schemaVersion 2.1.0)
 
 Fonte de verdade: os schemas Zod em [`src/domain/schemas.ts`](../../src/domain/schemas.ts). Os ficheiros `schemas/*.schema.json` são gerados a partir deles (`npm run schemas:build`) e a CI falha se divergirem. Esta página resume-os; em caso de dúvida, manda o código.
 
-Decisões aplicadas: D2-01 a D2-11 ([decisões do Step 02](../decisions/step-02-decisions.md)). Continuam em aberto: ADR-005 (idioma) e OD-1 a OD-8.
+Decisões aplicadas: D2-01 a D2-11 ([Step 02](../decisions/step-02-decisions.md)) e D3-01 ([Step 03](../decisions/step-03-decisions.md): cartão pré-pago, 2.1.0). Continuam em aberto: ADR-005 (idioma), OD-1, OD-2, OD-4, OD-7 e OD-8 (OD-3 e OD-5 decididas, por implementar).
 
 ## Regras comuns
 
@@ -18,7 +18,7 @@ Decisões aplicadas: D2-01 a D2-11 ([decisões do Step 02](../decisions/step-02-
 | Entidade | Campos próprios | Regras |
 | --- | --- | --- |
 | **Account** | `name`, `institution?`, `accountType` (`checking` · `savings` · `cash` · `investment` · `other`), `currency`, `initialBalance` (pode ser negativo), `openingDate?`, `status` (`active` · `archived`) | `currentBalance` é **derivado**, nunca guardado (D2-10). Com referências, só se arquiva (D2-06). |
-| **Card** | `accountId?` (conta pagadora), `name`, `cardType` (`credit` · `debit`), `lastFourDigits?` (exatamente 4 dígitos), `creditLimit?`, `closingDay?`, `dueDay?`, `currency`, `status` (`active` · `inactive`) | Crédito exige `closingDay` e `dueDay`; débito não tem limite nem dias. Nunca se guarda o número completo. `accountId = null` só em cartões migrados do 1.x (aviso de validação). |
+| **Card** | `accountId?` (conta pagadora), `name`, `cardType` (`credit` · `debit` · `prepaid`), `lastFourDigits?` (exatamente 4 dígitos), `creditLimit?`, `closingDay?`, `dueDay?`, `currency`, `status` (`active` · `inactive`) | Crédito exige `closingDay` e `dueDay`; débito e pré-pago não têm limite nem dias. Nunca se guarda o número completo. `accountId = null` só em cartões migrados do 1.x (aviso de validação). |
 | **Transaction** | `type` (`income` · `expense` · `transfer`), `description`, `amount` (> 0), `currency`, `categoryId?`, `accountId`, `destinationAccountId?`, `cardId?`, `date`, `status` (`pending` · `completed` · `cancelled`), `notes?`, `billId?`, `recurrenceId?`, `legacyIds?` | Transferência = **um registo** com `destinationAccountId` ≠ `accountId`, sem categoria nem cartão (D2-03). Só transferências têm destino. Receitas não usam cartão. A categoria tem o tipo da transação. Com cartão, `accountId` é a conta pagadora do cartão. |
 | **Category** | `name`, `type` (`income` · `expense`), `parentId?`, `icon?`, `color?`, `isDefault`, `isActive` | Árvore com 2 níveis no máximo, filho com o tipo do pai, sem ciclos. `icon` e `color` guardam-se mas **nunca se mostram** (D2-09). |
 | **Bill** (conta doméstica) | `name`, `categoryId?`, `amount`, `currency`, `dueDate`, `accountId?`, `status` (`pending` · `paid` · `cancelled`), `notes?` | Moeda da conta, quando há conta. |

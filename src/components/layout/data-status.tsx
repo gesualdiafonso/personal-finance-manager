@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { onDataChanged } from "@/hooks/use-local-data";
 import { formatDate, toLocalDate } from "@/lib/formatting/date";
 import { es } from "@/lib/i18n/es";
 import { cn } from "@/lib/utils/cn";
@@ -11,6 +12,9 @@ type State = { kind: "loading" } | { kind: "ready"; status: LocalStoreStatus } |
 /** Shared hook: opens IndexedDB and reads the local status (no financial values). */
 export function useLocalStoreStatus(): State {
   const [state, setState] = useState<State>({ kind: "loading" });
+  const [tick, setTick] = useState(0);
+  // Pending changes go up after every local write (O-15).
+  useEffect(() => onDataChanged(() => setTick((n) => n + 1)), []);
   useEffect(() => {
     let cancelled = false;
     openLocalStore()
@@ -25,7 +29,7 @@ export function useLocalStoreStatus(): State {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [tick]);
   return state;
 }
 

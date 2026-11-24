@@ -1,6 +1,6 @@
 {
   "schema": "pfm.bills",
-  "schemaVersion": "2.0.0",
+  "schemaVersion": "2.1.0",
   "records": [
     {
       "id": "0193a1b0-0007-7000-8000-000000000007",

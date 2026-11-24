@@ -4,7 +4,7 @@
 
 | Número | Onde | Significado |
 | --- | --- | --- |
-| `schemaVersion` | Todos os ficheiros de `data/` e das exportações | Formato dos dados (semver). Atual: **2.0.0** (`SCHEMA_VERSION`, `DATA_COMPATIBILITY`) |
+| `schemaVersion` | Todos os ficheiros de `data/` e das exportações | Formato dos dados (semver). Atual: **2.1.0** (`SCHEMA_VERSION`, `DATA_COMPATIBILITY`) |
 | `dataRevision` | `meta.json` | Revisão dos dados publicados. Só sobe. |
 | `LOCAL_DB_VERSION` | IndexedDB | Estrutura dos stores no dispositivo. Atual: **2** |
 
@@ -25,6 +25,10 @@ Cada migração é `{ from, to, description, migrate(files, ctx) }`, registada e
 - **valida o resultado** nas quatro camadas antes de o devolver;
 - **é idempotente:** dados já atuais voltam iguais (`changed: false`);
 - **produz um relatório** com versões, contagens, campos renomeados, valores por omissão aplicados, fusões e avisos — nunca valores nem descrições.
+
+### 2.0.0 → 2.1.0 (Step 03, D3-01)
+
+Só aditiva: `cardType` aceita `"prepaid"`. Um ficheiro 2.0.x é dado 2.1.0 válido e lê-se sem migração (mesmo major); não há passo de migração. Uma build 2.0 que leia dados 2.1 com um cartão pré-pago recusa esse registo na validação — é o comportamento esperado de uma versão menor nova. O `data/` de exemplo foi marcado 2.1.0.
 
 ### 1.0.0 → 2.0.0
 

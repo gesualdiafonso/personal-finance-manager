@@ -80,7 +80,14 @@ function MoreSheet({ onClose, pathname }: { onClose: () => void; pathname: strin
 
 /** Phone and tablet portrait (<1024px): tab bar Inicio · Transacciones · + · Obligaciones · Más. */
 export function TabBar() {
-  const pathname = usePathname();
+  return <TabBarView pathname={usePathname()} />;
+}
+
+/**
+ * Rendered with an explicit pathname so the app shell can show it inside a Suspense
+ * fallback while the pathname is unknown (prerendered detail shells, Step 03).
+ */
+export function TabBarView({ pathname }: { pathname: string }) {
   const lastObligation = useLastObligationArea();
   const [moreOpen, setMoreOpen] = useState(false);
   const obligationActive = OBLIGATION_AREAS.some((id) => isActive(pathname, AREAS[id].href));

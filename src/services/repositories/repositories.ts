@@ -136,7 +136,7 @@ async function checkRules(tx: ReadWriteTx, entity: EntityName, r: AnyRecord): Pr
 }
 
 /** Live records that still point at `id` (D2-06): their presence blocks deletion. */
-const REFERRERS: Partial<Record<EntityName, { entity: EntityName; fields: string[] }[]>> = {
+export const REFERRERS: Partial<Record<EntityName, { entity: EntityName; fields: string[] }[]>> = {
   accounts: [
     { entity: "transactions", fields: ["accountId", "destinationAccountId"] },
     { entity: "cards", fields: ["accountId"] },
@@ -155,14 +155,32 @@ const REFERRERS: Partial<Record<EntityName, { entity: EntityName; fields: string
   recurrences: [{ entity: "transactions", fields: ["recurrenceId"] }],
 };
 
-async function countReferrers(tx: ReadWriteTx, entity: EntityName, id: string): Promise<number> {
+/** Pure count of live records referencing `id`, given the referrer stores' records (single rule, D2-06). */
+export function countReferencesIn(records: Partial<Record<EntityName, readonly unknown[]>>, entity: EntityName, id: string): number {
   let n = 0;
   for (const { entity: other, fields } of REFERRERS[entity] ?? []) {
-    for (const r of (await tx.objectStore(other).getAll()) as AnyRecord[]) {
+    for (const r of (records[other] ?? []) as AnyRecord[]) {
       if (r.deletedAt === null && fields.some((f) => r[f] === id)) n++;
     }
   }
   return n;
+}
+
+async function countReferrers(tx: ReadWriteTx, entity: EntityName, id: string): Promise<number> {
+  const records: Partial<Record<EntityName, unknown[]>> = {};
+  for (const { entity: other } of REFERRERS[entity] ?? []) records[other] = await tx.objectStore(other).getAll();
+  return countReferencesIn(records, entity, id);
+}
+
+/** Read-only: how many live records reference this one (an account/card/category with references can only be archived). */
+export async function countReferences(db: LocalDb, entity: EntityName, id: string): Promise<number> {
+  const stores = [...new Set((REFERRERS[entity] ?? []).map((r) => r.entity))];
+  if (stores.length === 0) return 0;
+  const tx = db.transaction(stores, "readonly");
+  const records: Partial<Record<EntityName, unknown[]>> = {};
+  for (const s of stores) records[s] = await tx.objectStore(s).getAll();
+  await tx.done;
+  return countReferencesIn(records, entity, id);
 }
 
 const ARCHIVE_HINT: Partial<Record<EntityName, string>> = {
@@ -259,6 +277,10 @@ export class UnitOfWork {
           if (record.currency !== current.currency && (await countReferrers(this.tx, entity, id)) > 0) {
             throw new AppError("REFERENCE_CONSTRAINT", `Currency of a referenced ${entity} record cannot change`);
           }
+        }
+        if (entity === "cards" && record.accountId !== current.accountId && current.accountId !== null && (await countReferrers(this.tx, entity, id)) > 0) {
+          // Its purchases are tied to the paying account: moving the card would break them (Step 03 §11).
+          throw new AppError("REFERENCE_CONSTRAINT", "The paying account of a card with movements cannot change");
         }
         await checkRules(this.tx, entity, record);
         await this.write(entity, "update", record, current.rev);

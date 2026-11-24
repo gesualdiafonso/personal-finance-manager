@@ -27,7 +27,14 @@ function NavItem({ id, pathname }: { id: AreaId; pathname: string }) {
 
 /** Desktop sidebar (≥1200px): text only, no icons (docs/design-system/arquitetura.md). */
 export function Sidebar() {
-  const pathname = usePathname();
+  return <SidebarView pathname={usePathname()} />;
+}
+
+/**
+ * Rendered with an explicit pathname so the app shell can show it inside a Suspense
+ * fallback while the pathname is unknown (prerendered detail shells, Step 03).
+ */
+export function SidebarView({ pathname }: { pathname: string }) {
   return (
     <aside className="sticky top-0 hidden h-dvh w-(--layout-sidebar) shrink-0 flex-col border-r border-line bg-paper-2 px-4 py-6 desktop:flex">
       <div className="px-2 pb-5 brand-wordmark">{es.app.name}</div>

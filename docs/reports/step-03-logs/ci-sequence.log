@@ -1,0 +1,415 @@
+✓ No database or ORM dependency (32 declared, 620 installed packages checked; src/ has no remote write endpoint)
+Generating route types...
+✓ Types generated successfully
+tokens.css matches tokens.json
+
+ RUN  v5.1.0 /home/claude/gesualdiafonso/personal-finance-manager
+
+
+ Test Files  2 passed (2)
+      Tests  40 passed (40)
+   Start at  09:49:14
+   Duration  1.30s (environment 64%, setup 26%, transform 4%, tests 4%, import 2%, worker 1%)
+
+    Isolate  2 workers spawned · ~435ms startup each (spawn + environment, per file)
+             at least ~435ms faster with isolate: false — reuses workers across files instead of one per file
+
+schemas/ matches the Zod schemas (9 files)
+✓ data/ valid (layer "structure") — schemaVersion 2.1.0, dataRevision 2
+✓ data/ valid (layer "references") — schemaVersion 2.1.0, dataRevision 2
+✓ data/ valid (layer "uniqueness") — schemaVersion 2.1.0, dataRevision 2
+✓ data/ valid (layer "invariants") — schemaVersion 2.1.0, dataRevision 2
+✓ data is at the current schemaVersion (2.1.0)
+
+ RUN  v5.1.0 /home/claude/gesualdiafonso/personal-finance-manager
+
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  09:49:18
+   Duration  638ms (environment 56%, setup 27%, transform 8%, tests 7%, import 1%, worker 1%)
+
+
+ RUN  v5.1.0 /home/claude/gesualdiafonso/personal-finance-manager
+
+
+ Test Files  2 passed (2)
+      Tests  25 passed (25)
+   Start at  09:49:19
+   Duration  1.55s (environment 55%, setup 25%, tests 16%, transform 3%, worker 1%, import 1%)
+
+    Isolate  2 workers spawned · ~460ms startup each (spawn + environment, per file)
+             at least ~460ms faster with isolate: false — reuses workers across files instead of one per file
+
+
+ RUN  v5.1.0 /home/claude/gesualdiafonso/personal-finance-manager
+
+
+ Test Files  2 passed (2)
+      Tests  15 passed (15)
+   Start at  09:49:21
+   Duration  1.80s (environment 43%, tests 35%, setup 18%, transform 3%, import 1%, worker 1%)
+
+    Isolate  2 workers spawned · ~417ms startup each (spawn + environment, per file)
+             at least ~417ms faster with isolate: false — reuses workers across files instead of one per file
+
+✓ changeset applies cleanly to data/ and the result passes validation
+
+ RUN  v5.1.0 /home/claude/gesualdiafonso/personal-finance-manager
+
+
+ Test Files  2 passed (2)
+      Tests  16 passed (16)
+   Start at  09:49:23
+   Duration  2.99s (tests 63%, environment 25%, setup 10%, transform 2%)
+
+    Isolate  2 workers spawned · ~435ms startup each (spawn + environment, per file)
+             at least ~435ms faster with isolate: false — reuses workers across files instead of one per file
+
+
+ RUN  v5.1.0 /home/claude/gesualdiafonso/personal-finance-manager
+
+ ✓ tests/integration/accounts-page.test.tsx > Accounts page > shows the empty state with a clear first action 74ms
+ ✓ tests/integration/accounts-page.test.tsx > Accounts page > creates an account through the repository and lists it 329ms
+ ✓ tests/integration/accounts-page.test.tsx > Accounts page > shows field errors, keeps the sheet open and stores nothing 75ms
+ ✓ tests/integration/accounts-page.test.tsx > Accounts page > keeps the form open with its values when saving fails 117ms
+ ✓ tests/integration/accounts-page.test.tsx > Accounts page > never adds currencies together: ARS hero, USD shown apart 263ms
+ ✓ tests/integration/accounts-page.test.tsx > Accounts page > edits, archives and reactivates; archived accounts stay listed 275ms
+ ✓ tests/integration/accounts-page.test.tsx > Accounts page > deletes an account without references only after confirmation 167ms
+ ✓ tests/integration/accounts-page.test.tsx > Accounts page > offers only archiving for an account with references, and locks its currency 57ms
+ ✓ tests/integration/accounts-page.test.tsx > Accounts page > corrects the initial balance through the explicit, confirmed flow (D3-04) 85ms
+ ✓ tests/integration/accounts-page.test.tsx > Accounts page > persists across a reload of the page 120ms
+ ✓ tests/integration/accounts-page.test.tsx > Accounts page > shows an error state when IndexedDB is unavailable 6ms
+ ✓ tests/integration/cards-page.test.tsx > Cards page > asks for an account first when there is none 87ms
+stderr | tests/integration/cards-page.test.tsx > Cards page > creates a credit card linked to its account, with the account's currency
+An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | tests/integration/cards-page.test.tsx > Cards page > creates a credit card linked to its account, with the account's currency
+An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ tests/integration/cards-page.test.tsx > Cards page > creates a credit card linked to its account, with the account's currency 337ms
+ ✓ tests/integration/cards-page.test.tsx > Cards page > debit and prepaid hide the credit fields and go to their own sections 378ms
+ ✓ tests/integration/cards-page.test.tsx > Cards page > shows field errors and stores nothing 152ms
+ ✓ tests/integration/cards-page.test.tsx > Cards page > edits, archives and keeps archived cards visible 256ms
+ ✓ tests/integration/cards-page.test.tsx > Cards page > a card with movements: no delete, account locked; the summary never treats the limit as money 47ms
+ ✓ tests/integration/cards-page.test.tsx > Cards page > persists across a reload 142ms
+ ✓ tests/integration/cards-page.test.tsx > Card repository rules (Step 03) > refuses a missing account and a currency other than the account's 4ms
+ ✓ tests/integration/cards-page.test.tsx > Card repository rules (Step 03) > refuses to move a card with movements to another account 6ms
+ ✓ tests/unit/data-security.test.ts > encrypted bundle — failure modes > modified ciphertext with a matching hash fails authentication (GCM tag) 199ms
+ ✓ tests/unit/data-security.test.ts > encrypted bundle — failure modes > truncated ciphertext is rejected before decrypting 92ms
+ ✓ tests/unit/data-security.test.ts > encrypted bundle — failure modes > an invalid key (wrong passphrase or altered salt) fails 320ms
+ ✓ tests/unit/data-security.test.ts > encrypted bundle — failure modes > an altered IV or schemaVersion (AAD) fails authentication 279ms
+ ✓ tests/unit/data-security.test.ts > encrypted bundle — failure modes > missing metadata is rejected before any key derivation 86ms
+ ✓ tests/unit/data-security.test.ts > encrypted bundle — failure modes > failure messages never contain the passphrase or the plaintext 169ms
+ ✓ tests/unit/data-security.test.ts > local data is NOT encrypted (stated, not hidden) > IndexedDB holds readable records: at-rest encryption is open decision OD-3 31ms
+ ✓ tests/unit/data-security.test.ts > local data is NOT encrypted (stated, not hidden) > exports are plaintext JSON with an integrity hash, not encryption (D2-07) 9ms
+ ✓ tests/unit/data-security.test.ts > local data is NOT encrypted (stated, not hidden) > no key, passphrase or salt is stored next to the data 7ms
+ ✓ tests/unit/crypto.test.ts > encrypted bundle (PBKDF2 600k + AES-256-GCM + AAD) > round-trips and writes a valid manifest 233ms
+ ✓ tests/unit/crypto.test.ts > encrypted bundle (PBKDF2 600k + AES-256-GCM + AAD) > uses a fresh salt and IV every time 97ms
+ ✓ tests/unit/crypto.test.ts > encrypted bundle (PBKDF2 600k + AES-256-GCM + AAD) > rejects a wrong passphrase 176ms
+ ✓ tests/unit/crypto.test.ts > encrypted bundle (PBKDF2 600k + AES-256-GCM + AAD) > rejects an altered byte before deriving the key (hash check) 81ms
+ ✓ tests/unit/crypto.test.ts > encrypted bundle (PBKDF2 600k + AES-256-GCM + AAD) > rejects a bundle presented as another revision (AAD) 163ms
+ ✓ tests/unit/crypto.test.ts > encrypted bundle (PBKDF2 600k + AES-256-GCM + AAD) > rejects a manifest with weaker key derivation 103ms
+ ✓ tests/unit/crypto.test.ts > encrypted bundle (PBKDF2 600k + AES-256-GCM + AAD) > produces canonical JSON independent of key order 0ms
+ ✓ tests/integration/published-source.test.ts > data loading abstractions > file-map source validates before returning 29ms
+ ✓ tests/integration/published-source.test.ts > data loading abstractions > published source: manifest → hash → decrypt → validate 193ms
+ ✓ tests/integration/published-source.test.ts > data loading abstractions > published source rejects a wrong passphrase and an older revision 203ms
+ ✓ tests/integration/detail-pages.test.tsx > Account detail > shows facts, balances, linked cards and movements from the stored data 180ms
+ ✓ tests/integration/detail-pages.test.tsx > Account detail > filters movements by type and status 128ms
+ ✓ tests/integration/detail-pages.test.tsx > Account detail > an account without movements says so; an unknown id says it was not found 20ms
+ ✓ tests/integration/detail-pages.test.tsx > Account detail > unknown id 9ms
+ ✓ tests/integration/detail-pages.test.tsx > Card detail > shows the schedule, the limit as a limit, the committed amount and purchases 33ms
+ ✓ tests/integration/exchange.test.ts > export > exports everything with a verifiable SHA-256 and counts 43ms
+ ✓ tests/integration/exchange.test.ts > export > exports selected entities only 12ms
+ ✓ tests/integration/exchange.test.ts > export > detects an altered or truncated file 10ms
+ ✓ tests/integration/exchange.test.ts > changesets (D2-07, D2-08) > exports pending operations once and marks them 10ms
+ ✓ tests/integration/exchange.test.ts > changesets (D2-07, D2-08) > checks a changeset against data/ in memory without writing 11ms
+ ✓ tests/integration/exchange.test.ts > changesets (D2-07, D2-08) > reports operations whose base revision no longer matches 7ms
+ ✓ tests/integration/exchange.test.ts > import > previews without writing, then merges new records 23ms
+ ✓ tests/integration/exchange.test.ts > import > rejects the whole merge on a conflict and changes nothing 17ms
+ ✓ tests/integration/exchange.test.ts > import > rejects records that break references, and older schema versions 7ms
+ ✓ tests/integration/exchange.test.ts > import > replace needs confirmation; rollback restores the previous state 13ms
+ ✓ tests/integration/exchange.test.ts > import > round-trips a full backup including pending changes to a new device 18ms
+ ✓ tests/integration/exchange.test.ts > changeset fixture used by CI > still applies cleanly to data/ 2ms
+ ✓ tests/integration/repositories.test.ts > create > sets control fields, validates and records an outbox operation 41ms
+ ✓ tests/integration/repositories.test.ts > create > rejects decimals, zero, negative amounts and card numbers 10ms
+ ✓ tests/integration/repositories.test.ts > create > rejects missing references and cross-currency records (D2-02) 6ms
+ ✓ tests/integration/repositories.test.ts > create > rejects a category of the wrong type and a card from another account 5ms
+ ✓ tests/integration/repositories.test.ts > create > stores a transfer as ONE record (D2-03) 4ms
+ ✓ tests/integration/repositories.test.ts > create > prevents duplicate ids and possible duplicates 13ms
+ ✓ tests/integration/repositories.test.ts > create > enforces the category tree (same type, max depth 2) 5ms
+ ✓ tests/integration/repositories.test.ts > update and delete > increments rev and detects concurrent changes 6ms
+ ✓ tests/integration/repositories.test.ts > update and delete > deletes as a tombstone that stays in the store 6ms
+ ✓ tests/integration/repositories.test.ts > update and delete > refuses to delete referenced accounts, cards and categories (D2-06) 6ms
+ ✓ tests/integration/repositories.test.ts > update and delete > refuses to change the currency of a referenced account 4ms
+ ✓ tests/integration/repositories.test.ts > unit of work > commits several writes together 4ms
+ ✓ tests/integration/repositories.test.ts > unit of work > writes nothing when any step fails 4ms
+ ✓ tests/integration/repositories.test.ts > protected operations > needs confirmation to clear and refuses to drop unexported changes 5ms
+ ✓ tests/unit/theme.test.tsx > theme persistence > stores the choice in LocalStorage and applies it to <html> 100ms
+ ✓ tests/unit/theme.test.tsx > theme persistence > restores the stored choice on the next visit 7ms
+ ✓ tests/unit/theme.test.tsx > theme persistence > follows the system preference when set to Sistema 5ms
+ ✓ tests/unit/theme.test.tsx > theme persistence > ignores an invalid stored value 4ms
+ ✓ tests/unit/theme.test.tsx > theme persistence > still switches for the session when LocalStorage is unavailable 15ms
+ ✓ tests/unit/theme.test.tsx > theme persistence > init script applies the stored theme before React runs 1ms
+ ✓ tests/unit/theme.test.tsx > LocalStorage preferences > only knows lightweight, non-financial keys 1ms
+ ✓ tests/unit/theme.test.tsx > LocalStorage preferences > validates values before writing 2ms
+ ✓ tests/unit/theme.test.tsx > LocalStorage preferences > resolves the theme 1ms
+ ✓ tests/integration/local-store.test.ts > IndexedDB v2 initialization > creates every store and index 8ms
+ ✓ tests/integration/local-store.test.ts > IndexedDB v2 initialization > reports an empty, healthy store 8ms
+ ✓ tests/integration/local-store.test.ts > IndexedDB v2 initialization > keeps a stable device id 2ms
+ ✓ tests/integration/local-store.test.ts > upgrade from the Step 01 (v1) database > moves every v1 record to legacy_v1, never discarding one 5ms
+ ✓ tests/integration/local-store.test.ts > publications > stores snapshot, working stores and settings in one go 32ms
+ ✓ tests/integration/local-store.test.ts > publications > re-opens existing data without upgrading 5ms
+ ✓ tests/integration/local-store.test.ts > publications > rejects an older publication unless restoring 8ms
+ ✓ tests/integration/local-store.test.ts > publications > replays pending local changes over a new publication 9ms
+ ✓ tests/integration/local-store.test.ts > publications > marks a replay as conflict when the publication changed the same record 8ms
+ ✓ tests/integration/local-store.test.ts > local integrity checks > detects a corrupted record without exposing values 6ms
+ ✓ tests/integration/local-store.test.ts > local integrity checks > detects a broken reference 5ms
+ ✓ tests/unit/data-validation.test.ts > JSON validation of the sample data > validates in all four layers 15ms
+ ✓ tests/unit/data-validation.test.ts > JSON validation of the sample data > matches the checksums declared in meta.json (I-10) 2ms
+ ✓ tests/unit/data-validation.test.ts > layer 1 — structure > rejects a decimal amount (I-01) 3ms
+ ✓ tests/unit/data-validation.test.ts > layer 1 — structure > rejects an invalid calendar date 1ms
+ ✓ tests/unit/data-validation.test.ts > layer 1 — structure > rejects an unsupported currency (D2-02: ARS and USD only) 1ms
+ ✓ tests/unit/data-validation.test.ts > layer 1 — structure > requires settings.json 2ms
+ ✓ tests/unit/data-validation.test.ts > layer 1 — structure > rejects an incompatible major schemaVersion 1ms
+ ✓ tests/unit/data-validation.test.ts > layer 1 — structure > reports missing required files and unexpected files 1ms
+ ✓ tests/unit/data-validation.test.ts > layers 2–4 — references, uniqueness, invariants > detects a reference to a missing account 2ms
+ ✓ tests/unit/data-validation.test.ts > layers 2–4 — references, uniqueness, invariants > detects a duplicate id across files 2ms
+ ✓ tests/unit/data-validation.test.ts > layers 2–4 — references, uniqueness, invariants > detects a transaction outside its file period 2ms
+ ✓ tests/unit/data-validation.test.ts > layers 2–4 — references, uniqueness, invariants > rejects a transfer without destination or to the same account (D2-03) 1ms
+ ✓ tests/unit/data-validation.test.ts > layers 2–4 — references, uniqueness, invariants > rejects a cross-currency transfer (D2-02) 1ms
+ ✓ tests/unit/data-validation.test.ts > layers 2–4 — references, uniqueness, invariants > rejects a category of the wrong type 1ms
+ ✓ tests/unit/data-validation.test.ts > layers 2–4 — references, uniqueness, invariants > warns (without rejecting) about a possible duplicate 1ms
+ ✓ tests/unit/data-validation.test.ts > layers 2–4 — references, uniqueness, invariants > detects checksum drift (I-10) 1ms
+ ✓ tests/unit/data-validation.test.ts > layers 2–4 — references, uniqueness, invariants > never puts amounts or descriptions in issue messages 1ms
+ ✓ tests/unit/accounts.test.ts > account form (Step 03 §7) > creates a valid account input in integer cents 4ms
+ ✓ tests/unit/accounts.test.ts > account form (Step 03 §7) > rejects an empty name with a field message 1ms
+ ✓ tests/unit/accounts.test.ts > account form (Step 03 §7) > rejects an unsupported currency and type 1ms
+ ✓ tests/unit/accounts.test.ts > account form (Step 03 §7) > rejects invalid money: letters, 3 decimals, too large, empty 1ms
+ ✓ tests/unit/accounts.test.ts > account form (Step 03 §7) > accepts a negative initial balance (account starting overdrawn) 1ms
+ ✓ tests/unit/accounts.test.ts > account form (Step 03 §7) > never accepts a card number in the name 0ms
+ ✓ tests/unit/accounts.test.ts > account form (Step 03 §7) > edit form has no initial balance (D3-04) 2ms
+ ✓ tests/unit/accounts.test.ts > account form (Step 03 §7) > formats USD with its own symbol 0ms
+ ✓ tests/unit/accounts.test.ts > account indicators (summarizeAccounts) > uses the central balance rule and keeps currencies apart 13ms
+ ✓ tests/unit/accounts.test.ts > account indicators (summarizeAccounts) > does not count archived accounts as active nor in the totals 2ms
+ ✓ tests/unit/accounts.test.ts > account indicators (summarizeAccounts) > puts the base currency first and ignores deleted accounts 2ms
+ ✓ tests/unit/accounts.test.ts > account indicators (summarizeAccounts) > the account schema itself refuses decimals (domain, not only the form) 1ms
+ ✓ tests/unit/migrations.test.ts > migration 1.0.0 → 2.0.0 > is registered and targets the current version 2ms
+ ✓ tests/unit/migrations.test.ts > migration 1.0.0 → 2.0.0 > produces data that passes every validation layer 25ms
+ ✓ tests/unit/migrations.test.ts > migration 1.0.0 → 2.0.0 > never discards a record: every v1 id survives, as a record or in legacyIds 3ms
+ ✓ tests/unit/migrations.test.ts > migration 1.0.0 → 2.0.0 > keeps amounts exactly (sum of cents per file) 2ms
+ ✓ tests/unit/migrations.test.ts > migration 1.0.0 → 2.0.0 > turns the two transfer legs into one record with the given direction 3ms
+ ✓ tests/unit/migrations.test.ts > migration 1.0.0 → 2.0.0 > stops without guessing when a transfer direction is missing 1ms
+ ✓ tests/unit/migrations.test.ts > migration 1.0.0 → 2.0.0 > reports renamed fields, defaults and warnings without amounts or descriptions 2ms
+ ✓ tests/unit/migrations.test.ts > migration 1.0.0 → 2.0.0 > is idempotent: current data is returned unchanged 2ms
+ ✓ tests/unit/migrations.test.ts > migration 1.0.0 → 2.0.0 > never downgrades: a newer version is rejected 1ms
+ ✓ tests/unit/migrations.test.ts > migration 1.0.0 → 2.0.0 > rejects files that disagree on their version 1ms
+ ✓ tests/unit/cards.test.ts > statement dates > clamps to the month's last day and rolls into next month 2ms
+ ✓ tests/unit/cards.test.ts > statement dates > only credit cards have a schedule 4ms
+ ✓ tests/unit/cards.test.ts > card indicators (summarizeCards) > committed per currency through the central rule; limit apart, never as money available 2ms
+ ✓ tests/unit/cards.test.ts > card indicators (summarizeCards) > archived cards are not active and their limit is not counted 2ms
+ ✓ tests/unit/cards.test.ts > card indicators (summarizeCards) > lists active credit cards due within 7 days 1ms
+ ✓ tests/unit/cards.test.ts > prepaid cards (D3-01, schema 2.1.0) > are valid without limit or statement days, and refuse them 1ms
+ ✓ tests/unit/cards.test.ts > sensitive data is never stored > the schema refuses a full number, CVV, PIN or any extra field 1ms
+ ✓ tests/unit/cards.test.ts > card form > builds a credit card with the account's currency 2ms
+ ✓ tests/unit/cards.test.ts > card form > debit and prepaid ignore limit and days 1ms
+ ✓ tests/unit/cards.test.ts > card form > rejects a missing or unknown account, bad last digits, invalid days and limits 1ms
+ ✓ tests/unit/domain.test.ts > currencies (D2-02) > supports exactly ARS and USD 2ms
+ ✓ tests/unit/domain.test.ts > currencies (D2-02) > formats each currency with its own symbol and es-AR digits 1ms
+ ✓ tests/unit/domain.test.ts > money arithmetic in integer cents > adds, subtracts and negates exactly 1ms
+ ✓ tests/unit/domain.test.ts > money arithmetic in integer cents > refuses to mix currencies 1ms
+ ✓ tests/unit/domain.test.ts > money arithmetic in integer cents > rejects non-integer cents and keeps totals per currency 0ms
+ ✓ tests/unit/domain.test.ts > derived balances (D2-03, D2-04, D2-10, D2-11) > counts completed only; excludes pending, cancelled and card purchases 14ms
+ ✓ tests/unit/domain.test.ts > derived balances (D2-03, D2-04, D2-10, D2-11) > includes pending in the projected balance, never cancelled 2ms
+ ✓ tests/unit/domain.test.ts > derived balances (D2-03, D2-04, D2-10, D2-11) > respects asOf and ignores tombstones 2ms
+ ✓ tests/unit/domain.test.ts > derived balances (D2-03, D2-04, D2-10, D2-11) > never counts a transfer as income or expense, and keeps currencies apart 2ms
+ ✓ tests/unit/domain.test.ts > derived balances (D2-03, D2-04, D2-10, D2-11) > reports card purchases as committed on cards 1ms
+ ✓ tests/unit/domain.test.ts > recurrences (nextOccurrence derived) > clamps month ends and leap days 1ms
+ ✓ tests/unit/domain.test.ts > recurrences (nextOccurrence derived) > finds the next occurrence and stops at endDate or when inactive 0ms
+ ✓ tests/unit/domain.test.ts > category tree > accepts parent → child and builds the tree 1ms
+ ✓ tests/unit/domain.test.ts > category tree > rejects depth > 2, mixed types and cycles 0ms
+ ✓ tests/unit/domain.test.ts > ids > generates time-ordered UUIDv7 1ms
+ ✓ tests/unit/design-system.test.tsx > Design System integration > tokens.css is exactly what tokens.json generates (no drift) 2ms
+ ✓ tests/unit/design-system.test.tsx > Design System integration > defines both themes with every colour token 1ms
+ ✓ tests/unit/design-system.test.tsx > Design System integration > closes the Tailwind palette (no default colours, shadows or fonts) 0ms
+ ✓ tests/unit/design-system.test.tsx > Design System integration > maps the font families to next/font/local variables 0ms
+ ✓ tests/unit/design-system.test.tsx > <Money> > renders tabular numerals with cents in ink-2 and an accessible label 19ms
+ ✓ tests/unit/design-system.test.tsx > <Money> > uses alert-text only when the value needs attention 3ms
+ ✓ tests/unit/design-system.test.tsx > application configuration > is ARS, es-AR, Buenos Aires, single-user 1ms
+ ✓ tests/unit/movements.test.ts > account movements > signs each movement from the account's point of view 16ms
+ ✓ tests/unit/movements.test.ts > account movements > is newest first and ignores deleted records 2ms
+ ✓ tests/unit/movements.test.ts > card movements and filters > lists the card's purchases 2ms
+ ✓ tests/unit/movements.test.ts > card movements and filters > filters by period, type and status 2ms
+ ✓ tests/unit/money.test.ts > formatMoney (ARS, es-AR) > formats the Design System reference values 2ms
+ ✓ tests/unit/money.test.ts > formatMoney (ARS, es-AR) > uses U+2212 for negatives and a no-break space after the symbol 1ms
+ ✓ tests/unit/money.test.ts > formatMoney (ARS, es-AR) > never signs zero 0ms
+ ✓ tests/unit/money.test.ts > formatMoney (ARS, es-AR) > handles the cents modes 0ms
+ ✓ tests/unit/money.test.ts > formatMoney (ARS, es-AR) > splits parts for the Money component 1ms
+ ✓ tests/unit/money.test.ts > formatMoney (ARS, es-AR) > is exact at the edge of the safe integer range 0ms
+ ✓ tests/unit/money.test.ts > formatMoney (ARS, es-AR) > rejects non-integer amounts (floating point is never authoritative) 0ms
+ ✓ tests/unit/money.test.ts > ARS monetary precision > adds without floating-point drift 0ms
+ ✓ tests/unit/money.test.ts > ARS monetary precision > matches the Dashboard reference arithmetic 0ms
+ ✓ tests/unit/money.test.ts > ARS monetary precision > refuses sums beyond the safe range 0ms
+ ✓ tests/unit/money.test.ts > parseMoneyInput > parses 1.234,56 0ms
+ ✓ tests/unit/money.test.ts > parseMoneyInput > parses 1234,56 0ms
+ ✓ tests/unit/money.test.ts > parseMoneyInput > parses 1234 0ms
+ ✓ tests/unit/money.test.ts > parseMoneyInput > parses $ 1.234 0ms
+ ✓ tests/unit/money.test.ts > parseMoneyInput > parses 18.450 0ms
+ ✓ tests/unit/money.test.ts > parseMoneyInput > parses 0,5 0ms
+ ✓ tests/unit/money.test.ts > parseMoneyInput > parses 0,05 0ms
+ ✓ tests/unit/money.test.ts > parseMoneyInput > parses 007 0ms
+ ✓ tests/unit/money.test.ts > parseMoneyInput > rejects  0ms
+ ✓ tests/unit/money.test.ts > parseMoneyInput > rejects -100 0ms
+ ✓ tests/unit/money.test.ts > parseMoneyInput > rejects 12,345 0ms
+ ✓ tests/unit/money.test.ts > parseMoneyInput > rejects abc 0ms
+ ✓ tests/unit/money.test.ts > parseMoneyInput > rejects 1,2,3 0ms
+ ✓ tests/unit/money.test.ts > parseMoneyInput > rejects 999999999999999999 0ms
+ ✓ tests/unit/money.test.ts > formatMoneyCompact (chart axes only) > abbreviates millions and thousands 0ms
+ ✓ tests/unit/date.test.ts > timezone configuration > is America/Argentina/Buenos_Aires 1ms
+ ✓ tests/unit/date.test.ts > timezone configuration > does not depend on the device time zone (tests run in Asia/Tokyo) 1ms
+ ✓ tests/unit/date.test.ts > timezone configuration > puts a transaction near midnight in the Buenos Aires month 0ms
+ ✓ tests/unit/date.test.ts > timezone configuration > writes instants with the -03:00 offset 0ms
+ ✓ tests/unit/date.test.ts > date formatting (es-AR) > formats long, short and form styles 0ms
+ ✓ tests/unit/date.test.ts > date formatting (es-AR) > capitalises the month title 0ms
+ ✓ tests/unit/date.test.ts > date formatting (es-AR) > uses relative words up to 7 days, then absolute dates 0ms
+ ✓ tests/unit/date.test.ts > date formatting (es-AR) > validates calendar dates 0ms
+ ✓ tests/unit/compatibility.test.ts > data version compatibility > reads the current version and newer minors/patches of the same major 2ms
+ ✓ tests/unit/compatibility.test.ts > data version compatibility > classifies older majors as needing migration and newer majors as unsupported 1ms
+ ✓ tests/unit/compatibility.test.ts > data version compatibility > rejects another major with INCOMPATIBLE_SCHEMA_VERSION 0ms
+ ✓ tests/unit/compatibility.test.ts > data version compatibility > rejects malformed versions 0ms
+ ✓ tests/unit/compatibility.test.ts > data version compatibility > never accepts an older dataRevision unless restoring 1ms
+
+ Test Files  20 passed (20)
+      Tests  203 passed (203)
+   Start at  09:49:27
+   Duration  19.98s (environment 41%, tests 36%, setup 18%, import 4%, transform 1%, worker 1%)
+
+Environment  jsdom was created 20 times · 7.38s total, 41% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
+public/sw.js written (cache version 0.1.0+d69acca5a737)
+▲ Next.js 16.4.6 (Turbopack)
+✓ Running next.config.ts took 25ms
+- Cache Components enabled
+- Partial Prefetching enabled
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 464ms
+  Running TypeScript ...
+  Finished TypeScript in 2.6s ...
+  Collecting page data using 1 worker ...
+  Generating static pages using 1 worker (0/17) ...
+  Generating static pages using 1 worker (4/17)
+  Generating static pages using 1 worker (8/17)
+  Generating static pages using 1 worker (12/17)
+✓ Generating static pages using 1 worker (17/17) in 572ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /configuracion
+├ ○ /cuentas
+├ ○ /cuentas-domesticas
+├   /cuentas/[id]
+│ ├ ◐ /cuentas/[id]
+│ └ ○ /cuentas/_
+├ ○ /informes
+├ ○ /manifest.webmanifest
+├ ○ /offline
+├ ○ /presupuesto
+├ ○ /recurrencias
+├ ○ /tarjetas
+├   /tarjetas/[id]
+│ ├ ◐ /tarjetas/[id]
+│ └ ○ /tarjetas/_
+└ ○ /transacciones
+
+
+○  (Static)             prerendered as static content
+◐  (Partial Prerender)  prerendered as static HTML with dynamic server-streamed content
+
+✓ No plaintext data in public artifacts (448 files scanned)
+
+Running 58 tests using 1 worker
+
+  ✓   1 [desktop] › tests/e2e/accounts.spec.ts:50:3 › Accounts › empty state, create, validation errors and persistence after reload (2.2s)
+  ✓   2 [desktop] › tests/e2e/accounts.spec.ts:79:3 › Accounts › currencies are never added together (1.3s)
+  ✓   3 [desktop] › tests/e2e/accounts.spec.ts:89:3 › Accounts › edit, archive and delete with confirmation (2.2s)
+  ✓   4 [desktop] › tests/e2e/accounts.spec.ts:121:3 › Accounts › layout: table on desktop, list and full-height sheet on the phone, no horizontal overflow (1.2s)
+  ✓   5 [desktop] › tests/e2e/accounts.spec.ts:146:3 › Accounts › detail page: facts, linked cards, movements; opens offline for any account (2.0s)
+  ✓   6 [desktop] › tests/e2e/cards.spec.ts:47:3 › Cards › needs an account first (1.1s)
+  ✓   7 [desktop] › tests/e2e/cards.spec.ts:54:3 › Cards › create with validation errors, edit, archive and persistence after reload (2.8s)
+  ✓   8 [desktop] › tests/e2e/cards.spec.ts:98:3 › Cards › debit and prepaid: no credit fields, own sections; delete with confirmation (2.4s)
+  ✓   9 [desktop] › tests/e2e/cards.spec.ts:127:3 › Cards › no horizontal overflow; the phone keeps the Obligaciones switcher (1.8s)
+  ✓  10 [desktop] › tests/e2e/cards.spec.ts:141:3 › Cards › card detail: schedule, limit labelled as a limit, link to the paying account (1.9s)
+  ✓  11 [desktop] › tests/e2e/foundation.spec.ts:20:3 › application foundation › starts and renders the Dashboard empty state in Spanish (442ms)
+  ✓  12 [desktop] › tests/e2e/foundation.spec.ts:28:3 › application foundation › shows today in Buenos Aires even when the device is in Tokyo (464ms)
+  ✓  13 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area / has its own route and title (340ms)
+  ✓  14 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /transacciones has its own route and title (443ms)
+  ✓  15 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /cuentas-domesticas has its own route and title (500ms)
+  ✓  16 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /tarjetas has its own route and title (739ms)
+  ✓  17 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /recurrencias has its own route and title (535ms)
+  ✓  18 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /cuentas has its own route and title (642ms)
+  ✓  19 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /presupuesto has its own route and title (515ms)
+  ✓  20 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /informes has its own route and title (450ms)
+  ✓  21 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /configuracion has its own route and title (423ms)
+  ✓  22 [desktop] › tests/e2e/foundation.spec.ts:45:3 › navigation › desktop: sidebar lists the nine areas, text only (598ms)
+  -  23 [desktop] › tests/e2e/foundation.spec.ts:56:3 › navigation › iPhone: tab bar, Obligaciones reopens the last area, Más lists all nine
+  ✓  24 [desktop] › tests/e2e/platform.spec.ts:4:3 › theme preference › persists across reloads and is applied before hydration (980ms)
+  ✓  25 [desktop] › tests/e2e/platform.spec.ts:21:3 › local fonts › load from the app itself, with no request to Google Fonts or any other host (539ms)
+  ✓  26 [desktop] › tests/e2e/platform.spec.ts:41:3 › IndexedDB › initialises the local store at version 2 and reports integrity (736ms)
+  ✓  27 [desktop] › tests/e2e/platform.spec.ts:51:3 › PWA groundwork › serves a valid web app manifest (46ms)
+  ✓  28 [desktop] › tests/e2e/platform.spec.ts:61:3 › PWA groundwork › service worker installs, precaches the shell and fonts, and serves it offline (945ms)
+  ✓  29 [desktop] › tests/e2e/platform.spec.ts:88:3 › PWA groundwork › cache names are versioned and /sw.js is never cached by the browser (13ms)
+  ✓  30 [iphone] › tests/e2e/accounts.spec.ts:50:3 › Accounts › empty state, create, validation errors and persistence after reload (1.3s)
+  ✓  31 [iphone] › tests/e2e/accounts.spec.ts:79:3 › Accounts › currencies are never added together (1.3s)
+  ✓  32 [iphone] › tests/e2e/accounts.spec.ts:89:3 › Accounts › edit, archive and delete with confirmation (2.4s)
+  ✓  33 [iphone] › tests/e2e/accounts.spec.ts:121:3 › Accounts › layout: table on desktop, list and full-height sheet on the phone, no horizontal overflow (1.2s)
+  ✓  34 [iphone] › tests/e2e/accounts.spec.ts:146:3 › Accounts › detail page: facts, linked cards, movements; opens offline for any account (1.7s)
+  ✓  35 [iphone] › tests/e2e/cards.spec.ts:47:3 › Cards › needs an account first (756ms)
+  ✓  36 [iphone] › tests/e2e/cards.spec.ts:54:3 › Cards › create with validation errors, edit, archive and persistence after reload (3.2s)
+  ✓  37 [iphone] › tests/e2e/cards.spec.ts:98:3 › Cards › debit and prepaid: no credit fields, own sections; delete with confirmation (2.5s)
+  ✓  38 [iphone] › tests/e2e/cards.spec.ts:127:3 › Cards › no horizontal overflow; the phone keeps the Obligaciones switcher (1.8s)
+  ✓  39 [iphone] › tests/e2e/cards.spec.ts:141:3 › Cards › card detail: schedule, limit labelled as a limit, link to the paying account (2.1s)
+  ✓  40 [iphone] › tests/e2e/foundation.spec.ts:20:3 › application foundation › starts and renders the Dashboard empty state in Spanish (467ms)
+  ✓  41 [iphone] › tests/e2e/foundation.spec.ts:28:3 › application foundation › shows today in Buenos Aires even when the device is in Tokyo (494ms)
+  ✓  42 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area / has its own route and title (280ms)
+  ✓  43 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /transacciones has its own route and title (417ms)
+  ✓  44 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /cuentas-domesticas has its own route and title (366ms)
+  ✓  45 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /tarjetas has its own route and title (518ms)
+  ✓  46 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /recurrencias has its own route and title (451ms)
+  ✓  47 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /cuentas has its own route and title (448ms)
+  ✓  48 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /presupuesto has its own route and title (402ms)
+  ✓  49 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /informes has its own route and title (432ms)
+  ✓  50 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /configuracion has its own route and title (560ms)
+  -  51 [iphone] › tests/e2e/foundation.spec.ts:45:3 › navigation › desktop: sidebar lists the nine areas, text only
+  ✓  52 [iphone] › tests/e2e/foundation.spec.ts:56:3 › navigation › iPhone: tab bar, Obligaciones reopens the last area, Más lists all nine (1.5s)
+  ✓  53 [iphone] › tests/e2e/platform.spec.ts:4:3 › theme preference › persists across reloads and is applied before hydration (955ms)
+  ✓  54 [iphone] › tests/e2e/platform.spec.ts:21:3 › local fonts › load from the app itself, with no request to Google Fonts or any other host (463ms)
+  ✓  55 [iphone] › tests/e2e/platform.spec.ts:41:3 › IndexedDB › initialises the local store at version 2 and reports integrity (731ms)
+  ✓  56 [iphone] › tests/e2e/platform.spec.ts:51:3 › PWA groundwork › serves a valid web app manifest (78ms)
+  ✓  57 [iphone] › tests/e2e/platform.spec.ts:61:3 › PWA groundwork › service worker installs, precaches the shell and fonts, and serves it offline (929ms)
+  ✓  58 [iphone] › tests/e2e/platform.spec.ts:88:3 › PWA groundwork › cache names are versioned and /sw.js is never cached by the browser (13ms)
+
+  2 skipped
+  56 passed (59.3s)

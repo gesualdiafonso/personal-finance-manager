@@ -36,3 +36,12 @@ Gerado em cada build (`prebuild`) com uma versão única `<versão do package>+<
 - Testes T-01 a T-14 completos, incluindo Safari no iPhone com a PWA instalada (a política de armazenamento do Safari tem de ser verificada).
 - Interface "Nueva versión disponible".
 - Estratégia de cache da publicação cifrada (`/data/manifest.json`: rede primeiro; `pfm-data.<rev>.enc`: cache primeiro).
+
+## Páginas de detalhe sem rede (Step 03)
+`/cuentas/[id]` e `/tarjetas/[id]` são o **mesmo shell estático** para qualquer id: a página lê o id da barra de endereço (`useDetailId`) e os dados do IndexedDB.
+
+- `generateStaticParams` pré-renderiza o id marcador `_` (`/cuentas/_`, `/tarjetas/_`).
+- O service worker (`scripts/pwa/sw.template.js`) guarda esses dois shells no precache. Sem rede, uma navegação para `/cuentas/<qualquer id>` usa a cópia exata se já foi visitada, senão o shell da área; só depois cai em `/offline`.
+- As navegações (sidebar, rail, tab bar) leem o pathname dentro de um `Suspense`: no shell pré-renderizado sem id conhecido aparecem sem item ativo até a página hidratar.
+
+Coberto pelo E2E "detail page: … opens offline for any account".

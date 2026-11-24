@@ -1,14 +1,16 @@
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { es } from "@/lib/i18n/es";
 import { KeyboardShortcuts } from "./keyboard-shortcuts";
-import { TabBar } from "./mobile-nav";
-import { Rail } from "./rail";
-import { Sidebar } from "./sidebar";
+import { TabBar, TabBarView } from "./mobile-nav";
+import { Rail, RailView } from "./rail";
+import { Sidebar, SidebarView } from "./sidebar";
 
 /**
  * Application frame. Three navigations, one per format (responsivo.md):
  * sidebar ≥1200px · rail 1024–1199px · tab bar <1024px.
  * Content is capped at 1240px; wider screens grow negative space, not columns.
+ * The navigations read the pathname; on detail shells prerendered without a known id
+ * (/cuentas/[id], /tarjetas/[id]) they render with no active item until hydrated (Suspense).
  */
 export function AppShell({ children }: { children: ReactNode }) {
   return (
@@ -19,15 +21,21 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         {es.app.skipToContent}
       </a>
-      <Sidebar />
-      <Rail />
+      <Suspense fallback={<SidebarView pathname="" />}>
+        <Sidebar />
+      </Suspense>
+      <Suspense fallback={<RailView pathname="" />}>
+        <Rail />
+      </Suspense>
       <main
         id="contenido"
         className="min-w-0 flex-1 px-4 pt-14 pb-28 tablet:px-8 landscape:pb-16 desktop:max-w-(--layout-content-max) desktop:px-12 desktop:pt-10"
       >
         {children}
       </main>
-      <TabBar />
+      <Suspense fallback={<TabBarView pathname="" />}>
+        <TabBar />
+      </Suspense>
       <KeyboardShortcuts />
     </div>
   );

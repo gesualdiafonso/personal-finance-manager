@@ -44,5 +44,5 @@ Regra de dependência: `app → features → components → lib/services → typ
 
 ## Documentos relacionados
 
-- [Dados JSON](json-data-architecture.md) · [Modelos de domínio](domain-models.md) · [Repositórios](data-repositories.md) · [Persistência local](local-persistence.md) · [Importação/exportação](data-import-export.md) · [Versionamento](data-versioning.md) · [Segurança dos dados](data-security.md) · [Cifragem](crypto.md) · [PWA](pwa.md)
+- [Dados JSON](json-data-architecture.md) · [Modelos de domínio](domain-models.md) · [Repositórios](data-repositories.md) · [Persistência local](local-persistence.md) · [Importação/exportação](data-import-export.md) · [Versionamento](data-versioning.md) · [Segurança dos dados](data-security.md) · [Gestão de contas](account-management.md) · [Gestão de cartões](card-management.md) · [Cifragem](crypto.md) · [PWA](pwa.md)
 - [Decisões](../decisions/) · [Design System](../design-system/README.md)

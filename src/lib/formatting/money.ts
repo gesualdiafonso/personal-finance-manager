@@ -22,7 +22,12 @@ export type SignMode = "negative" | "explicit";
 export interface MoneyFormatOptions {
   cents?: CentsMode;
   sign?: SignMode;
+  /** Currency of the amount (D2-02). Default ARS. Only changes the symbol: es-AR digits for all. */
+  currency?: "ARS" | "USD";
 }
+
+/** Symbol per supported currency (src/domain/currency.ts). */
+export const CURRENCY_SYMBOLS = { ARS: "$", USD: "US$" } as const;
 
 export interface MoneyParts {
   sign: "" | "+" | typeof MINUS;
@@ -68,7 +73,9 @@ export function formatMoneyParts(amount: MinorUnits | number, options: MoneyForm
     centsText = `,${String(cents).padStart(2, "0")}`;
   }
 
-  return { sign, symbol: CURRENCY_SYMBOL, whole: groupFormatter.format(whole), cents: centsText };
+  const symbol = options.currency ? CURRENCY_SYMBOLS[options.currency] : CURRENCY_SYMBOL;
+  if (!symbol) throw new MoneyError(`Unsupported currency ${String(options.currency)}`);
+  return { sign, symbol, whole: groupFormatter.format(whole), cents: centsText };
 }
 
 /** "$ 4.812.340,56", "−$ 48.300,00", "+$ 3.450.000" (sign before the symbol). */
@@ -106,11 +113,17 @@ export type ParseMoneyResult = { ok: true; value: MinorUnits } | { ok: false; er
 /**
  * Parses user input in es-AR convention into minor units. The comma is always the decimal
  * separator; dots are thousands separators and are ignored. The sign is never typed
- * (it comes from the transaction kind), so "-" is rejected.
- * Accepts "1.234,56", "1234,56", "1234", "$ 1.234".
+ * (it comes from the transaction kind), so "-" is rejected — unless `allowNegative`
+ * (only for an account's initialBalance, which may start overdrawn).
+ * Accepts "1.234,56", "1234,56", "1234", "$ 1.234", "US$ 1.234"; with allowNegative also "−1.234,56".
  */
-export function parseMoneyInput(input: string): ParseMoneyResult {
-  const cleaned = input.replace(/\$/g, "").replace(/[\s  ]/g, "").replace(/\./g, "");
+export function parseMoneyInput(input: string, options: { allowNegative?: boolean } = {}): ParseMoneyResult {
+  let cleaned = input.replace(/US\$/gi, "").replace(/\$/g, "").replace(/[\s  ]/g, "").replace(/\./g, "");
+  let negative = false;
+  if (options.allowNegative && /^[-−]/.test(cleaned)) {
+    negative = true;
+    cleaned = cleaned.slice(1);
+  }
   if (cleaned === "") return { ok: false, error: "empty" };
   const match = /^(\d+)(?:,(\d*))?$/.exec(cleaned);
   if (!match) return { ok: false, error: "invalid" };
@@ -121,7 +134,7 @@ export function parseMoneyInput(input: string): ParseMoneyResult {
   const asString = `${wholeDigits.replace(/^0+(?=\d)/, "")}${centsDigits}`;
   const value = Number(asString);
   if (!Number.isSafeInteger(value)) return { ok: false, error: "out-of-range" };
-  return { ok: true, value: value as MinorUnits };
+  return { ok: true, value: (negative && value !== 0 ? -value : value) as MinorUnits };
 }
 
 export { MoneyError };
@@ -134,9 +147,6 @@ export function formatCurrencyAmount(
   value: { amount: number; currency: string },
   options: MoneyFormatOptions = {},
 ): string {
-  const symbols: Record<string, string> = { ARS: "$", USD: "US$" };
-  const symbol = symbols[value.currency];
-  if (!symbol) throw new MoneyError(`Unsupported currency ${value.currency}`);
-  const p = formatMoneyParts(value.amount, options);
-  return `${p.sign}${symbol}${NBSP}${p.whole}${p.cents}`;
+  if (!(value.currency in CURRENCY_SYMBOLS)) throw new MoneyError(`Unsupported currency ${value.currency}`);
+  return formatMoney(value.amount, { ...options, currency: value.currency as keyof typeof CURRENCY_SYMBOLS });
 }

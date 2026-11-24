@@ -8,6 +8,8 @@ export interface MoneyProps {
   sign?: SignMode;
   /** Marks values that need action (overdue, over budget) — alert-text. Never for ordinary expenses (P-16). */
   attention?: boolean;
+  /** Currency of the amount (D2-02); default ARS. */
+  currency?: "ARS" | "USD";
   className?: string;
 }
 
@@ -15,10 +17,10 @@ export interface MoneyProps {
  * The only way to render money (rule O-05): tabular numerals, U+2212 minus, cents in ink-2.
  * Income and expenses are both ink; colour is not a prop.
  */
-export function Money({ amount, cents = "always", sign = "negative", attention = false, className }: MoneyProps) {
-  const p = formatMoneyParts(amount, { cents, sign });
+export function Money({ amount, cents = "always", sign = "negative", attention = false, currency, className }: MoneyProps) {
+  const p = formatMoneyParts(amount, { cents, sign, currency });
   return (
-    <span className={cn("num", attention && "text-alert-text", className)} aria-label={formatMoney(amount, { cents, sign })}>
+    <span className={cn("num", attention && "text-alert-text", className)} aria-label={formatMoney(amount, { cents, sign, currency })}>
       <span aria-hidden="true">
         {p.sign}
         {p.symbol}

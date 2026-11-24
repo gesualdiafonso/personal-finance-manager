@@ -73,7 +73,8 @@
             "type": "string",
             "enum": [
               "credit",
-              "debit"
+              "debit",
+              "prepaid"
             ]
           },
           "lastFourDigits": {

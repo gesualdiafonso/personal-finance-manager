@@ -48,7 +48,7 @@ describe("export", () => {
   it("exports everything with a verifiable SHA-256 and counts", async () => {
     const { db } = await setup();
     const file = await exportData(db, { now });
-    expect(file).toMatchObject({ format: "pfm.export", scope: "full", schemaVersion: "2.0.0", basedOnRevision: 2 });
+    expect(file).toMatchObject({ format: "pfm.export", scope: "full", schemaVersion: "2.1.0", basedOnRevision: 2 });
     expect(file.integrity.counts).toMatchObject({ accounts: 3, transactions: 7, outbox: 0 });
     await expect(verifyExchangeFile(json(file))).resolves.toMatchObject({ kind: "export" });
     db.close();

@@ -33,6 +33,10 @@ Lê também o [README](README.md) e, antes de mexer em interface, o [Design Syst
 | Migrações de dados | `src/services/versioning/data-migrations.ts` |
 | Validação em quatro camadas | `src/services/data/dataset.ts` |
 | Decisões do Step 02 (D2-01…D2-11) | `docs/decisions/step-02-decisions.md` |
+| Decisões do Step 03 (D3-01…D3-10) | `docs/decisions/step-03-decisions.md` |
+| Ler/escrever dados a partir da interface | `src/hooks/use-local-data.ts` (`useLocalQuery`, `mutate`) — nunca abrir o IndexedDB num componente |
+| Componentes de formulário, sheet, diálogo, badge | `src/components/ui/` (`<dialog>` nativo, sem dependências) |
+| Contas e cartões | `src/features/accounts/`, `src/features/cards/`, `docs/features/` |
 | IndexedDB | `src/services/storage/local-store.ts` |
 | Preferências (LocalStorage) | `src/services/storage/preferences.ts` |
 | Cifragem do pacote publicado | `src/services/crypto/bundle.ts` |

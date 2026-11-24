@@ -60,6 +60,9 @@ test.describe("navigation", () => {
     await expect(tabbar.getByRole("link", { name: "Inicio" })).toBeVisible();
     await page.goto("/tarjetas");
     await expect(page.getByRole("navigation", { name: "Obligaciones" }).getByRole("link", { name: "Tarjetas" })).toHaveAttribute("aria-current", "page");
+    // Step 03: /tarjetas is now a client page; the switcher saves the area once hydrated
+    // (the data has loaded), not when the prerendered HTML appears.
+    await expect(page.getByTestId("cards-loading")).toHaveCount(0);
     await page.goto("/");
     await expect(page.getByRole("link", { name: "Obligaciones" })).toHaveAttribute("href", "/tarjetas");
     await page.getByRole("button", { name: "Más" }).click();

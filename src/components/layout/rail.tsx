@@ -50,7 +50,14 @@ function RailItem({ id, pathname }: { id: AreaId; pathname: string }) {
 
 /** Tablet landscape (1024–1199px): 72px icon rail with the + on top (responsivo.md). */
 export function Rail() {
-  const pathname = usePathname();
+  return <RailView pathname={usePathname()} />;
+}
+
+/**
+ * Rendered with an explicit pathname so the app shell can show it inside a Suspense
+ * fallback while the pathname is unknown (prerendered detail shells, Step 03).
+ */
+export function RailView({ pathname }: { pathname: string }) {
   return (
     <aside className="sticky top-0 hidden h-dvh w-(--layout-rail) shrink-0 flex-col items-center gap-1 border-r border-line bg-paper-2 py-6 landscape:flex desktop:hidden">
       <Link

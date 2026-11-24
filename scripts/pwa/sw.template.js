@@ -12,7 +12,16 @@
 const VERSION = "__PFM_SW_VERSION__";
 const SHELL_CACHE = `pfm-shell-${VERSION}`;
 const STATIC_CACHE = `pfm-static-${VERSION}`;
-const SHELL_URLS = ["/", "/offline", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png", "/icons/apple-touch-icon.png"];
+/**
+ * Detail pages (/cuentas/<id>, /tarjetas/<id>) are the same client shell for every id: the id
+ * is read from the address bar and the data from IndexedDB. One shell per area is precached
+ * under a placeholder id, so any account or card opens offline, visited or not (Step 03).
+ */
+const DETAIL_SHELLS = [
+  [/^\/cuentas\/[^/]+$/, "/cuentas/_"],
+  [/^\/tarjetas\/[^/]+$/, "/tarjetas/_"],
+];
+const SHELL_URLS = ["/", "/offline", "/cuentas/_", "/tarjetas/_", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png", "/icons/apple-touch-icon.png"];
 const ASSET_PATTERN = /\/_next\/static\/[^"'\s)<>]+/g;
 
 async function precache() {
@@ -70,8 +79,11 @@ async function networkFirstPage(request) {
     }
     return response;
   } catch {
+    const path = new URL(request.url).pathname;
+    const shell = DETAIL_SHELLS.find(([pattern]) => pattern.test(path));
     return (
       (await caches.match(request, { ignoreSearch: true })) ||
+      (shell && (await caches.match(shell[1]))) ||
       (await caches.match("/offline")) ||
       new Response("Sin conexión", { status: 503, headers: { "content-type": "text/plain; charset=utf-8" } })
     );

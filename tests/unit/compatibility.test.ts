@@ -5,7 +5,7 @@ import { assertCurrentSchema, assertRevisionNotOlder, assertSchemaCompatible, cl
 
 describe("data version compatibility", () => {
   it("reads the current version and newer minors/patches of the same major", () => {
-    expect(DATA_COMPATIBILITY.current).toBe("2.0.0");
+    expect(DATA_COMPATIBILITY.current).toBe("2.1.0");
     expect(isSchemaCompatible(DATA_COMPATIBILITY.current)).toBe(true);
     expect(isSchemaCompatible("2.4.0")).toBe(true);
     expect(isSchemaCompatible("2.0.9")).toBe(true);
