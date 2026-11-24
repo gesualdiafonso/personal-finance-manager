@@ -96,7 +96,7 @@ export function TabBarView({ pathname }: { pathname: string }) {
     <>
       <nav
         aria-label={es.nav.primaryLabel}
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 bg-paper px-2 pt-1.5 shadow-tabbar safe-bottom landscape:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 bg-paper px-2 pt-1.5 shadow-tabbar safe-bottom landscape:hidden print:hidden"
       >
         <TabLink href={AREAS.dashboard.href} label={es.nav.mobile.home} Icon={House} active={isActive(pathname, "/")} />
         <TabLink href={AREAS.transactions.href} label={es.nav.mobile.transactions} Icon={List} active={isActive(pathname, AREAS.transactions.href)} />

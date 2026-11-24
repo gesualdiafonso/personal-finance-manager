@@ -40,6 +40,8 @@ Lê também o [README](README.md) e, antes de mexer em interface, o [Design Syst
 | Transações (registo, lista, detalhe) | `src/features/transactions/`; regras em `src/domain/rules/transactions.ts`, `reconciliation.ts` |
 | Decisões do Step 04 (D4-01…D4-17) | `docs/decisions/step-04-decisions.md` |
 | Cálculos financeiros (fórmulas, estados, cartões) | `docs/architecture/financial-calculations.md` |
+| Relatórios (seletores, relatório, exportação CSV/JSON/PDF) | `src/domain/rules/reports.ts`, `src/services/reports/`, `src/features/reports/`, `docs/features/reports.md` |
+| Decisões do Step 08 (D8-01…D8-12) | `docs/decisions/step-08-decisions.md` |
 | IndexedDB | `src/services/storage/local-store.ts` |
 | Preferências (LocalStorage) | `src/services/storage/preferences.ts` |
 | Cifragem do pacote publicado | `src/services/crypto/bundle.ts` |

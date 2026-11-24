@@ -60,7 +60,7 @@ export function Rail() {
  */
 export function RailView({ pathname }: { pathname: string }) {
   return (
-    <aside className="sticky top-0 hidden h-dvh w-(--layout-rail) shrink-0 flex-col items-center gap-1 border-r border-line bg-paper-2 py-6 landscape:flex desktop:hidden">
+    <aside className="sticky top-0 hidden h-dvh w-(--layout-rail) shrink-0 flex-col items-center gap-1 border-r border-line bg-paper-2 py-6 landscape:flex desktop:hidden print:hidden">
       <Link
         href={NEW_TRANSACTION_HREF}
         onClick={(e) => openNewTransactionHere(e, pathname)}

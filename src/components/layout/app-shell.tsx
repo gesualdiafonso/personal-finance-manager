@@ -29,7 +29,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </Suspense>
       <main
         id="contenido"
-        className="min-w-0 flex-1 px-4 pt-14 pb-28 tablet:px-8 landscape:pb-16 desktop:max-w-(--layout-content-max) desktop:px-12 desktop:pt-10"
+        className="min-w-0 flex-1 px-4 pt-14 pb-28 tablet:px-8 landscape:pb-16 desktop:max-w-(--layout-content-max) desktop:px-12 desktop:pt-10 print:max-w-none print:p-0"
       >
         {children}
       </main>

@@ -62,3 +62,16 @@
 @theme {
   --breakpoint-landscape: 1024px;
 }
+
+/* Printing / "Guardar como PDF" (Step 08 reports): paper background, no app chrome (the
+   navigations carry print:hidden), page margins. Colours stay the tokens of the light theme. */
+@media print {
+  @page {
+    margin: 16mm 14mm;
+  }
+  html {
+    background: var(--bg-paper);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
