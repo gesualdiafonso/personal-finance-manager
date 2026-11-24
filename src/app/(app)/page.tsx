@@ -1,5 +1,6 @@
-import { EmptyDashboard } from "@/features/dashboard/empty-dashboard";
+import { DashboardPage } from "@/features/dashboard/dashboard-page";
 
-export default function DashboardPage() {
-  return <EmptyDashboard />;
+/** Static shell; the Panel is read on the client from this device's IndexedDB. */
+export default function Page() {
+  return <DashboardPage />;
 }

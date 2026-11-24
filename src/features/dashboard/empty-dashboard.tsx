@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/layout/page-header";
-import { CurrentMonthTitle, TodayLabel } from "@/components/shared/current-date";
+import {
+  CurrentMonthTitle,
+  TodayLabel,
+} from "@/components/shared/current-date";
 import { Button } from "@/components/ui/button";
 import { AREAS } from "@/lib/config/navigation";
 import { formatMoneyParts } from "@/lib/formatting/money";

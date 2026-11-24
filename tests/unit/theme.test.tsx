@@ -65,13 +65,17 @@ describe("theme persistence", () => {
 
 describe("LocalStorage preferences", () => {
   it("only knows lightweight, non-financial keys", () => {
-    expect(PREFERENCE_KEYS.sort()).toEqual(["pfm.dashboard.period", "pfm.obligations.lastArea", "pfm.quickAdd.lastAccountId", "pfm.theme"]);
+    expect(PREFERENCE_KEYS.sort()).toEqual(["pfm.dashboard.granularity", "pfm.dashboard.period", "pfm.obligations.lastArea", "pfm.quickAdd.lastAccountId", "pfm.theme"]);
   });
 
   it("validates values before writing", () => {
     expect(() => writePreference("pfm.dashboard.period", "noviembre" as never)).toThrow();
     expect(writePreference("pfm.dashboard.period", "2026-11")).toBe(true);
     expect(readPreference("pfm.dashboard.period")).toBe("2026-11");
+    // Step 07: the Panel granularity is a closed list of view settings.
+    expect(() => writePreference("pfm.dashboard.granularity", "decade" as never)).toThrow();
+    expect(writePreference("pfm.dashboard.granularity", "quarter")).toBe(true);
+    expect(readPreference("pfm.dashboard.granularity")).toBe("quarter");
   });
 
   it("resolves the theme", () => {

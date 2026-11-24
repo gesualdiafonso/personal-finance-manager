@@ -14,6 +14,8 @@ const preferenceSchemas = {
   "pfm.obligations.lastArea": z.enum(["bills", "cards", "recurrences"]),
   "pfm.quickAdd.lastAccountId": z.uuid(),
   "pfm.dashboard.period": z.string().regex(/^\d{4}-\d{2}$/),
+  /** Step 07: period granularity of the Panel (a view setting, not financial data). */
+  "pfm.dashboard.granularity": z.enum(["week", "month", "quarter", "year"]),
 } as const;
 
 export type PreferenceKey = keyof typeof preferenceSchemas;

@@ -43,8 +43,13 @@ const HASH: Record<Tab, string> = {
   budgets: "#presupuestos",
   goals: "#metas",
 };
-const tabFromHash = (hash: string): Tab =>
-  TABS.find((x) => HASH[x] === hash && hash !== "") ?? "summary";
+/** "#presupuestos", "#metas", or a deep link to one record: "#presupuestos/<id>", "#metas/<id>" (Panel, Step 07). */
+function parseHash(hash: string): { tab: Tab; id: string | null } {
+  const [section, id = null] = hash.split("/");
+  const tab =
+    TABS.find((x) => HASH[x] === section && section !== "") ?? "summary";
+  return { tab, id: tab === "summary" ? null : id };
+}
 
 /**
  * Presupuesto (Plan): module summary, budgets and savings goals of this device. Details and
@@ -67,7 +72,12 @@ function PlanningContent() {
   const data = query.status === "ready" ? query.data : null;
 
   useEffect(() => {
-    const sync = () => setTab(tabFromHash(window.location.hash));
+    const sync = () => {
+      const { tab: next, id } = parseHash(window.location.hash);
+      setTab(next);
+      if (id && next === "budgets") setBudgetId(id);
+      if (id && next === "goals") setGoalId(id);
+    };
     sync();
     window.addEventListener("hashchange", sync);
     return () => window.removeEventListener("hashchange", sync);
@@ -228,12 +238,18 @@ function PlanningContent() {
           <BudgetDetailSheet
             row={selectedBudget}
             context={budgetContext}
-            onClose={() => setBudgetId(null)}
+            onClose={() => {
+              setBudgetId(null);
+              if (window.location.hash.includes("/")) choose(tab); // drop a deep link once closed
+            }}
           />
           <GoalDetailSheet
             row={selectedGoal}
             context={goalContext}
-            onClose={() => setGoalId(null)}
+            onClose={() => {
+              setGoalId(null);
+              if (window.location.hash.includes("/")) choose(tab);
+            }}
           />
         </>
       )}
