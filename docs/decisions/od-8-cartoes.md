@@ -1,6 +1,6 @@
 # OD-8 — Compras com cartão, saldos e faturas
 
-**Estado:** decidida em parte pelo responsável em 2026-11-24. **Ainda não implementada**: até ao step que a implementar, o código mantém a regra provisória D2-11 (nenhuma compra com cartão mexe no saldo da conta; aparecem como "comprometido").
+**Estado:** decidida pelo responsável em 2026-11-24. **Ainda não implementada**: até ao step que a implementar, o código mantém a regra provisória D2-11 (nenhuma compra com cartão mexe no saldo da conta; aparecem como "comprometido").
 
 ## Decidido
 
@@ -12,14 +12,9 @@
 | Relatórios | A despesa conta na data da compra, por categoria; o pagamento da fatura não é despesa (sem dupla contagem). |
 | Crédito disponível | Passa a existir: limite − o que está por pagar. O detalhe do cartão passa a ser por fatura (aberta, fechada, paga), como no Design System. |
 | Moeda | Cada fatura na sua moeda, sem conversão (D2-02). |
-
-## Em aberto
-
-| Tema | Pergunta |
-| --- | --- |
-| Cuotas | Uma compra em N prestações reparte-se por N faturas: implementar já com as faturas, ou depois? |
-| Pagamento parcial / mínimo | O que não se paga passa para a fatura seguinte. Os juros registam-se à mão, ou ficam de fora? |
-| Devoluções | Proposta: abatem na fatura aberta. Por confirmar explicitamente. |
+| Cuotas | Implementadas **junto com as faturas**: uma compra em N prestações reparte-se por N faturas consecutivas. |
+| Pagamento parcial / mínimo | Permitido: o que não se paga passa para a fatura seguinte. Os **juros registam-se à mão** (não são calculados pela app). |
+| Devoluções | Abatem na fatura aberta. |
 
 ## Impacto quando for implementada
 
