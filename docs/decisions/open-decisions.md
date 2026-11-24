@@ -1,6 +1,6 @@
 # Decisões em aberto e pontos não verificados
 
-Nada nesta lista foi decidido por omissão. Cada item tem de ser fechado antes de o código correspondente ser implementado.
+Nada nesta lista foi decidido por omissão. Cada item tem de ser fechado antes de o código correspondente ser implementado. As decisões aprovadas no Step 02 (D2-01 a D2-11) estão em [step-02-decisions.md](step-02-decisions.md) e **não** fecham nenhum destes itens.
 
 ## Brief original — secções 11–14: NÃO VERIFICADAS
 
@@ -12,12 +12,12 @@ O brief original do Step 00 tem, segundo o responsável do produto, as secções
 | --- | --- | --- | --- | --- |
 | OD-1 | Onde é que a CI obtém a frase-passe para cifrar? | Segredo do GitHub Actions · cifragem no computador antes do push | Segredo do Actions (é a única que permite "validar antes de cifrar") | Publicação na CI |
 | OD-2 | O repositório guarda os JSON em texto simples ou cifrados? | Texto simples · cifrados | Texto simples (diffs legíveis, recuperação se a frase-passe se perder) | Dados reais no repositório |
-| OD-3 | O IndexedDB guarda os dados cifrados em repouso? | Desbloqueio por sessão · "recordar neste dispositivo" · em claro | Uma das duas primeiras | Dados reais nos dispositivos |
-| OD-4 | Onde se aplicam os conjuntos de alterações exportados? | Script local antes do commit · CI com commit automático | Script local (os conflitos precisam de uma pessoa) | Fluxo de exportação |
-| OD-5 | As exportações vão cifradas? | Sim · não | Sim | Interface de exportação |
+| OD-3 | O IndexedDB guarda os dados cifrados em repouso? | Desbloqueio por sessão · "recordar neste dispositivo" · em claro | Uma das duas primeiras (desenho proposto em [data-security.md](../architecture/data-security.md), por aprovar) | Dados reais nos dispositivos |
+| OD-4 | Onde se aplicam os conjuntos de alterações exportados? | Script local antes do commit · CI com commit automático | Script local (os conflitos precisam de uma pessoa). Step 02 (D2-08): integração manual, verificada por `npm run data:changeset` | Automatizar a integração |
+| OD-5 | As exportações vão cifradas? | Sim · não | Sim (desenho proposto em [data-security.md](../architecture/data-security.md), por aprovar). Step 02 (D2-07): JSON simples, sem interface de descarga | Interface de exportação |
 | OD-6 | Derivação de chave | PBKDF2 nativo · Argon2id (WASM) | PBKDF2 (implementado) | — |
 | OD-7 | Como se publica no Vercel? | CLI pelo Actions · integração Git do Vercel | CLI pelo Actions | Deploy |
-| OD-8 | Como afetam as compras no cartão os saldos e as faturas? | A definir | Esperar pelas secções 11–14 do brief | Cartões, saldos |
+| OD-8 | Como afetam as compras no cartão os saldos e as faturas? | A definir | Esperar pelas secções 11–14 do brief. Regra provisória D2-11: não mexem no saldo da conta, aparecem como "comprometido em cartões" | Cartões, saldos, faturas de cartão |
 
 ## Produto
 

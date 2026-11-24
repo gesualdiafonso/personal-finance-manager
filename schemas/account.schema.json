@@ -1,5 +1,5 @@
 {
-  "$id": "https://pfm.local/schemas/accounts.schema.json",
+  "$id": "https://pfm.local/schemas/account.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
@@ -55,18 +55,54 @@
           },
           "name": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 80
           },
-          "openingBalanceMinor": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
+          "institution": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "accountType": {
+            "type": "string",
+            "enum": [
+              "checking",
+              "savings",
+              "cash",
+              "investment",
+              "other"
+            ]
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$"
+          },
+          "initialBalance": {
+            "type": "number"
           },
           "openingDate": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
             "type": "string",
-            "format": "date",
-            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+            "enum": [
+              "active",
+              "archived"
+            ]
           }
         },
         "required": [
@@ -77,9 +113,14 @@
           "deletedAt",
           "deviceId",
           "name",
-          "openingBalanceMinor",
-          "openingDate"
-        ]
+          "institution",
+          "accountType",
+          "currency",
+          "initialBalance",
+          "openingDate",
+          "status"
+        ],
+        "additionalProperties": false
       }
     }
   },
@@ -87,5 +128,6 @@
     "schema",
     "schemaVersion",
     "records"
-  ]
+  ],
+  "additionalProperties": false
 }

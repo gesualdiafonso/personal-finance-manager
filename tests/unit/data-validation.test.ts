@@ -10,7 +10,7 @@ describe("JSON validation of the sample data", () => {
   it("validates in all four layers", () => {
     const { dataSet, issues } = validateDataFiles(loadSampleFiles());
     expect(issues).toEqual([]);
-    expect(dataSet?.meta.dataRevision).toBe(1);
+    expect(dataSet?.meta.dataRevision).toBe(2);
     expect(Object.keys(dataSet?.transactions ?? {})).toEqual([TX]);
   });
 
@@ -24,10 +24,10 @@ describe("JSON validation of the sample data", () => {
 describe("layer 1 — structure", () => {
   it("rejects a decimal amount (I-01)", () => {
     const files = clone(loadSampleFiles());
-    (files[TX] as Json).records[0]!.amountMinor = 42310.5;
+    (files[TX] as Json).records[0]!.amount = 42310.5;
     const { dataSet, issues } = validateDataFiles(files);
     expect(dataSet).toBeNull();
-    expect(issues.some((i) => i.layer === "structure" && i.message.startsWith("records.0.amountMinor"))).toBe(true);
+    expect(issues.some((i) => i.layer === "structure" && i.message.startsWith("records.0.amount"))).toBe(true);
   });
 
   it("rejects an invalid calendar date", () => {
@@ -35,15 +35,21 @@ describe("layer 1 — structure", () => {
     expect(transactionSchema.safeParse({ ...record, date: "2026-02-30" }).success).toBe(false);
   });
 
-  it("rejects a currency other than ARS", () => {
+  it("rejects an unsupported currency (D2-02: ARS and USD only)", () => {
     const files = clone(loadSampleFiles());
-    (files["meta.json"] as Record<string, unknown>).currency = "USD";
-    expect(validateDataFiles(files).issues.some((i) => i.file === "meta.json")).toBe(true);
+    (files["accounts.json"] as Json).records[0]!.currency = "EUR";
+    expect(validateDataFiles(files).issues).toContainEqual(expect.objectContaining({ file: "accounts.json", layer: "structure" }));
+  });
+
+  it("requires settings.json", () => {
+    const files = clone(loadSampleFiles());
+    delete files["settings.json"];
+    expect(validateDataFiles(files).issues.map((i) => `${i.file}: ${i.message}`)).toContain("settings.json: Required file is missing");
   });
 
   it("rejects an incompatible major schemaVersion", () => {
     const files = clone(loadSampleFiles());
-    (files["accounts.json"] as Json).schemaVersion = "2.0.0";
+    (files["accounts.json"] as Json).schemaVersion = "3.0.0";
     const { issues } = validateDataFiles(files);
     expect(issues).toContainEqual(expect.objectContaining({ file: "accounts.json", layer: "structure" }));
   });
@@ -79,12 +85,32 @@ describe("layers 2–4 — references, uniqueness, invariants", () => {
     expect(validateDataFiles(files).issues).toContainEqual(expect.objectContaining({ message: "date is outside the file period" }));
   });
 
-  it("detects a broken transfer (I-03)", () => {
+  it("rejects a transfer without destination or to the same account (D2-03)", () => {
     const files = clone(loadSampleFiles());
-    const legs = (files[TX] as Json).records.filter((r) => r.kind === "transfer");
-    legs[1]!.amountMinor = 999;
+    const transfer = (files[TX] as Json).records.find((r) => r.type === "transfer")!;
+    transfer.destinationAccountId = transfer.accountId;
+    expect(validateDataFiles(files).issues.some((i) => i.layer === "structure" && i.message.includes("two different accounts"))).toBe(true);
+  });
+
+  it("rejects a cross-currency transfer (D2-02)", () => {
+    const files = clone(loadSampleFiles());
+    const transfer = (files[TX] as Json).records.find((r) => r.type === "transfer")!;
+    transfer.destinationAccountId = "0193a1b0-000f-7000-8000-00000000000f"; // the USD account
+    expect(validateDataFiles(files).issues).toContainEqual(expect.objectContaining({ layer: "references", message: expect.stringContaining("currency differs") }));
+  });
+
+  it("rejects a category of the wrong type", () => {
+    const files = clone(loadSampleFiles());
+    (files[TX] as Json).records.find((r) => r.type === "income")!.categoryId = "0193a1b0-0003-7000-8000-000000000003";
+    expect(validateDataFiles(files).issues).toContainEqual(expect.objectContaining({ message: "categoryId must be an income category" }));
+  });
+
+  it("warns (without rejecting) about a possible duplicate", () => {
+    const files = clone(loadSampleFiles());
+    const records = (files[TX] as Json).records;
+    records.push({ ...records[1]!, id: "0193a1b0-0fff-7000-8000-000000000fff" });
     const { issues } = validateDataFiles(files);
-    expect(issues.some((i) => i.layer === "invariants" && i.message.startsWith("I-03"))).toBe(true);
+    expect(issues).toContainEqual(expect.objectContaining({ severity: "warning", message: expect.stringContaining("Possible duplicate") }));
   });
 
   it("detects checksum drift (I-10)", () => {
@@ -95,7 +121,7 @@ describe("layers 2–4 — references, uniqueness, invariants", () => {
 
   it("never puts amounts or descriptions in issue messages", () => {
     const files = clone(loadSampleFiles());
-    (files[TX] as Json).records[1]!.amountMinor = 1;
+    (files[TX] as Json).records[1]!.amount = 1;
     const text = JSON.stringify(validateDataFiles(files).issues);
     expect(text).not.toContain("EJEMPLO-FICTICIO");
     expect(text).not.toMatch(/4231000|423100/);

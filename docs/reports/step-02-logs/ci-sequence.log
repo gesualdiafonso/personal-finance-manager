@@ -1,0 +1,165 @@
+✓ No database or ORM dependency (32 declared, 620 installed packages checked; src/ has no remote write endpoint)
+Generating route types...
+✓ Types generated successfully
+tokens.css matches tokens.json
+
+ RUN  v5.1.0 /home/claude/personal-finance-manager
+
+
+ Test Files  2 passed (2)
+      Tests  40 passed (40)
+   Start at  08:07:37
+   Duration  1.64s (environment 64%, setup 19%, import 8%, tests 5%, transform 4%, worker 1%)
+
+    Isolate  2 workers spawned · ~546ms startup each (spawn + environment, per file)
+             at least ~546ms faster with isolate: false — reuses workers across files instead of one per file
+
+schemas/ matches the Zod schemas (9 files)
+✓ data/ valid (layer "structure") — schemaVersion 2.0.0, dataRevision 2
+✓ data/ valid (layer "references") — schemaVersion 2.0.0, dataRevision 2
+✓ data/ valid (layer "uniqueness") — schemaVersion 2.0.0, dataRevision 2
+✓ data/ valid (layer "invariants") — schemaVersion 2.0.0, dataRevision 2
+✓ data is at the current schemaVersion (2.0.0)
+
+ RUN  v5.1.0 /home/claude/personal-finance-manager
+
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  08:07:41
+   Duration  729ms (environment 54%, setup 19%, import 12%, tests 8%, transform 7%, worker 1%)
+
+
+ RUN  v5.1.0 /home/claude/personal-finance-manager
+
+
+ Test Files  2 passed (2)
+      Tests  25 passed (25)
+   Start at  08:07:42
+   Duration  1.38s (environment 59%, setup 15%, tests 13%, import 9%, transform 3%, worker 1%)
+
+    Isolate  2 workers spawned · ~422ms startup each (spawn + environment, per file)
+             at least ~422ms faster with isolate: false — reuses workers across files instead of one per file
+
+
+ RUN  v5.1.0 /home/claude/personal-finance-manager
+
+
+ Test Files  2 passed (2)
+      Tests  15 passed (15)
+   Start at  08:07:44
+   Duration  1.86s (environment 46%, tests 33%, setup 11%, import 7%, transform 3%, worker 1%)
+
+    Isolate  2 workers spawned · ~475ms startup each (spawn + environment, per file)
+             at least ~475ms faster with isolate: false — reuses workers across files instead of one per file
+
+✓ changeset applies cleanly to data/ and the result passes validation
+
+ RUN  v5.1.0 /home/claude/personal-finance-manager
+
+
+ Test Files  2 passed (2)
+      Tests  16 passed (16)
+   Start at  08:07:46
+   Duration  3.31s (tests 66%, environment 23%, setup 6%, import 4%, transform 2%)
+
+    Isolate  2 workers spawned · ~445ms startup each (spawn + environment, per file)
+             at least ~445ms faster with isolate: false — reuses workers across files instead of one per file
+
+
+> personal-finance-manager@0.1.0 test
+> vitest run
+
+
+ RUN  v5.1.0 /home/claude/personal-finance-manager
+
+
+ Test Files  14 passed (14)
+      Tests  152 passed (152)
+   Start at  08:07:50
+   Duration  12.89s (environment 51%, tests 26%, setup 14%, import 7%, transform 1%, worker 1%)
+
+Environment  jsdom was created 14 times · 5.91s total, 51% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
+public/sw.js written (cache version 0.1.0+20261124110803)
+▲ Next.js 16.4.6 (Turbopack)
+✓ Running next.config.ts took 47ms
+- Cache Components enabled
+- Partial Prefetching enabled
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 3.2s
+  Running TypeScript ...
+  Finished TypeScript in 2.5s ...
+  Collecting page data using 1 worker ...
+  Generating static pages using 1 worker (0/13) ...
+  Generating static pages using 1 worker (3/13) 
+  Generating static pages using 1 worker (6/13) 
+  Generating static pages using 1 worker (9/13) 
+✓ Generating static pages using 1 worker (13/13) in 485ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /configuracion
+├ ○ /cuentas
+├ ○ /cuentas-domesticas
+├ ○ /informes
+├ ○ /manifest.webmanifest
+├ ○ /offline
+├ ○ /presupuesto
+├ ○ /recurrencias
+├ ○ /tarjetas
+└ ○ /transacciones
+
+
+○  (Static)  prerendered as static content
+
+✓ No plaintext data in public artifacts (366 files scanned)
+
+Running 38 tests using 1 worker
+
+  ✓   1 [desktop] › tests/e2e/foundation.spec.ts:20:3 › application foundation › starts and renders the Dashboard empty state in Spanish (1.0s)
+  ✓   2 [desktop] › tests/e2e/foundation.spec.ts:28:3 › application foundation › shows today in Buenos Aires even when the device is in Tokyo (736ms)
+  ✓   3 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area / has its own route and title (441ms)
+  ✓   4 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /transacciones has its own route and title (537ms)
+  ✓   5 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /cuentas-domesticas has its own route and title (432ms)
+  ✓   6 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /tarjetas has its own route and title (395ms)
+  ✓   7 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /recurrencias has its own route and title (466ms)
+  ✓   8 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /cuentas has its own route and title (474ms)
+  ✓   9 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /presupuesto has its own route and title (388ms)
+  ✓  10 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /informes has its own route and title (349ms)
+  ✓  11 [desktop] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /configuracion has its own route and title (397ms)
+  ✓  12 [desktop] › tests/e2e/foundation.spec.ts:45:3 › navigation › desktop: sidebar lists the nine areas, text only (606ms)
+  -  13 [desktop] › tests/e2e/foundation.spec.ts:56:3 › navigation › iPhone: tab bar, Obligaciones reopens the last area, Más lists all nine
+  ✓  14 [desktop] › tests/e2e/platform.spec.ts:4:3 › theme preference › persists across reloads and is applied before hydration (1.4s)
+  ✓  15 [desktop] › tests/e2e/platform.spec.ts:21:3 › local fonts › load from the app itself, with no request to Google Fonts or any other host (525ms)
+  ✓  16 [desktop] › tests/e2e/platform.spec.ts:41:3 › IndexedDB › initialises the local store at version 2 and reports integrity (698ms)
+  ✓  17 [desktop] › tests/e2e/platform.spec.ts:51:3 › PWA groundwork › serves a valid web app manifest (48ms)
+  ✓  18 [desktop] › tests/e2e/platform.spec.ts:61:3 › PWA groundwork › service worker installs, precaches the shell and fonts, and serves it offline (871ms)
+  ✓  19 [desktop] › tests/e2e/platform.spec.ts:88:3 › PWA groundwork › cache names are versioned and /sw.js is never cached by the browser (9ms)
+  ✓  20 [iphone] › tests/e2e/foundation.spec.ts:20:3 › application foundation › starts and renders the Dashboard empty state in Spanish (496ms)
+  ✓  21 [iphone] › tests/e2e/foundation.spec.ts:28:3 › application foundation › shows today in Buenos Aires even when the device is in Tokyo (521ms)
+  ✓  22 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area / has its own route and title (368ms)
+  ✓  23 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /transacciones has its own route and title (423ms)
+  ✓  24 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /cuentas-domesticas has its own route and title (378ms)
+  ✓  25 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /tarjetas has its own route and title (429ms)
+  ✓  26 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /recurrencias has its own route and title (476ms)
+  ✓  27 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /cuentas has its own route and title (508ms)
+  ✓  28 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /presupuesto has its own route and title (499ms)
+  ✓  29 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /informes has its own route and title (494ms)
+  ✓  30 [iphone] › tests/e2e/foundation.spec.ts:36:5 › application foundation › area /configuracion has its own route and title (531ms)
+  -  31 [iphone] › tests/e2e/foundation.spec.ts:45:3 › navigation › desktop: sidebar lists the nine areas, text only
+  ✓  32 [iphone] › tests/e2e/foundation.spec.ts:56:3 › navigation › iPhone: tab bar, Obligaciones reopens the last area, Más lists all nine (1.3s)
+  ✓  33 [iphone] › tests/e2e/platform.spec.ts:4:3 › theme preference › persists across reloads and is applied before hydration (766ms)
+  ✓  34 [iphone] › tests/e2e/platform.spec.ts:21:3 › local fonts › load from the app itself, with no request to Google Fonts or any other host (334ms)
+  ✓  35 [iphone] › tests/e2e/platform.spec.ts:41:3 › IndexedDB › initialises the local store at version 2 and reports integrity (517ms)
+  ✓  36 [iphone] › tests/e2e/platform.spec.ts:51:3 › PWA groundwork › serves a valid web app manifest (55ms)
+  ✓  37 [iphone] › tests/e2e/platform.spec.ts:61:3 › PWA groundwork › service worker installs, precaches the shell and fonts, and serves it offline (912ms)
+  ✓  38 [iphone] › tests/e2e/platform.spec.ts:88:3 › PWA groundwork › cache names are versioned and /sw.js is never cached by the browser (12ms)
+
+  2 skipped
+  36 passed (22.1s)

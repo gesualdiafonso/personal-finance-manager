@@ -7,10 +7,12 @@
 | E2E | Playwright (Chromium, desktop 1440×900 e iPhone 390×844) | `tests/e2e/` | `npm run test:e2e` |
 | Tipos | `next typegen` + `tsc --noEmit` (strict) | — | `npm run typecheck` |
 | Lint | ESLint (regras do Next.js + importações proibidas) | — | `npm run lint` |
-| Dados | Zod, quatro camadas | `data/` | `npm run data:validate` |
+| Dados | Zod, quatro camadas | `data/` | `npm run data:validate` (`-- --only <camada>`) |
+| Migrações | `data/` na versão atual + testes 1.0.0 → 2.0.0 | `tests/unit/migrations.test.ts` | `npm run data:migrate -- --check`, `npm run test:migrations` |
+| Changesets | Formato, hash e aplicação em memória | `tests/fixtures/changesets/` | `npm run data:changeset -- <f>` |
 | Schemas | Zod → JSON Schema, sem divergências | `schemas/` | `npm run schemas:check` |
 | Tokens | `tokens.json` → `tokens.css`, sem divergências | `src/styles/` | `npm run tokens:check` |
-| Guardas | Sem BD/ORM; sem texto simples nos artefactos | — | `npm run guard:deps`, `npm run guard:artifacts` |
+| Guardas | Sem BD/ORM/armazenamento remoto/escrita no GitHub; sem texto simples nos artefactos | — | `npm run guard:deps`, `npm run guard:artifacts` |
 
 ## Fuso horário nos testes
 
@@ -43,3 +45,16 @@ O Playwright arranca `next start` na porta 3200 (`E2E_PORT`). Na CI, o Chromium 
 | Manifest e service worker | E2E "PWA groundwork" |
 | Design System (tokens) | `tests/unit/design-system.test.tsx`, `npm run tokens:check` |
 | Cifragem | `tests/unit/crypto.test.ts`, `tests/integration/published-source.test.ts` |
+
+## O que cada área do Step 02 testa
+
+| Área | Testes | Comando |
+| --- | --- | --- |
+| Dinheiro, moedas, saldos, categorias, recorrências, ids | `tests/unit/domain.test.ts`, `money.test.ts` | `npm run test:domain` |
+| Validação e compatibilidade de versões | `tests/unit/data-validation.test.ts`, `compatibility.test.ts` | `npm run test:data` |
+| IndexedDB v2, atualização v1 → v2, publicações, repositórios | `tests/integration/local-store.test.ts`, `repositories.test.ts` | `npm run test:repositories` |
+| Migrações de dados | `tests/unit/migrations.test.ts` | `npm run test:migrations` |
+| Importação, exportação, changesets, fonte publicada | `tests/integration/exchange.test.ts`, `published-source.test.ts` | `npm run test:exchange` |
+| Segurança (falhas do pacote cifrado, nada cifrado em silêncio) | `tests/unit/data-security.test.ts`, `crypto.test.ts` | `npm run test:security` |
+
+Todos os testes usam só dados fictícios (`EJEMPLO-FICTICIO`).

@@ -1,6 +1,6 @@
 {
   "schema": "pfm.budgets",
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "2.0.0",
   "period": "2026",
   "records": [
     {
@@ -10,9 +10,13 @@
       "updatedAt": "2026-11-01T10:00:00-03:00",
       "deletedAt": null,
       "deviceId": "sample-data",
-      "period": "2026-11",
       "categoryId": "0193a1b0-0003-7000-8000-000000000003",
-      "amountMinor": 60000000
+      "name": "EJEMPLO-FICTICIO Supermercado",
+      "amount": 60000000,
+      "currency": "ARS",
+      "period": "monthly",
+      "startDate": "2026-11-01",
+      "endDate": "2026-11-30"
     }
   ]
 }

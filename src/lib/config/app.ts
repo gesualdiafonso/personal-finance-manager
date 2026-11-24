@@ -18,10 +18,10 @@ export const APP_CONFIG = {
 
 /** Data format versions this build can read (docs/architecture/data.md). */
 export const DATA_COMPATIBILITY = {
-  /** Current schemaVersion written by this build. */
-  current: "1.0.0",
-  /** Major version this build reads. A higher major is rejected. */
-  supportedMajor: 1,
+  /** Current schemaVersion written by this build (Step 02: 2.0.0, see data-versioning.md). */
+  current: "2.0.0",
+  /** Major version this build reads. Older majors are migrated; newer majors are rejected. */
+  supportedMajor: 2,
 } as const;
 
 export type AppConfig = typeof APP_CONFIG;

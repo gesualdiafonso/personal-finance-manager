@@ -1,3 +1,4 @@
+import { SCHEMA_VERSION } from "@/domain/schemas";
 import { describe, expect, it } from "vitest";
 import { encryptBundle } from "@/services/crypto/bundle";
 import { createFileMapSource, createPublishedSource, serializeBundleContent } from "@/services/data/sources";
@@ -11,7 +12,7 @@ async function publish(revision = 1) {
   const { manifest, ciphertext } = await encryptBundle({
     plaintext: serializeBundleContent(files),
     passphrase: PASS,
-    schemaVersion: "1.0.0",
+    schemaVersion: SCHEMA_VERSION,
     dataRevision: revision,
     sourceCommit: "test",
     publishedAt: "2026-11-24T09:10:00-03:00",
@@ -28,7 +29,7 @@ async function publish(revision = 1) {
 describe("data loading abstractions", () => {
   it("file-map source validates before returning", async () => {
     const dataSet = await createFileMapSource(loadSampleFiles()).load();
-    expect(dataSet.accounts).toHaveLength(2);
+    expect(dataSet.accounts).toHaveLength(3);
     await expect(createFileMapSource({}).load()).rejects.toMatchObject({ code: "VALIDATION_FAILED" });
   });
 
@@ -37,7 +38,7 @@ describe("data loading abstractions", () => {
     const source = createPublishedSource({ manifestUrl: "https://pfm.test/data/manifest.json", passphrase: PASS, localRevision: 2, fetchImpl });
     const dataSet = await source.load();
     expect(dataSet.meta.dataRevision).toBe(3);
-    expect(Object.values(dataSet.transactions).flat()).toHaveLength(4);
+    expect(Object.values(dataSet.transactions).flat()).toHaveLength(7);
   });
 
   it("published source rejects a wrong passphrase and an older revision", async () => {

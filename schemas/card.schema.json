@@ -1,11 +1,11 @@
 {
-  "$id": "https://pfm.local/schemas/categories.schema.json",
+  "$id": "https://pfm.local/schemas/card.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
     "schema": {
       "type": "string",
-      "const": "pfm.categories"
+      "const": "pfm.cards"
     },
     "schemaVersion": {
       "type": "string",
@@ -53,16 +53,79 @@
             "minLength": 1,
             "maxLength": 64
           },
+          "accountId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "name": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 60
           },
-          "kind": {
+          "cardType": {
             "type": "string",
             "enum": [
-              "expense",
-              "income"
+              "credit",
+              "debit"
+            ]
+          },
+          "lastFourDigits": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{4}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "creditLimit": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "closingDay": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 31
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "dueDay": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 31
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
             ]
           }
         },
@@ -73,9 +136,17 @@
           "updatedAt",
           "deletedAt",
           "deviceId",
+          "accountId",
           "name",
-          "kind"
-        ]
+          "cardType",
+          "lastFourDigits",
+          "creditLimit",
+          "closingDay",
+          "dueDay",
+          "currency",
+          "status"
+        ],
+        "additionalProperties": false
       }
     }
   },
@@ -83,5 +154,6 @@
     "schema",
     "schemaVersion",
     "records"
-  ]
+  ],
+  "additionalProperties": false
 }

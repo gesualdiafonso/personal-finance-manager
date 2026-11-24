@@ -1,0 +1,18 @@
+{
+  "schema": "pfm.budgets",
+  "schemaVersion": "1.0.0",
+  "period": "2026",
+  "records": [
+    {
+      "id": "0193a1b0-0009-7000-8000-000000000009",
+      "rev": 1,
+      "createdAt": "2026-11-01T10:00:00-03:00",
+      "updatedAt": "2026-11-01T10:00:00-03:00",
+      "deletedAt": null,
+      "deviceId": "sample-data",
+      "period": "2026-11",
+      "categoryId": "0193a1b0-0003-7000-8000-000000000003",
+      "amountMinor": 60000000
+    }
+  ]
+}

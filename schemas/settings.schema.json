@@ -1,0 +1,56 @@
+{
+  "$id": "https://pfm.local/schemas/settings.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "pfm.settings"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "baseCurrency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "locale": {
+          "type": "string",
+          "pattern": "^[a-z]{2}-[A-Z]{2}$"
+        },
+        "firstDayOfWeek": {
+          "type": "string",
+          "enum": [
+            "monday",
+            "sunday"
+          ]
+        },
+        "numberFormat": {
+          "type": "string",
+          "pattern": "^[a-z]{2}-[A-Z]{2}$"
+        }
+      },
+      "required": [
+        "baseCurrency",
+        "timezone",
+        "locale",
+        "firstDayOfWeek",
+        "numberFormat"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema",
+    "schemaVersion",
+    "settings"
+  ],
+  "additionalProperties": false
+}

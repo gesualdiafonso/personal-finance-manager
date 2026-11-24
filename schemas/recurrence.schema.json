@@ -1,11 +1,11 @@
 {
-  "$id": "https://pfm.local/schemas/bills.schema.json",
+  "$id": "https://pfm.local/schemas/recurrence.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
     "schema": {
       "type": "string",
-      "const": "pfm.bills"
+      "const": "pfm.recurrences"
     },
     "schemaVersion": {
       "type": "string",
@@ -53,29 +53,50 @@
             "minLength": 1,
             "maxLength": 64
           },
-          "name": {
+          "description": {
             "type": "string",
-            "minLength": 1,
-            "maxLength": 80
+            "maxLength": 120
           },
-          "amountMinor": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
+          "amount": {
+            "type": "number"
           },
-          "dueDate": {
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "income",
+              "expense"
+            ]
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "weekly",
+              "monthly",
+              "yearly"
+            ]
+          },
+          "startDate": {
             "type": "string",
             "format": "date",
             "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
           },
-          "status": {
-            "type": "string",
-            "enum": [
-              "pending",
-              "paid"
+          "endDate": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+              },
+              {
+                "type": "null"
+              }
             ]
           },
-          "accountId": {
+          "categoryId": {
             "anyOf": [
               {
                 "type": "string",
@@ -86,6 +107,14 @@
                 "type": "null"
               }
             ]
+          },
+          "accountId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "isActive": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -95,12 +124,18 @@
           "updatedAt",
           "deletedAt",
           "deviceId",
-          "name",
-          "amountMinor",
-          "dueDate",
-          "status",
-          "accountId"
-        ]
+          "description",
+          "amount",
+          "currency",
+          "type",
+          "frequency",
+          "startDate",
+          "endDate",
+          "categoryId",
+          "accountId",
+          "isActive"
+        ],
+        "additionalProperties": false
       }
     }
   },
@@ -108,5 +143,6 @@
     "schema",
     "schemaVersion",
     "records"
-  ]
+  ],
+  "additionalProperties": false
 }

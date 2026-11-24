@@ -1,0 +1,11 @@
+{
+  "schema": "pfm.settings",
+  "schemaVersion": "2.0.0",
+  "settings": {
+    "baseCurrency": "ARS",
+    "timezone": "America/Argentina/Buenos_Aires",
+    "locale": "es-AR",
+    "firstDayOfWeek": "monday",
+    "numberFormat": "es-AR"
+  }
+}

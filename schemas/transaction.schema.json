@@ -1,5 +1,5 @@
 {
-  "$id": "https://pfm.local/schemas/transactions.schema.json",
+  "$id": "https://pfm.local/schemas/transaction.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
@@ -10,6 +10,10 @@
     "schemaVersion": {
       "type": "string",
       "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "period": {
+      "type": "string",
+      "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
     },
     "records": {
       "type": "array",
@@ -53,33 +57,24 @@
             "minLength": 1,
             "maxLength": 64
           },
-          "kind": {
+          "type": {
             "type": "string",
             "enum": [
-              "expense",
               "income",
+              "expense",
               "transfer"
             ]
           },
-          "date": {
-            "type": "string",
-            "format": "date",
-            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
-          },
           "description": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 140
           },
-          "amountMinor": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
+          "amount": {
+            "type": "number"
           },
-          "accountId": {
+          "currency": {
             "type": "string",
-            "format": "uuid",
-            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            "pattern": "^[A-Z]{3}$"
           },
           "categoryId": {
             "anyOf": [
@@ -93,11 +88,21 @@
               }
             ]
           },
-          "status": {
+          "accountId": {
             "type": "string",
-            "enum": [
-              "paid",
-              "pending"
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "destinationAccountId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              {
+                "type": "null"
+              }
             ]
           },
           "cardId": {
@@ -106,6 +111,30 @@
                 "type": "string",
                 "format": "uuid",
                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "completed",
+              "cancelled"
+            ]
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
               },
               {
                 "type": "null"
@@ -136,17 +165,13 @@
               }
             ]
           },
-          "transferId": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid",
-                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-              },
-              {
-                "type": "null"
-              }
-            ]
+          "legacyIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
           }
         },
         "required": [
@@ -156,29 +181,29 @@
           "updatedAt",
           "deletedAt",
           "deviceId",
-          "kind",
-          "date",
+          "type",
           "description",
-          "amountMinor",
-          "accountId",
+          "amount",
+          "currency",
           "categoryId",
-          "status",
+          "accountId",
+          "destinationAccountId",
           "cardId",
+          "date",
+          "status",
+          "notes",
           "billId",
-          "recurrenceId",
-          "transferId"
-        ]
+          "recurrenceId"
+        ],
+        "additionalProperties": false
       }
-    },
-    "period": {
-      "type": "string",
-      "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
     }
   },
   "required": [
     "schema",
     "schemaVersion",
-    "records",
-    "period"
-  ]
+    "period",
+    "records"
+  ],
+  "additionalProperties": false
 }

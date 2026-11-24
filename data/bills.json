@@ -1,6 +1,6 @@
 {
   "schema": "pfm.bills",
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "2.0.0",
   "records": [
     {
       "id": "0193a1b0-0007-7000-8000-000000000007",
@@ -10,10 +10,13 @@
       "deletedAt": null,
       "deviceId": "sample-data",
       "name": "EJEMPLO-FICTICIO Servicio",
-      "amountMinor": 2140000,
       "dueDate": "2026-11-20",
       "status": "pending",
-      "accountId": "0193a1b0-0001-7000-8000-000000000001"
+      "accountId": "0193a1b0-0001-7000-8000-000000000001",
+      "categoryId": "0193a1b0-0005-7000-8000-000000000005",
+      "amount": 2140000,
+      "currency": "ARS",
+      "notes": null
     }
   ]
 }

@@ -1,0 +1,40 @@
+{
+  "schema": "pfm.meta",
+  "schemaVersion": "1.0.0",
+  "dataRevision": 1,
+  "currency": "ARS",
+  "minorUnit": 2,
+  "timezone": "America/Argentina/Buenos_Aires",
+  "updatedAt": "2026-11-24T06:00:00-03:00",
+  "appliedChangesets": [],
+  "checksums": {
+    "accounts.json": {
+      "count": 2,
+      "sumMinor": 0
+    },
+    "categories.json": {
+      "count": 3,
+      "sumMinor": 0
+    },
+    "cards.json": {
+      "count": 1,
+      "sumMinor": 0
+    },
+    "bills.json": {
+      "count": 1,
+      "sumMinor": 2140000
+    },
+    "recurrences.json": {
+      "count": 1,
+      "sumMinor": 30000000
+    },
+    "budgets/2026.json": {
+      "count": 1,
+      "sumMinor": 60000000
+    },
+    "transactions/2026/2026-11.json": {
+      "count": 4,
+      "sumMinor": 351231000
+    }
+  }
+}

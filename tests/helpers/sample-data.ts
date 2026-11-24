@@ -22,3 +22,16 @@ export function loadSampleFiles(): DataFileMap {
 export function clone<T>(value: T): T {
   return structuredClone(value);
 }
+
+/** Fictitious record id used in data/ (n in hex in the last group). */
+export const sampleId = (n: number) => `0193a1b0-${n.toString(16).padStart(4, "0")}-7000-8000-${n.toString(16).padStart(12, "0")}`;
+
+/** The sample data as a validated publication with the given dataRevision. */
+export async function samplePublication(revision = 2) {
+  const { validateDataFiles } = await import("@/services/data/dataset");
+  const files = loadSampleFiles();
+  (files["meta.json"] as { dataRevision: number }).dataRevision = revision;
+  const { dataSet } = validateDataFiles(files);
+  if (!dataSet) throw new Error("sample data invalid");
+  return { dataSet, files };
+}

@@ -1,5 +1,5 @@
 {
-  "$id": "https://pfm.local/schemas/budgets.schema.json",
+  "$id": "https://pfm.local/schemas/budget.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
@@ -10,6 +10,10 @@
     "schemaVersion": {
       "type": "string",
       "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "period": {
+      "type": "string",
+      "pattern": "^\\d{4}$"
     },
     "records": {
       "type": "array",
@@ -53,19 +57,39 @@
             "minLength": 1,
             "maxLength": 64
           },
-          "period": {
+          "name": {
             "type": "string",
-            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+            "maxLength": 80
           },
           "categoryId": {
             "type": "string",
             "format": "uuid",
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
           },
-          "amountMinor": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$"
+          },
+          "period": {
+            "type": "string",
+            "enum": [
+              "monthly",
+              "yearly",
+              "custom"
+            ]
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
           }
         },
         "required": [
@@ -75,21 +99,23 @@
           "updatedAt",
           "deletedAt",
           "deviceId",
-          "period",
+          "name",
           "categoryId",
-          "amountMinor"
-        ]
+          "amount",
+          "currency",
+          "period",
+          "startDate",
+          "endDate"
+        ],
+        "additionalProperties": false
       }
-    },
-    "period": {
-      "type": "string",
-      "pattern": "^\\d{4}$"
     }
   },
   "required": [
     "schema",
     "schemaVersion",
-    "records",
-    "period"
-  ]
+    "period",
+    "records"
+  ],
+  "additionalProperties": false
 }

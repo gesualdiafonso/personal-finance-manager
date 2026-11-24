@@ -1,6 +1,6 @@
 {
   "schema": "pfm.accounts",
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "2.0.0",
   "records": [
     {
       "id": "0193a1b0-0001-7000-8000-000000000001",
@@ -10,8 +10,12 @@
       "deletedAt": null,
       "deviceId": "sample-data",
       "name": "EJEMPLO-FICTICIO Cuenta A",
-      "openingBalanceMinor": 100000000,
-      "openingDate": "2026-11-01"
+      "openingDate": "2026-11-01",
+      "institution": "EJEMPLO-FICTICIO Banco",
+      "accountType": "checking",
+      "currency": "ARS",
+      "initialBalance": 100000000,
+      "status": "active"
     },
     {
       "id": "0193a1b0-0002-7000-8000-000000000002",
@@ -21,8 +25,27 @@
       "deletedAt": null,
       "deviceId": "sample-data",
       "name": "EJEMPLO-FICTICIO Cuenta B",
-      "openingBalanceMinor": 0,
-      "openingDate": "2026-11-01"
+      "openingDate": "2026-11-01",
+      "institution": null,
+      "accountType": "savings",
+      "currency": "ARS",
+      "initialBalance": 0,
+      "status": "active"
+    },
+    {
+      "id": "0193a1b0-000f-7000-8000-00000000000f",
+      "rev": 1,
+      "createdAt": "2026-11-24T06:00:00-03:00",
+      "updatedAt": "2026-11-24T06:00:00-03:00",
+      "deletedAt": null,
+      "deviceId": "sample-data",
+      "name": "EJEMPLO-FICTICIO Cuenta USD",
+      "institution": null,
+      "accountType": "savings",
+      "currency": "USD",
+      "initialBalance": 50000,
+      "openingDate": "2026-11-01",
+      "status": "active"
     }
   ]
 }

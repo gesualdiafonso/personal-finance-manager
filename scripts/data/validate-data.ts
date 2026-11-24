@@ -4,12 +4,15 @@
  * Output shows file names, counts and rule ids only, never amounts or descriptions
  * (security rule: CI logs never print financial data).
  *
- *   npm run data:validate            validates ./data
- *   npm run data:validate -- <dir>   validates another directory (used by tests)
+ *   npm run data:validate                         validates ./data (all layers)
+ *   npm run data:validate -- <dir>                validates another directory
+ *   npm run data:validate -- --only references    reports one layer (CI names each check);
+ *                                                 layers: structure, references, uniqueness, invariants
+ * Warnings (e.g. possible duplicates) are printed but do not fail.
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { relative, resolve, sep } from "node:path";
-import { computeChecksums, validateDataFiles, type DataFileMap } from "../../src/services/data/dataset";
+import { computeChecksums, hasErrors, parseDataFiles, validateIntegrity, type DataFileMap, type ValidationLayer } from "../../src/services/data/dataset";
 
 function collect(dir: string, base = dir, files: DataFileMap = {}): DataFileMap {
   for (const name of readdirSync(dir)) {
@@ -29,7 +32,16 @@ function collect(dir: string, base = dir, files: DataFileMap = {}): DataFileMap 
   return files;
 }
 
-const dataDir = resolve(process.argv[2] ?? "data");
+const args = process.argv.slice(2);
+const onlyIndex = args.indexOf("--only");
+const only = onlyIndex >= 0 ? (args[onlyIndex + 1] as ValidationLayer | undefined) : undefined;
+const LAYERS: ValidationLayer[] = ["structure", "references", "uniqueness", "invariants"];
+if (onlyIndex >= 0 && (!only || !LAYERS.includes(only))) {
+  console.error(`--only needs one of: ${LAYERS.join(", ")}`);
+  process.exit(2);
+}
+const positional = args.filter((a, i) => !a.startsWith("--") && !(onlyIndex >= 0 && i === onlyIndex + 1));
+const dataDir = resolve(positional[0] ?? "data");
 const files = collect(dataDir);
 const broken = Object.entries(files).filter(([, v]) => typeof v === "symbol");
 if (broken.length > 0) {
@@ -37,13 +49,21 @@ if (broken.length > 0) {
   process.exit(1);
 }
 
-const { dataSet, issues } = validateDataFiles(files);
-if (issues.length > 0 || !dataSet) {
-  console.error(`✗ data/ failed validation: ${issues.length} issue(s)`);
-  for (const i of issues) console.error(`  [${i.layer}] ${i.file}${i.recordId ? ` (${i.recordId})` : ""}: ${i.message}`);
+const parsed = parseDataFiles(files);
+const issues = parsed.dataSet ? [...parsed.issues, ...validateIntegrity(parsed.dataSet)] : parsed.issues;
+const shown = only ? issues.filter((i) => i.layer === only) : issues;
+const label = only ? `layer "${only}"` : "all layers";
+for (const i of shown) {
+  const line = `  [${i.severity}] [${i.layer}] ${i.file}${i.recordId ? ` (${i.recordId})` : ""}: ${i.message}`;
+  if (i.severity === "error") console.error(line);
+  else console.warn(line);
+}
+// A layer cannot be judged if the structure is broken: --only <layer> fails in that case too.
+if (!parsed.dataSet || hasErrors(shown)) {
+  console.error(`✗ data/ failed validation (${label}): ${shown.filter((i) => i.severity === "error").length} error(s)`);
   process.exit(1);
 }
 
-const checksums = computeChecksums(dataSet);
-console.log(`✓ data/ valid — schemaVersion ${dataSet.meta.schemaVersion}, dataRevision ${dataSet.meta.dataRevision}`);
-for (const [file, c] of Object.entries(checksums).sort()) console.log(`  ${file}: ${c.count} record(s)`);
+const checksums = computeChecksums(parsed.dataSet);
+console.log(`✓ data/ valid (${label}) — schemaVersion ${parsed.dataSet.meta.schemaVersion}, dataRevision ${parsed.dataSet.meta.dataRevision}`);
+if (!only) for (const [file, c] of Object.entries(checksums).sort()) console.log(`  ${file}: ${c.count} record(s)`);

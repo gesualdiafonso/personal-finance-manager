@@ -1,11 +1,11 @@
 {
-  "$id": "https://pfm.local/schemas/recurrences.schema.json",
+  "$id": "https://pfm.local/schemas/bill.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
     "schema": {
       "type": "string",
-      "const": "pfm.recurrences"
+      "const": "pfm.bills"
     },
     "schemaVersion": {
       "type": "string",
@@ -53,52 +53,9 @@
             "minLength": 1,
             "maxLength": 64
           },
-          "description": {
+          "name": {
             "type": "string",
-            "minLength": 1,
-            "maxLength": 120
-          },
-          "kind": {
-            "type": "string",
-            "enum": [
-              "expense",
-              "income"
-            ]
-          },
-          "amountMinor": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
-          "frequency": {
-            "type": "string",
-            "enum": [
-              "weekly",
-              "monthly",
-              "yearly"
-            ]
-          },
-          "startDate": {
-            "type": "string",
-            "format": "date",
-            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
-          },
-          "endDate": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date",
-                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "accountId": {
-            "type": "string",
-            "format": "uuid",
-            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            "maxLength": 80
           },
           "categoryId": {
             "anyOf": [
@@ -106,6 +63,49 @@
                 "type": "string",
                 "format": "uuid",
                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+          },
+          "accountId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "paid",
+              "cancelled"
+            ]
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
               },
               {
                 "type": "null"
@@ -120,15 +120,16 @@
           "updatedAt",
           "deletedAt",
           "deviceId",
-          "description",
-          "kind",
-          "amountMinor",
-          "frequency",
-          "startDate",
-          "endDate",
+          "name",
+          "categoryId",
+          "amount",
+          "currency",
+          "dueDate",
           "accountId",
-          "categoryId"
-        ]
+          "status",
+          "notes"
+        ],
+        "additionalProperties": false
       }
     }
   },
@@ -136,5 +137,6 @@
     "schema",
     "schemaVersion",
     "records"
-  ]
+  ],
+  "additionalProperties": false
 }

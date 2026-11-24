@@ -4,49 +4,47 @@ Dois mecanismos do navegador, com papéis que não se misturam (decisão D1):
 
 | Mecanismo | Guarda | Não guarda nunca |
 | --- | --- | --- |
-| **IndexedDB** (`pfm-local`) | Dados financeiros: a última publicação importada e as alterações locais por exportar | Frase-passe, chaves |
+| **IndexedDB** (`pfm-local`) | Dados financeiros: a última publicação, as alterações locais, as Financial Settings | Frase-passe, chaves, sal |
 | **LocalStorage** | Quatro preferências leves e não financeiras | Valores, descrições, saldos, frase-passe, chaves |
 
-O IndexedDB é uma API de armazenamento do navegador neste dispositivo: não é um serviço de base de dados, não tem servidor e não sincroniza. A biblioteca `idb` é só um invólucro tipado de Promises sobre essa API.
+O IndexedDB é uma API de armazenamento do navegador neste dispositivo: não é um serviço de base de dados, não tem servidor e não sincroniza. A biblioteca `idb` é só um invólucro tipado de Promises.
 
-## IndexedDB — `src/services/storage/local-store.ts`
+> **O IndexedDB não está cifrado.** Guardar localmente não é cifrar. A cifragem em repouso é a OD-3, ainda em aberto ([segurança dos dados](data-security.md)). Um teste (`tests/unit/data-security.test.ts`) confirma que os registos ficam legíveis, para que ninguém o presuma.
 
-**Versão 1** (`LOCAL_DB_VERSION`):
+## IndexedDB versão 2 — [`src/services/storage/local-store.ts`](../../src/services/storage/local-store.ts)
 
 | Store | Chave | Índices | Conteúdo |
 | --- | --- | --- | --- |
-| `accounts`, `categories`, `cards`, `recurrences` | `id` | — | Registos oficiais |
-| `bills` | `id` | `dueDate` | Registos oficiais |
-| `budgets` | `id` | `period`, `categoryId` | Registos oficiais |
-| `transactions` | `id` | `date`, `accountId`, `categoryId`, `status`, `cardId` | Registos oficiais |
-| `outbox` | `seq` (incremental) | `recordId`, `exportedIn` | Operações locais (`create`, `update`, `delete`) |
-| `publications` | `dataRevision` | — | Histórico de importações (`meta` incluído) |
+| `accounts` | `id` | `status` | **Stores de trabalho** (D2-05): a última publicação com as alterações locais aplicadas. É aqui que os repositórios leem e escrevem. |
+| `cards` | `id` | `accountId` | |
+| `categories` | `id` | `parentId`, `type` | |
+| `bills` | `id` | `dueDate`, `accountId` | |
+| `recurrences` | `id` | `accountId` | |
+| `budgets` | `id` | `startDate`, `categoryId` | |
+| `transactions` | `id` | `date`, `accountId`, `destinationAccountId`, `categoryId`, `cardId`, `status`, `type` | |
+| `snapshot` | `key` | — | A última publicação exatamente como foi importada (os seus ficheiros) |
+| `outbox` | `seq` | `recordId`, `exportedIn`, `entity` | Cada alteração local, por ordem: `create` · `update` · `delete`, com `baseRev` e o registo completo |
+| `publications` | `dataRevision` | — | Histórico de publicações importadas (`meta`) |
+| `settings` | `key` | — | Financial Settings |
 | `device` | `key` | — | `deviceId` deste dispositivo |
+| `legacy_v1` | `id` | — | Registos da versão 1 postos de parte na atualização (nunca apagados) |
+| `migration_log` | `id` | — | Registo das atualizações de versão |
+| `rollback` | `key` | — | O estado imediatamente antes da última importação aplicada (um nível de anular) |
 
-**Operações disponíveis:**
+## Operações
 
-- `openLocalStore()` — abre e cria ou atualiza. Uma falha dá `STORAGE_UNAVAILABLE`.
-- `replaceOfficialData(db, dataSet)` — substitui todos os stores oficiais e regista a publicação **numa única transação**. Recusa revisões mais antigas. Nunca toca no `outbox`.
-- `appendLocalOperation(db, op)` — valida e acrescenta ao `outbox`. Os stores oficiais não são alterados.
-- `getLocalStoreStatus`, `countPendingOperations`, `ensureDeviceId`.
-- `buildBackup` / `restoreBackup` — base de exportação e importação (todos os stores e o `outbox`, validados, restaurados numa transação). **Sem interface de descarga no Step 01**: a cifragem das exportações (OD-5) tem de ser decidida antes de algum ficheiro sair do dispositivo.
-- `checkLocalIntegrity` — cada registo oficial volta a passar no schema, ids únicos entre stores, `outbox` válido e com sequência crescente.
+- `openLocalStore()` — cria ou atualiza. Falha → `STORAGE_UNAVAILABLE`.
+- `importPublication(db, dataSet, files)` — **numa única transação**: guarda o `snapshot`, reconstrói os stores de trabalho, guarda as settings e a publicação, e reaplica o `outbox`. As operações já integradas (o seu changeset está em `meta.appliedChangesets`) saem do `outbox`. Uma operação cujo `baseRev` já não corresponde é marcada `conflict` e **não** é aplicada: os conflitos nunca se resolvem em silêncio. Recusa revisões mais antigas, exceto com `allowRestore`.
+- `getLocalStoreStatus`, `countPendingOperations`, `getFinancialSettings`, `ensureDeviceId`, `readWorkingDataSet`.
+- `checkLocalIntegrity` — cada registo volta a passar no schema; referências, moedas, árvore de categorias e ids verificados com as mesmas regras de `data/`; `outbox` válido e com sequência crescente. Os problemas só nomeiam stores, ids e regras.
+- Escritas: pelos [repositórios](data-repositories.md). Exportação, importação e anular: [importação/exportação](data-import-export.md).
 
-**Atualizações de versão:** cada versão nova acrescenta um passo `if (oldVersion < N)` no `upgrade` e nunca pode apagar o `outbox`.
+## Atualização da versão 1 (Step 01) para a 2
 
-**Em aberto:** a cifragem em repouso (OD-3) não está implementada; os registos ficam como dados estruturados no dispositivo. Por isso, `data/` só tem dados fictícios até esta decisão estar tomada.
+Os registos da versão 1 usam o formato 1.x. Na atualização, **todos** (stores oficiais, `outbox` e `publications`) são copiados sem alterações para `legacy_v1`, os stores antigos são recriados no formato 2 e fica um registo em `migration_log` com as contagens. Nada é apagado; o `deviceId` mantém-se. Os stores de trabalho ficam vazios até à próxima publicação ou importação 2.x. Coberto por `tests/integration/local-store.test.ts`.
 
-## LocalStorage — `src/services/storage/preferences.ts`
+Cada versão nova acrescenta um passo `if (oldVersion < N)` no `upgrade` e nunca pode apagar o `outbox` nem o `legacy_v1`.
 
-Lista fechada de chaves, cada uma validada por Zod ao ler e ao escrever:
+## LocalStorage — [`src/services/storage/preferences.ts`](../../src/services/storage/preferences.ts)
 
-| Chave | Valores |
-| --- | --- |
-| `pfm.theme` | `system` · `paper` · `dark` |
-| `pfm.obligations.lastArea` | `bills` · `cards` · `recurrences` |
-| `pfm.quickAdd.lastAccountId` | UUID |
-| `pfm.dashboard.period` | `AAAA-MM` |
-
-Todas as leituras e escritas estão protegidas por `try/catch`. Sem LocalStorage, a app usa os valores por omissão, e o tema escolhido mantém-se durante a sessão.
-
-**Tema:** um script inline em `<head>` lê `pfm.theme` e escreve `data-theme` antes da primeira pintura. O `ThemeProvider` mantém o atributo sincronizado com a escolha e com `prefers-color-scheme` quando a preferência é "Sistema", e atualiza o `<meta name="theme-color">`.
+Sem alterações no Step 02. Lista fechada de chaves validadas por Zod: `pfm.theme`, `pfm.obligations.lastArea`, `pfm.quickAdd.lastAccountId`, `pfm.dashboard.period`. Leituras e escritas protegidas por `try/catch`.

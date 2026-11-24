@@ -1,8 +1,11 @@
 /**
- * ADR-001 guard: fails if any database, database service or ORM package appears in
- * package.json or anywhere in the installed dependency tree (package-lock.json).
+ * ADR-001 guard: fails if any database, database service, ORM, remote key-value store or
+ * GitHub write client appears in package.json or anywhere in the installed dependency tree
+ * (package-lock.json); and if application code (src/) talks to the GitHub API — the
+ * frontend must never write to the repository (Step 02 constraints).
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
 
 const FORBIDDEN = [
   /^@supabase\//,
@@ -30,6 +33,15 @@ const FORBIDDEN = [
   /^knex$/,
   /^@planetscale\//,
   /^dexie$/, // IndexedDB wrapper that ships a sync service; `idb` is used instead
+  /^redis$/,
+  /^ioredis$/,
+  /^@redis\//,
+  /^@upstash\//,
+  /^@vercel\/kv$/,
+  /^@octokit\//, // GitHub API clients: the app never writes to the repository
+  /^octokit$/,
+  /^rxdb$/, // replication/sync engines (no automatic multi-device sync)
+  /^pouchdb/,
 ];
 
 const pkg = JSON.parse(readFileSync("package.json", "utf8"));
@@ -44,4 +56,23 @@ if (hits.length > 0) {
   console.error(`✗ Forbidden database/ORM dependencies (ADR-001): ${hits.join(", ")}`);
   process.exit(1);
 }
-console.log(`✓ No database or ORM dependency (${declared.length} declared, ${installed.length} installed packages checked)`);
+// Application code must not reach the GitHub API or any remote persistence endpoint.
+const FORBIDDEN_IN_SOURCE = [/api\.github\.com/, /uploads\.github\.com/, /supabase\.co/, /firebaseio\.com/, /upstash\.io/];
+const sourceHits = [];
+const walk = (dir) => {
+  for (const name of readdirSync(dir)) {
+    const path = join(dir, name);
+    if (statSync(path).isDirectory()) walk(path);
+    else if (/\.(ts|tsx|js|mjs)$/.test(name)) {
+      const text = readFileSync(path, "utf8");
+      for (const re of FORBIDDEN_IN_SOURCE) if (re.test(text)) sourceHits.push(`${path} (${re.source})`);
+    }
+  }
+};
+walk("src");
+if (sourceHits.length > 0) {
+  console.error(`✗ Application code references a remote write/persistence endpoint: ${sourceHits.join(", ")}`);
+  process.exit(1);
+}
+
+console.log(`✓ No database or ORM dependency (${declared.length} declared, ${installed.length} installed packages checked; src/ has no remote write endpoint)`);

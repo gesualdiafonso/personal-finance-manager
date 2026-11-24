@@ -1,11 +1,11 @@
 {
-  "$id": "https://pfm.local/schemas/cards.schema.json",
+  "$id": "https://pfm.local/schemas/category.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
     "schema": {
       "type": "string",
-      "const": "pfm.cards"
+      "const": "pfm.categories"
     },
     "schemaVersion": {
       "type": "string",
@@ -55,41 +55,54 @@
           },
           "name": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 60
           },
-          "last4": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "income",
+              "expense"
+            ]
+          },
+          "parentId": {
             "anyOf": [
               {
                 "type": "string",
-                "pattern": "^\\d{4}$"
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
               },
               {
                 "type": "null"
               }
             ]
           },
-          "closingDay": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 31
-          },
-          "dueDay": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 31
-          },
-          "limitMinor": {
+          "icon": {
             "anyOf": [
               {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
+                "type": "string",
+                "pattern": "^[a-z0-9-]{1,40}$"
               },
               {
                 "type": "null"
               }
             ]
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -100,11 +113,14 @@
           "deletedAt",
           "deviceId",
           "name",
-          "last4",
-          "closingDay",
-          "dueDay",
-          "limitMinor"
-        ]
+          "type",
+          "parentId",
+          "icon",
+          "color",
+          "isDefault",
+          "isActive"
+        ],
+        "additionalProperties": false
       }
     }
   },
@@ -112,5 +128,6 @@
     "schema",
     "schemaVersion",
     "records"
-  ]
+  ],
+  "additionalProperties": false
 }

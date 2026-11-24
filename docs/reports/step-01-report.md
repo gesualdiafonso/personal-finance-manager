@@ -1,7 +1,7 @@
 # Step 01 — Relatório de implementação e validação
 
 **Data:** 24 nov 2026 · **Âmbito:** fundação técnica (Step 01). O Step 02 não foi iniciado.
-**Ambiente de verificação:** Node 22.23.5, npm 10.9.9 (`npm ci`), Next.js 16.4.6, Chrome 153 (E2E), instalação limpa (`rm -rf node_modules .next` e depois `npm ci`).
+**Ambiente de verificação:** Node 22.23.5 (requisito: ^22.22.2 ou ^24.15.0), npm 10.9.9 (`npm ci`), Next.js 16.4.6, Chrome 153 (E2E), instalação limpa (`rm -rf node_modules .next` e depois `npm ci`).
 
 ## 1. Critérios de aceitação
 
@@ -20,7 +20,7 @@
 | 11 | As fontes locais carregam sem pedidos ao Google Fonts | **PASS** | E2E: as duas famílias com estado `loaded`, todos os pedidos de fonte são `/_next/static/media/*.woff2`, **zero pedidos a outros domínios**; build sem rede passa; 0 ocorrências de `fonts.googleapis`/`gstatic` em `.next/` |
 | 12 | O manifest da PWA é válido | **PASS** | Chrome DevTools Protocol `Page.getAppManifest`: `errors: []`; instalabilidade só reporta `in-incognito` (o contexto de teste é anónimo); E2E confirma os campos e os 4 ícones |
 | 13 | A base do service worker funciona | **PASS** | E2E: o worker ativa; a cache contém `/`, `/offline`, o manifest e 2 ficheiros `.woff2`; offline, `/` recarrega com Instrument Serif carregada e uma rota nunca visitada mostra "Sin conexión"; `/sw.js` com `no-cache` e versão substituída. **Não se declara funcionamento offline completo** (ver §4) |
-| 14 | O GitHub Actions corre com sucesso | **BLOCKED** | Não há acesso a nenhum repositório (GitHub não ligado), por isso o workflow não pôde correr no GitHub. O ficheiro `.github/workflows/ci.yml` passa o `actionlint`, e os seus 11 passos foram executados localmente, pela mesma ordem e a partir de uma instalação limpa: todos com código de saída 0 (§2) |
+| 14 | O GitHub Actions corre com sucesso | **PASS** | Execução CI #3 no commit `154626f` (`main`): sucesso em 1 min 32 s — https://github.com/gesualdiafonso/personal-finance-manager/actions/runs/45375986848. As execuções #1 e #2 falharam no `npm ci` porque o `package-lock.json` tinha sido regenerado fora do projeto; ver §6 |
 | 15 | A documentação reflete a implementação | **PASS** | README, CLAUDE.md, `docs/architecture/*` (5), `docs/development/*` (3), `docs/decisions/*` (6) escritos depois da implementação; todos os comandos `npm run …` citados existem em `package.json` (verificado por script) |
 | 16 | Não existe dependência de base de dados nem ORM | **PASS** | `npm run guard:deps`: 32 dependências declaradas e 620 instaladas verificadas. Teste negativo: com `@supabase/supabase-js` adicionado, a verificação falha (exit 1) |
 | 17 | Nenhuma informação financeira publicada em texto simples | **PASS** | Nada é publicado no Step 01. `npm run guard:artifacts` analisa `public/` e `.next/` (357 ficheiros): limpo. Teste negativo: com `data/accounts.json` copiado para `public/data/`, falha (exit 1). `data/` só tem dados fictícios |
@@ -55,21 +55,30 @@
 
 - **Safari/iPhone real:** os projetos "iphone" simulam a viewport e o toque em Chromium. O comportamento em WebKit, a PWA instalada no ecrã principal e a política de armazenamento do Safari não foram testados.
 - **Offline completo:** só estão verificados a cache do shell, as fontes e o fallback. Os testes T-05 a T-14 do documento de dados dependem de funcionalidades dos steps seguintes.
-- **GitHub Actions:** não executado no GitHub (critério 14).
 
 ## 5. Problemas por resolver
 
 | # | Problema | Tipo |
 | --- | --- | --- |
 | 1 | **Secções 11–14 do brief original: não verificadas.** O documento completo não foi recebido; nada foi presumido | Bloqueio documental |
-| 2 | GitHub Actions por executar no GitHub (sem acesso a um repositório) | Bloqueio de acesso |
 | 3 | Idioma: o Step 01 pede espanhol, o Step 00 dizia português; terminologia e rotas em espanhol por aprovar (ADR-005) | Decisão de produto |
 | 4 | OD-1 a OD-8 em aberto; a publicação cifrada na CI não está implementada (OD-1, OD-7); o IndexedDB não está cifrado em repouso (OD-3) | Decisões técnicas |
 | 5 | Ícones da PWA provisórios (a palavra PFM) | Design |
-| 6 | Instalação de dependências novas exige npm 11 (falha do npm 10.9 com o Vitest 5); `npm ci` funciona com o npm 10 | Ferramentas |
+| 6 | Instalação de dependências novas exige npm 11 (falha do npm 10.9 com o Vitest 5); `npm ci` funciona com o npm 10 e o npm 11. Nunca regenerar o lockfile com `npm install` sem necessidade | Ferramentas |
 | 7 | `@playwright/test` ficou em 1.65.1 (publicada a 13 nov, menos de duas semanas antes); o resto da stack tem pelo menos duas semanas | Ferramentas |
 | 8 | Recharts e React Hook Form estão instalados mas ainda não são usados (sem gráficos nem formulários no Step 01); o TanStack Query não foi instalado por não ser justificado ainda | Stack |
 | 9 | CSP global (SEC-05) por aplicar: precisa de um hash ou nonce para o script inline do tema. A pin das actions por SHA (SEC-06) fica para quando o repositório existir | Segurança |
 | 10 | `docs/design-system/tipografia.md` lista uma pilha de fontes de substituição mais longa do que `tokens.json`. A implementação segue `tokens.json` (fonte de verdade); a documentação do Design System deve ser alinhada | Documentação do Design System |
 | 11 | Adiado por estar fora do Step 01, mas registado: composição completa do Dashboard, Registo rápido, folhas laterais de edição, atalhos ⌘K, `/`, ←/→, J/K e E, aviso "Nueva versión disponible", interface de exportação | Steps seguintes |
-| 12 | O projeto não está num repositório git: não foi feito nenhum commit, à espera de indicação | Entrega |
+
+## 6. Integração no GitHub
+
+| Execução | Commit | Resultado | Causa |
+| --- | --- | --- | --- |
+| CI #1 | `eeae4be` first commit | Falhou em 24 s, no `npm ci` | `package-lock.json` regenerado localmente com Node 25 / npm 11.6.2, sem pacotes opcionais `@emnapi/*` |
+| CI #2 | `170af66` | Falhou em 9 s, no `npm ci` | Lockfile regenerado outra vez; continuava a faltar `@emnapi/runtime` |
+| CI #3 | `154626f` | **Sucesso em 1 min 32 s** | Lockfile do projeto reposto; `engines` corrigido para `^22.22.2 \|\| ^24.15.0` (o jsdom exige pelo menos 22.22.2) |
+
+**Lição registada:** usar `npm ci` para instalar. O lockfile só se altera ao acrescentar dependências, com Node 22 e npm 11 (`docs/development/setup.md`). O Node 25 não é suportado.
+
+Antes do push do commit `154626f`, a sequência completa da CI foi repetida localmente sobre esse mesmo commit: tudo com código de saída 0, 87/87 testes unitários e de integração, E2E com 36 passaram e 2 ignorados por desenho.

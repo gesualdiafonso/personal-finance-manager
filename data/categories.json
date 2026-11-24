@@ -1,6 +1,6 @@
 {
   "schema": "pfm.categories",
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "2.0.0",
   "records": [
     {
       "id": "0193a1b0-0003-7000-8000-000000000003",
@@ -10,7 +10,12 @@
       "deletedAt": null,
       "deviceId": "sample-data",
       "name": "EJEMPLO-FICTICIO Supermercado",
-      "kind": "expense"
+      "type": "expense",
+      "parentId": null,
+      "icon": null,
+      "color": null,
+      "isDefault": false,
+      "isActive": true
     },
     {
       "id": "0193a1b0-0004-7000-8000-000000000004",
@@ -20,7 +25,12 @@
       "deletedAt": null,
       "deviceId": "sample-data",
       "name": "EJEMPLO-FICTICIO Sueldo",
-      "kind": "income"
+      "type": "income",
+      "parentId": null,
+      "icon": null,
+      "color": null,
+      "isDefault": false,
+      "isActive": true
     },
     {
       "id": "0193a1b0-0005-7000-8000-000000000005",
@@ -30,7 +40,27 @@
       "deletedAt": null,
       "deviceId": "sample-data",
       "name": "EJEMPLO-FICTICIO Hogar",
-      "kind": "expense"
+      "type": "expense",
+      "parentId": null,
+      "icon": null,
+      "color": null,
+      "isDefault": false,
+      "isActive": true
+    },
+    {
+      "id": "0193a1b0-0010-7000-8000-000000000010",
+      "rev": 1,
+      "createdAt": "2026-11-24T06:00:00-03:00",
+      "updatedAt": "2026-11-24T06:00:00-03:00",
+      "deletedAt": null,
+      "deviceId": "sample-data",
+      "name": "EJEMPLO-FICTICIO Verdulería",
+      "type": "expense",
+      "parentId": "0193a1b0-0003-7000-8000-000000000003",
+      "icon": null,
+      "color": null,
+      "isDefault": false,
+      "isActive": true
     }
   ]
 }

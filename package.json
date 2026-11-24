@@ -25,7 +25,16 @@
     "guard:deps": "node scripts/guards/check-forbidden-deps.mjs",
     "guard:artifacts": "node scripts/guards/check-public-artifacts.mjs",
     "icons:build": "tsx scripts/pwa/generate-icons.ts",
-    "check": "npm run guard:deps && npm run lint && npm run typecheck && npm run tokens:check && npm run schemas:check && npm run data:validate && npm test"
+    "check": "npm run guard:deps && npm run lint && npm run typecheck && npm run tokens:check && npm run schemas:check && npm run data:validate && npm run data:migrate -- --check && npm run data:changeset -- tests/fixtures/changesets/sample.changeset.json && npm test",
+    "data:migrate": "tsx scripts/data/migrate-data.ts",
+    "data:checksums": "tsx scripts/data/update-checksums.ts",
+    "data:changeset": "tsx scripts/data/check-changeset.ts",
+    "test:domain": "vitest run tests/unit/domain.test.ts tests/unit/money.test.ts",
+    "test:data": "vitest run tests/unit/data-validation.test.ts tests/unit/compatibility.test.ts",
+    "test:repositories": "vitest run tests/integration/local-store.test.ts tests/integration/repositories.test.ts",
+    "test:migrations": "vitest run tests/unit/migrations.test.ts",
+    "test:exchange": "vitest run tests/integration/exchange.test.ts tests/integration/published-source.test.ts",
+    "test:security": "vitest run tests/unit/data-security.test.ts tests/unit/crypto.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.9",

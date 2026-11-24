@@ -125,3 +125,18 @@ export function parseMoneyInput(input: string): ParseMoneyResult {
 }
 
 export { MoneyError };
+
+/**
+ * Formats a Money value with its own currency symbol: ARS "$ 1.234,56", USD "US$ 1.234,56".
+ * Number formatting stays es-AR for every currency (Financial Settings numberFormat).
+ */
+export function formatCurrencyAmount(
+  value: { amount: number; currency: string },
+  options: MoneyFormatOptions = {},
+): string {
+  const symbols: Record<string, string> = { ARS: "$", USD: "US$" };
+  const symbol = symbols[value.currency];
+  if (!symbol) throw new MoneyError(`Unsupported currency ${value.currency}`);
+  const p = formatMoneyParts(value.amount, options);
+  return `${p.sign}${symbol}${NBSP}${p.whole}${p.cents}`;
+}
