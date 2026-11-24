@@ -1,4 +1,4 @@
-# PFM — continuous integration (Step 01, Task 08).
+# PFM — continuous integration (Step 01 Task 08; data engine checks added in Step 02 Phase 08).
 # Every step is mandatory: any failure fails the workflow.
 # This workflow publishes NOTHING. Encrypted data publication is not implemented yet
 # (open decisions OD-1 and OD-7, docs/decisions/open-decisions.md).
@@ -40,7 +40,7 @@ jobs:
       - name: 1. Install dependencies
         run: npm ci
 
-      - name: Guard — no database or ORM dependency (ADR-001)
+      - name: Guard — no database, ORM, remote store or GitHub write client (ADR-001)
         run: npm run guard:deps
 
       - name: 2. Lint
@@ -52,13 +52,42 @@ jobs:
       - name: Design tokens match the approved Design System
         run: npm run tokens:check
 
-      - name: 4. Unit and integration tests
-        run: npm test
+      - name: 4a. Domain types and money arithmetic
+        run: npm run test:domain
 
-      - name: 5. JSON schema validation
+      - name: 4b. JSON Schemas are in sync with the Zod models
+        run: npm run schemas:check
+
+      - name: 4c. Data — structure (layer 1)
+        run: npm run data:validate -- --only structure
+
+      - name: 4d. Data — references and currencies (layer 2)
+        run: npm run data:validate -- --only references
+
+      - name: 4e. Data — unique ids, partitions and duplicates (layer 3)
+        run: npm run data:validate -- --only uniqueness
+
+      - name: 4f. Data — invariants and checksums (layer 4)
+        run: npm run data:validate -- --only invariants
+
+      - name: 4g. Migrations — data/ is at the current schemaVersion, migration tests
         run: |
-          npm run schemas:check
-          npm run data:validate
+          npm run data:migrate -- --check
+          npm run test:migrations
+
+      - name: 4h. Repositories and local persistence (IndexedDB)
+        run: npm run test:repositories
+
+      - name: 4i. Import / export and changeset format
+        run: |
+          npm run test:exchange
+          npm run data:changeset -- tests/fixtures/changesets/sample.changeset.json
+
+      - name: 4j. Security tests (bundle failure modes, no hidden encryption claims)
+        run: npm run test:security
+
+      - name: 5. All unit and integration tests
+        run: npm test
 
       - name: 6. Build
         run: npm run build
