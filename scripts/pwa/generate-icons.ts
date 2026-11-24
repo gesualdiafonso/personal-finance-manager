@@ -5,7 +5,7 @@
  * or `npx playwright install chromium`). The PNGs are committed.
  */
 import { chromium } from "@playwright/test";
-import { mkdirSync, readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -18,6 +18,8 @@ const icons = [
   { file: "icon-192.png", size: 192, scale: 0.36 },
   { file: "icon-512.png", size: 512, scale: 0.36 },
   { file: "apple-touch-icon.png", size: 180, scale: 0.36 },
+  // Favicon (Step 09): the same wordmark, larger in the square so it stays legible at 32 px.
+  { file: "favicon-32.png", size: 32, scale: 0.46 },
   // Maskable: content kept inside the 80% safe zone.
   { file: "icon-maskable-512.png", size: 512, scale: 0.28 },
 ];
@@ -36,4 +38,23 @@ for (const icon of icons) {
   await page.close();
 }
 await browser.close();
-console.log(`Icons written to ${out}`);
+
+/**
+ * public/favicon.ico for browsers and tools that ask for it by default: an ICO container with
+ * the 32 px PNG embedded as-is (PNG-in-ICO, supported by every current browser).
+ */
+const png = readFileSync(resolve(out, "favicon-32.png"));
+const header = Buffer.alloc(22);
+header.writeUInt16LE(0, 0); // reserved
+header.writeUInt16LE(1, 2); // type: icon
+header.writeUInt16LE(1, 4); // one image
+header.writeUInt8(32, 6); // width
+header.writeUInt8(32, 7); // height
+header.writeUInt8(0, 8); // no palette
+header.writeUInt8(0, 9); // reserved
+header.writeUInt16LE(1, 10); // colour planes
+header.writeUInt16LE(32, 12); // bits per pixel
+header.writeUInt32LE(png.length, 14); // image size
+header.writeUInt32LE(22, 18); // offset of the image
+writeFileSync(resolve(root, "public/favicon.ico"), Buffer.concat([header, png]));
+console.log(`Icons written to ${out} and public/favicon.ico`);

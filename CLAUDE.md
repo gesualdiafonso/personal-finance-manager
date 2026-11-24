@@ -42,6 +42,8 @@ Lê também o [README](README.md) e, antes de mexer em interface, o [Design Syst
 | Cálculos financeiros (fórmulas, estados, cartões) | `docs/architecture/financial-calculations.md` |
 | Relatórios (seletores, relatório, exportação CSV/JSON/PDF) | `src/domain/rules/reports.ts`, `src/services/reports/`, `src/features/reports/`, `docs/features/reports.md` |
 | Decisões do Step 08 (D8-01…D8-12) | `docs/decisions/step-08-decisions.md` |
+| PWA (manifest, service worker, instalação, offline) e produção | `docs/PWA.md`, `docs/PRODUCTION.md`, `scripts/pwa/`, `src/services/pwa/runtime.ts`, `src/components/shared/pwa-runtime.tsx` |
+| Decisões do Step 09 (D9-01…D9-08) | `docs/decisions/step-09-decisions.md` |
 | IndexedDB | `src/services/storage/local-store.ts` |
 | Preferências (LocalStorage) | `src/services/storage/preferences.ts` |
 | Cifragem do pacote publicado | `src/services/crypto/bundle.ts` |

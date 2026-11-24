@@ -4,7 +4,8 @@ import { es } from "@/lib/i18n/es";
 
 /**
  * Web app manifest, served at /manifest.webmanifest (Next.js metadata route; Step 01
- * suggested public/manifest.json — see docs/architecture/pwa.md for the deviation).
+ * suggested public/manifest.json — see docs/PWA.md for the deviation).
+ * Shortcuts: icons are optional and omitted (P-08: no decorative icons).
  * Icons are PROVISIONAL: the PFM wordmark on paper, until the logo step.
  */
 export default function manifest(): MetadataRoute.Manifest {
@@ -18,6 +19,8 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: "/",
     display: "standalone",
     orientation: "any",
+    categories: ["finance", "productivity"],
+    prefer_related_applications: false,
     background_color: "#F5F3ED",
     theme_color: "#F5F3ED",
     icons: [
@@ -26,9 +29,10 @@ export default function manifest(): MetadataRoute.Manifest {
       { src: "/icons/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     shortcuts: [
-      { name: es.nav.newTransaction, url: "/transacciones" },
+      { name: es.nav.newTransaction, url: "/transacciones#nueva" },
       { name: es.nav.areas.bills, url: "/cuentas-domesticas" },
       { name: es.nav.areas.cards, url: "/tarjetas" },
+      { name: es.nav.areas.reports, url: "/informes" },
     ],
   };
 }

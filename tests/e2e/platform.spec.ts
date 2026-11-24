@@ -58,7 +58,10 @@ test.describe("PWA groundwork", () => {
     for (const icon of m.icons as { src: string }[]) expect((await request.get(icon.src)).ok()).toBe(true);
   });
 
-  test("service worker installs, precaches the shell and fonts, and serves it offline", async ({ page, context }) => {
+  test("service worker installs, precaches the shell and fonts, and serves it offline", async ({ page, context, browserName }) => {
+    // Playwright's offline emulation does not reach service-worker fetches in Firefox, so the
+    // worker still gets the network there: a tooling limit, not an app behaviour (docs/PWA.md).
+    test.skip(browserName === "firefox", "Playwright offline emulation does not apply to service workers in Firefox");
     await page.goto("/");
     const version = await page.evaluate(async () => {
       const reg = await navigator.serviceWorker.ready;
@@ -71,18 +74,28 @@ test.describe("PWA groundwork", () => {
       for (const key of await caches.keys()) for (const req of await (await caches.open(key)).keys()) urls.push(new URL(req.url).pathname);
       return urls;
     });
-    expect(cached).toEqual(expect.arrayContaining(["/", "/offline", "/manifest.webmanifest"]));
+    // Step 09: every area shell is precached, so any area opens offline, visited or not.
+    expect(cached).toEqual(
+      expect.arrayContaining(["/", "/transacciones", "/cuentas-domesticas", "/tarjetas", "/recurrencias", "/cuentas", "/presupuesto", "/informes", "/configuracion", "/offline", "/manifest.webmanifest", "/favicon.ico"]),
+    );
     expect(cached.filter((u) => u.endsWith(".woff2")).length).toBeGreaterThanOrEqual(2);
 
     await context.setOffline(true);
+    // The connection line says the data stays on the device (no sync to wait for).
+    await expect(page.getByTestId("connection-offline")).toBeVisible();
     await page.reload();
     await expect(page.getByTestId("hero-balance")).toBeVisible();
     expect(await page.evaluate(() => [...document.fonts].some((f) => /instrument ?serif/i.test(f.family) && f.status === "loaded"))).toBe(true);
 
-    // A page never visited falls back to the offline page.
-    await page.goto("/informes").catch(() => undefined);
+    // An area never visited opens from the precache (Step 09) …
+    await page.goto("/informes");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Informes");
+    // … and an unknown address falls back to the offline page.
+    await page.goto("/no-existe").catch(() => undefined);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Sin conexión");
     await context.setOffline(false);
+    await page.goto("/");
+    await expect(page.getByTestId("connection-offline")).toHaveCount(0);
   });
 
   test("cache names are versioned and /sw.js is never cached by the browser", async ({ request }) => {
@@ -91,5 +104,39 @@ test.describe("PWA groundwork", () => {
     const body = await res.text();
     expect(body).toMatch(/const VERSION = "\d+\.\d+\.\d+\+[0-9a-z]+";/);
     expect(body).not.toContain("__PFM_SW_VERSION__");
+  });
+
+  test("production headers: CSP keeps every request on this origin, with no violations", async ({ page, request }) => {
+    const res = await request.get("/");
+    const csp = res.headers()["content-security-policy"] ?? "";
+    expect(csp).toContain("connect-src 'self'");
+    expect(csp).toContain("frame-ancestors 'none'");
+    expect(res.headers()["strict-transport-security"]).toContain("max-age=");
+    expect((await request.get("/favicon.ico")).ok()).toBe(true);
+    const violations: string[] = [];
+    page.on("console", (m) => {
+      if (m.type() === "error" && /Content Security Policy|Refused to/i.test(m.text())) violations.push(m.text());
+    });
+    page.on("pageerror", (e) => violations.push(String(e)));
+    for (const path of ["/", "/transacciones", "/informes", "/presupuesto", "/configuracion"]) {
+      await page.goto(path);
+      await page.waitForLoadState("networkidle");
+    }
+    expect(violations).toEqual([]);
+  });
+
+  test("install: offered in Configuración only when the browser allows it", async ({ page }) => {
+    await page.goto("/configuracion");
+    const section = page.getByTestId("install-settings");
+    await expect(section).toBeVisible();
+    // Headless browsers never fire beforeinstallprompt on their own: simulate the browser offer.
+    await page.evaluate(() => {
+      const e = new Event("beforeinstallprompt", { cancelable: true }) as Event & Record<string, unknown>;
+      e.prompt = async () => {};
+      e.userChoice = Promise.resolve({ outcome: "accepted", platform: "web" });
+      window.dispatchEvent(e);
+    });
+    await section.getByRole("button", { name: "Instalar PFM" }).click();
+    await expect(section).toHaveCount(0); // installed: no install message any more
   });
 });

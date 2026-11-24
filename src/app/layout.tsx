@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { ServiceWorkerRegister } from "@/components/shared/service-worker-register";
+import { PwaRuntime } from "@/components/shared/pwa-runtime";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { APP_CONFIG } from "@/lib/config/app";
 import { instrumentSans, instrumentSerif } from "@/lib/fonts";
@@ -13,7 +13,11 @@ export const metadata: Metadata = {
   applicationName: APP_CONFIG.fullName,
   appleWebApp: { capable: true, title: es.app.name, statusBarStyle: "default" },
   icons: {
-    icon: [{ url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
     apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
   formatDetection: { telephone: false },
@@ -41,7 +45,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body>
         <ThemeProvider>{children}</ThemeProvider>
-        <ServiceWorkerRegister />
+        <PwaRuntime />
       </body>
     </html>
   );

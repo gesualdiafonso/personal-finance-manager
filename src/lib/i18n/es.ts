@@ -1125,6 +1125,21 @@ export const es = {
     integrityOk: "Correcta",
     integrityProblems: "Con problemas",
   },
+  pwa: {
+    offline: "Sin conexión. Todo sigue funcionando: tus datos están en este dispositivo y lo que registres se guarda aquí.",
+    backOnline: "Conexión restablecida.",
+    update: "Hay una nueva versión de la aplicación.",
+    updateAction: "Actualizar",
+    updateLater: "Más tarde",
+    install: {
+      title: "Instalar la aplicación",
+      hint: "Ábrela como una aplicación, desde la pantalla de inicio o el escritorio, también sin conexión. Los datos siguen en este navegador y en este dispositivo.",
+      action: "Instalar PFM",
+      dismissed: "Instalación cancelada. Puedes volver a intentarlo cuando quieras.",
+      ios: "En iPhone o iPad: abre esta página en Safari, toca Compartir y luego “Agregar a inicio”.",
+      unsupported: "Este navegador no ofrece instalar aplicaciones. Usa Chrome o Edge en computadora o Android, o Safari en iPhone o iPad.",
+    },
+  },
   offline: {
     title: "Sin conexión",
     body: "No hay conexión y esta página todavía no está disponible sin conexión. Las páginas que ya abriste siguen funcionando.",

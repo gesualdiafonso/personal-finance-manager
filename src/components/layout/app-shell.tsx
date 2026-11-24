@@ -1,5 +1,6 @@
 import { Suspense, type ReactNode } from "react";
 import { es } from "@/lib/i18n/es";
+import { ConnectionStatus } from "./connection-status";
 import { KeyboardShortcuts } from "./keyboard-shortcuts";
 import { TabBar, TabBarView } from "./mobile-nav";
 import { Rail, RailView } from "./rail";
@@ -31,6 +32,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         id="contenido"
         className="min-w-0 flex-1 px-4 pt-14 pb-28 tablet:px-8 landscape:pb-16 desktop:max-w-(--layout-content-max) desktop:px-12 desktop:pt-10 print:max-w-none print:p-0"
       >
+        <ConnectionStatus />
         {children}
       </main>
       <Suspense fallback={<TabBarView pathname="" />}>

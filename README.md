@@ -2,7 +2,7 @@
 
 Aplicação web de finanças pessoais: responsiva, instalável como PWA, single-user, em pesos argentinos (ARS) e dólares (USD, sem conversões), com o fuso horário `America/Argentina/Buenos_Aires`.
 
-**Estado:** Step 04 — Transações: registo, lista, pesquisa, filtros, detalhe, edição, cancelamento e reconciliação, sobre contas e cartões (Step 03) e o motor de dados (Step 02, schemaVersion 2.1.0). Faturas de cartão de crédito ainda não. Relatórios: [Step 01](docs/reports/step-01-report.md), [Step 02](docs/reports/step-02-report.md), [Step 03](docs/reports/step-03-report.md), [Step 04](docs/reports/step-04-report.md). Funcionalidades: [Contas](docs/features/accounts.md) · [Cartões](docs/features/cards.md) · [Transações](docs/features/transactions.md).
+**Estado:** Step 09 — PWA e preparação para produção, sobre contas, cartões, transações, contas domésticas, recorrências, orçamentos, metas, Panel e Informes. Faturas de cartão de crédito ainda não (OD-8). Funcionalidades: [Contas](docs/features/accounts.md) · [Cartões](docs/features/cards.md) · [Transações](docs/features/transactions.md) · [Orçamentos](docs/features/budgets.md) · [Metas](docs/features/financial-goals.md) · [Panel](docs/features/dashboard.md) · [Informes](docs/features/reports.md). Plataforma: [PWA](docs/PWA.md) · [Produção](docs/PRODUCTION.md).
 
 ## Princípios que não se negociam
 
@@ -29,7 +29,8 @@ npm run dev          # http://localhost:3000
 | `npm run lint` | ESLint |
 | `npm run typecheck` | Tipos de rotas do Next.js + `tsc --noEmit` (strict) |
 | `npm test` | Vitest: testes unitários e de integração |
-| `npm run test:e2e` | Playwright sobre o build de produção (corre `npm run build` antes) |
+| `npm run test:e2e` | Playwright sobre o build de produção (corre `npm run build` antes); `E2E_ALL_BROWSERS=1` junta Firefox e Safari |
+| `npm run icons:build` | Gera os ícones PWA e o favicon (precisa de um Chromium) |
 | `npm run data:validate` | Valida `data/` nas quatro camadas (`-- --only <camada>` para uma) |
 | `npm run data:migrate` | Migra `data/` para a versão atual (`-- --check` só verifica) |
 | `npm run data:checksums` | Recalcula as somas de controlo de `meta.json` |
@@ -40,6 +41,10 @@ npm run dev          # http://localhost:3000
 | `npm run guard:deps` | Falha se existir dependência de base de dados, ORM, armazenamento remoto ou cliente de escrita no GitHub |
 | `npm run guard:artifacts` | Falha se houver dados em texto simples nos artefactos públicos (depois do build) |
 | `npm run check` | Todas as verificações rápidas, como na CI |
+
+### Instalar no dispositivo (PWA)
+
+Abrir a app por HTTPS (ou `npm run build && npm start` em `localhost`) e usar **Configuración → Instalar la aplicación**, ou o menu do navegador. No iPhone: Safari → Compartir → "Agregar a inicio". Sem rede, todas as áreas abrem e os dados continuam no dispositivo; ver [docs/PWA.md](docs/PWA.md) (limitações offline) e [docs/PRODUCTION.md](docs/PRODUCTION.md) (build, cabeçalhos, deploy).
 
 Mais detalhe: [instalação](docs/development/setup.md), [testes](docs/development/testing.md), [ambiente](docs/development/environment.md).
 
@@ -53,10 +58,10 @@ scripts/         tokens, schemas, validação de dados, service worker, ícones,
 src/app/         rotas (App Router): as nove áreas, offline, manifest, erros
 src/components/  ui/ (shadcn/ui personalizado), layout/ (sidebar, rail, tab bar), shared/
 src/domain/      modelos Zod, dinheiro e moedas, regras (saldos, categorias, recorrências), ids
-src/features/    accounts/, cards/, movements/, transactions/, dashboard/ (estado vazio), settings/ (aparência, dados locais)
-src/hooks/       use-local-data (leituras/escritas pelos repositórios), use-detail-id
+src/features/    accounts/, bills/, cards/, dashboard/, movements/, planning/, reports/, settings/ (aparência, instalação, dados locais), transactions/
+src/hooks/       use-local-data (leituras/escritas pelos repositórios), use-detail-id, use-pwa
 src/lib/         config/, formatting/ (ARS, datas), validation/ (Zod), errors/, i18n/, utils/
-src/services/    data/ (validação, fontes), storage/ (IndexedDB, LocalStorage), repositories/, exchange/ (importação/exportação), versioning/ (migrações), crypto/
+src/services/    data/ (validação, fontes), storage/ (IndexedDB, LocalStorage), repositories/, exchange/ (importação/exportação), versioning/ (migrações), crypto/, reports/ (relatórios e exportação), pwa/ (instalação, ligação, atualizações)
 src/styles/      tokens.css gerado, fontes WOFF2 locais
 tests/           unit/, integration/, e2e/, fixtures/ (exemplo 1.x, changeset fictício)
 ```

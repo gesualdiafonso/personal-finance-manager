@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 /** Step 07 — Panel on the production build, desktop and iPhone viewport. Fictitious data only. */
-const isPhone = (name: string) => name === "iphone";
+const isPhone = (name: string) => name.includes("iphone");
 
 async function createAccount(page: Page, name: string, balance: string) {
   await page.goto("/cuentas");

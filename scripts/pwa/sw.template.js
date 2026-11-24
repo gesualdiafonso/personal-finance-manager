@@ -1,9 +1,9 @@
 /* PFM service worker — GENERATED from scripts/pwa/sw.template.js by scripts/pwa/build-sw.ts.
  * Do not edit public/sw.js by hand.
  *
- * Groundwork scope (Step 01, Task 06) — see docs/architecture/pwa.md:
- * - precaches the app shell (/, /offline, manifest, icons) and the hashed static assets those
- *   pages reference, including the two local WOFF2 fonts;
+ * Scope (Step 01 groundwork, completed in Step 09) — see docs/PWA.md:
+ * - precaches every area shell, /offline, the manifest and icons, and the hashed static assets
+ *   those pages reference, including the two local WOFF2 fonts;
  * - static assets: cache first; pages: network first, cached copy or /offline when offline;
  * - caches are versioned per build and old versions are deleted on activate.
  * It never caches /data/ (future encrypted publication has its own strategy) and HTML
@@ -21,7 +21,13 @@ const DETAIL_SHELLS = [
   [/^\/cuentas\/[^/]+$/, "/cuentas/_"],
   [/^\/tarjetas\/[^/]+$/, "/tarjetas/_"],
 ];
-const SHELL_URLS = ["/", "/offline", "/cuentas/_", "/tarjetas/_", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png", "/icons/apple-touch-icon.png"];
+/**
+ * Every area is a static client shell (the data lives in IndexedDB, never in the HTML), so all
+ * nine are precached: after the first visit any area opens without network, visited or not
+ * (Step 09). Must match src/lib/config/navigation.ts AREAS — checked by tests/unit/pwa.test.ts.
+ */
+const AREA_SHELLS = ["/", "/transacciones", "/cuentas-domesticas", "/tarjetas", "/recurrencias", "/cuentas", "/presupuesto", "/informes", "/configuracion"];
+const SHELL_URLS = [...AREA_SHELLS, "/offline", "/cuentas/_", "/tarjetas/_", "/manifest.webmanifest", "/favicon.ico", "/icons/favicon-32.png", "/icons/icon-192.png", "/icons/icon-512.png", "/icons/icon-maskable-512.png", "/icons/apple-touch-icon.png"];
 const ASSET_PATTERN = /\/_next\/static\/[^"'\s)<>]+/g;
 
 async function precache() {
@@ -58,7 +64,7 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-/** Lets the page ask a waiting worker to take over (used by the future "Nueva versión" prompt). */
+/** The page asks a waiting worker to take over when the user accepts "Nueva versión disponible". */
 self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
 });
@@ -66,15 +72,20 @@ self.addEventListener("message", (event) => {
 async function cacheFirst(request) {
   const cached = await caches.match(request);
   if (cached) return cached;
-  const response = await fetch(request);
-  if (response.ok) (await caches.open(STATIC_CACHE)).put(request, response.clone());
-  return response;
+  try {
+    const response = await fetch(request);
+    if (response.ok) (await caches.open(STATIC_CACHE)).put(request, response.clone());
+    return response;
+  } catch {
+    // Offline and not cached: a clean network error instead of an unhandled rejection.
+    return new Response("", { status: 504, statusText: "Offline" });
+  }
 }
 
 async function networkFirstPage(request) {
   try {
     const response = await fetch(request);
-    if (response.ok && (response.headers.get("content-type") || "").includes("text/html")) {
+    if (response.ok && response.type === "basic" && (response.headers.get("content-type") || "").includes("text/html")) {
       (await caches.open(SHELL_CACHE)).put(request, response.clone());
     }
     return response;
@@ -97,7 +108,7 @@ async function staleWhileRevalidate(request) {
       if (response.ok) (await caches.open(SHELL_CACHE)).put(request, response.clone());
       return response;
     })
-    .catch(() => cached);
+    .catch(() => cached || new Response("", { status: 504, statusText: "Offline" }));
   return cached || network;
 }
 
@@ -115,7 +126,7 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(networkFirstPage(request));
     return;
   }
-  if (url.pathname.startsWith("/icons/") || url.pathname === "/manifest.webmanifest") {
+  if (url.pathname.startsWith("/icons/") || url.pathname === "/manifest.webmanifest" || url.pathname === "/favicon.ico") {
     event.respondWith(staleWhileRevalidate(request));
   }
 });

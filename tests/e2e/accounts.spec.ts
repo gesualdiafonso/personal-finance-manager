@@ -5,7 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
  * iPhone viewport (390×844, list + bottom sheet). Every value is fictitious. Each test starts
  * with an empty IndexedDB (new browser context per test).
  */
-const isPhone = (name: string) => name === "iphone";
+const isPhone = (name: string) => name.includes("iphone");
 
 async function openCreate(page: Page) {
   await expect(page.getByTestId("accounts-loading")).toHaveCount(0);
@@ -143,7 +143,10 @@ test.describe("Accounts", () => {
     expect(overflow).toBeLessThanOrEqual(0);
   });
 
-  test("detail page: facts, linked cards, movements; opens offline for any account", async ({ page, context }, info) => {
+  test("detail page: facts, linked cards, movements; opens offline for any account", async ({ page, context, browserName }, info) => {
+    // Playwright's offline emulation does not reach service-worker fetches in Firefox, so the
+    // worker still gets the network there: a tooling limit, not an app behaviour (docs/PWA.md).
+    test.skip(browserName === "firefox", "Playwright offline emulation does not apply to service workers in Firefox");
     const phone = isPhone(info.project.name);
     await page.goto("/cuentas");
     await page.evaluate(() => navigator.serviceWorker.ready);

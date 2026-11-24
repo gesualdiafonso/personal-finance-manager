@@ -25,6 +25,16 @@ export default defineConfig({
     launchOptions: { executablePath },
   },
   projects: [
+    // Compatibility run (Step 09): E2E_ALL_BROWSERS=1 adds Firefox, desktop Safari (WebKit) and
+    // iPhone Safari (WebKit). Needs `npx playwright install firefox webkit`.
+    ...(process.env.E2E_ALL_BROWSERS
+      ? [
+          { name: "firefox", use: { ...devices["Desktop Firefox"], viewport: { width: 1440, height: 900 } } },
+          { name: "webkit", use: { ...devices["Desktop Safari"], viewport: { width: 1440, height: 900 } } },
+          // Safari on iPhone at the same 390×844 viewport as the Chromium "iphone" project.
+          { name: "webkit-iphone", use: { ...devices["iPhone 15"], viewport: { width: 390, height: 844 } } },
+        ]
+      : []),
     { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 }, launchOptions: { executablePath } } },
     {
       name: "iphone",
