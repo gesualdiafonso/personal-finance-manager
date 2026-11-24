@@ -17,7 +17,7 @@ O brief original do Step 00 tem, segundo o responsável do produto, as secções
 | OD-5 | As exportações vão cifradas? | Sim · não | **Decidida em 2026-11-24: sim**, conforme o desenho A aprovado em [data-security.md](../architecture/data-security.md). Por implementar; até lá vale D2-07 (JSON simples, sem interface de descarga) | Implementação da exportação cifrada |
 | OD-6 | Derivação de chave | PBKDF2 nativo · Argon2id (WASM) | PBKDF2 (implementado) | — |
 | OD-7 | Como se publica no Vercel? | CLI pelo Actions · integração Git do Vercel | CLI pelo Actions | Deploy |
-| OD-8 | Como afetam as compras no cartão os saldos e as faturas? | A definir | Esperar pelas secções 11–14 do brief. Regra provisória D2-11: não mexem no saldo da conta, aparecem como "comprometido em cartões" — hoje também para débito e pré-pago (Step 03); a decisão deve definir a regra por tipo de cartão, as faturas e o crédito disponível | Cartões, saldos, faturas de cartão |
+| OD-8 | Como afetam as compras no cartão os saldos e as faturas? | Ver [od-8-cartoes.md](od-8-cartoes.md) | **Decidida em parte em 2026-11-24** (débito, pré-pago, crédito por fatura, moeda). Em aberto: cuotas, pagamento parcial/juros, confirmação das devoluções. Até ser implementada, o código mantém a regra provisória D2-11 | Implementação de cartões e faturas |
 
 ## Produto
 
