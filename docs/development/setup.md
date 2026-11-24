@@ -2,7 +2,7 @@
 
 ## Requisitos
 
-- Node.js **22.12 ou superior** (`.nvmrc`: 22). A CI usa Node 22.
+- Node.js **22 (22.22.2 ou superior) ou 24 (24.15.0 ou superior)**: são as versões LTS que o jsdom e o Vitest suportam. O `.nvmrc` fixa o 22, igual à CI (`nvm install && nvm use`). **O Node 25 não é suportado** (versão ímpar, sem LTS): o `npm ci` avisa com `EBADENGINE` e os testes podem falhar.
 - npm 10 ou superior. Para **instalar** dependências novas, usa o npm 11 (`npx npm@11 install -D <pacote>`): o npm 10.9 incluído no Node 22 falha com o conjunto de dependências opcionais do Vitest 5 (`Cannot read properties of null (reading 'edgesOut')`). Para `npm ci` a partir do lockfile, o npm 10 funciona.
 
 ## Primeira vez

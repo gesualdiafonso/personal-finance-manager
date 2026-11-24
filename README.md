@@ -14,7 +14,7 @@ Aplicação web de finanças pessoais: responsiva, instalável como PWA, single-
 
 ## Começar
 
-Requisitos: Node.js 22.12 ou superior (`.nvmrc`), npm.
+Requisitos: Node.js 22 (≥ 22.22.2) ou 24 (≥ 24.15.0); o `.nvmrc` fixa o 22, como a CI. O Node 25 não é suportado. npm 10 ou 11.
 
 ```bash
 npm ci
