@@ -1,7 +1,11 @@
 import type { CurrencyCode } from "../currency";
 import { totalsByCurrency, type Money } from "../money";
 import type { Account, Transaction } from "../schemas";
-import { deriveAccountBalances, type BalanceMode } from "./balances";
+import {
+  deriveAccountBalances,
+  type BalanceMode,
+  type CardTypes,
+} from "./balances";
 
 /**
  * Account indicators for the Accounts page (Step 03 §6.2, §13). Derived only from stored
@@ -26,12 +30,17 @@ export interface AccountsSummary {
 export function summarizeAccounts(
   accounts: readonly Account[],
   transactions: readonly Transaction[],
-  options: { baseCurrency?: CurrencyCode; mode?: BalanceMode } = {},
+  options: {
+    baseCurrency?: CurrencyCode;
+    mode?: BalanceMode;
+    cardTypes?: CardTypes;
+  } = {},
 ): AccountsSummary {
   const live = accounts.filter((a) => a.deletedAt === null);
   const active = live.filter((a) => a.status === "active");
   const byAccount = deriveAccountBalances(live, transactions, {
     mode: options.mode ?? "current",
+    cardTypes: options.cardTypes,
   });
   const totals = totalsByCurrency(active.map((a) => byAccount.get(a.id)!));
   const base = options.baseCurrency ?? "ARS";

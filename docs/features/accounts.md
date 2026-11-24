@@ -20,11 +20,11 @@ Pergunta da área: **onde está o dinheiro?** (Patrimonio). Implementado no Step
 
 - **Valor herói:** saldo atual das contas **ativas** na moeda base (ARS). Outras moedas aparecem por baixo, "sin convertir". Nunca se somam moedas.
 - **Linha de factos:** ativas · bancárias (corrente + poupança) · em efetivo · arquivadas.
-- **Nota:** os saldos usam movimentos completados; compras com cartão não descontam da conta (D2-11).
+- **Nota:** os saldos usam movimentos completados; compras com cartão de crédito não descontam da conta (D4-08).
 
 ## Detalhe (`/cuentas/<id>`)
 
-Breadcrumb "Cuentas ›", saldo atual (herói), saldo projetado (com pendentes), saldo inicial, moeda, tipo, instituição, estado, datas de criação e de atualização, cartões associados (com ligação) e **movimentos** com filtros de período, tipo e estado. Os movimentos são só de leitura: o registo de transações é o Step 04.
+Breadcrumb "Cuentas ›", saldo atual (herói), saldo projetado (com pendentes), saldo inicial, moeda, tipo, instituição, estado, datas de criação e de atualização, cartões associados (com ligação), **"Cómo se calcula el saldo"** (reconciliação, Step 04) e **movimentos** com filtros de período, tipo e estado. Para registar, editar ou cancelar movimentos: [Transacciones](transactions.md).
 
 ## Estados
 

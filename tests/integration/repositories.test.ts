@@ -115,7 +115,8 @@ describe("update and delete", () => {
 
   it("deletes as a tombstone that stays in the store", async () => {
     const { db, repos } = await setup();
-    const t = await repos.transactions.create(expense());
+    // Step 04 (D4-04): only pending or cancelled movements can be deleted.
+    const t = await repos.transactions.create(expense({ status: "pending" }));
     const tomb = await repos.transactions.delete(t.id, 1);
     expect(tomb.deletedAt).not.toBeNull();
     expect(await repos.transactions.getById(t.id)).toBeNull();

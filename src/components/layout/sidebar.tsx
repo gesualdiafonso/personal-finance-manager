@@ -1,5 +1,6 @@
 "use client";
 
+import { NEW_TRANSACTION_HREF, openNewTransactionHere } from "@/features/transactions/new-transaction";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button, Kbd } from "@/components/ui/button";
@@ -39,7 +40,7 @@ export function SidebarView({ pathname }: { pathname: string }) {
     <aside className="sticky top-0 hidden h-dvh w-(--layout-sidebar) shrink-0 flex-col border-r border-line bg-paper-2 px-4 py-6 desktop:flex">
       <div className="px-2 pb-5 brand-wordmark">{es.app.name}</div>
       <Button asChild variant="primary" className="mb-5 w-full justify-between">
-        <Link href={AREAS.transactions.href}>
+        <Link href={NEW_TRANSACTION_HREF} onClick={(e) => openNewTransactionHere(e, pathname)}>
           {es.nav.newTransaction}
           <Kbd>N</Kbd>
         </Link>

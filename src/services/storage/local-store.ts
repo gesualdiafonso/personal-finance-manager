@@ -20,6 +20,8 @@ import {
 import { AppError } from "@/lib/errors/app-error";
 import { toIsoWithOffset } from "@/lib/formatting/date";
 import { assertRevisionNotOlder } from "@/lib/validation/compatibility";
+import { cardTypesOf } from "@/domain/rules/balances";
+import { reconcileAccount } from "@/domain/rules/reconciliation";
 import { validateIntegrity, type DataFileMap, type OfficialDataSet } from "@/services/data/dataset";
 
 /**
@@ -397,7 +399,15 @@ export async function checkLocalIntegrity(db: LocalDb): Promise<LocalIntegrityRe
     }
   }
   if (problems.length === 0) {
-    for (const i of validateIntegrity(await readWorkingDataSet(db))) {
+    const working = await readWorkingDataSet(db);
+    // D4-17: each account's balance, rebuilt as a breakdown, must equal the derivation.
+    const transactions = Object.values(working.transactions).flat();
+    const cardTypes = cardTypesOf(working.cards);
+    for (const account of working.accounts.filter((a) => a.deletedAt === null)) {
+      const r = reconcileAccount(account, transactions, cardTypes);
+      if (!r.matches) problems.push(`accounts: ${account.id} does not reconcile (${r.currencyProblems.length} movement(s) in another currency)`);
+    }
+    for (const i of validateIntegrity(working)) {
       if (i.severity === "error" && !i.message.startsWith("I-10")) problems.push(`${i.file}: ${i.recordId ?? ""} ${i.message}`.replace(/\s+/g, " "));
     }
   }

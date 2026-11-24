@@ -1,8 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { AREAS } from "@/lib/config/navigation";
+import { isOnTransactions, NEW_TRANSACTION_EVENT, NEW_TRANSACTION_HREF } from "@/features/transactions/new-transaction";
 
 function isTyping(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
@@ -15,16 +15,19 @@ function isTyping(target: EventTarget | null): boolean {
  */
 export function KeyboardShortcuts() {
   const router = useRouter();
+  const pathname = usePathname();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) return;
       if (e.key === "n" || e.key === "N") {
         e.preventDefault();
-        router.push(AREAS.transactions.href);
+        // Opens the new-transaction sheet (D4-15).
+        if (isOnTransactions(pathname)) window.dispatchEvent(new Event(NEW_TRANSACTION_EVENT));
+        else router.push(NEW_TRANSACTION_HREF);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [router]);
+  }, [router, pathname]);
   return null;
 }

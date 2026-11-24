@@ -1,4 +1,8 @@
-import { deriveAccountBalance } from "@/domain/rules/balances";
+import { cardTypesOf, deriveAccountBalance } from "@/domain/rules/balances";
+import {
+  reconcileAccount,
+  type Reconciliation,
+} from "@/domain/rules/reconciliation";
 import type { Money } from "@/domain/money";
 import {
   ENTITY_SCHEMAS,
@@ -14,6 +18,8 @@ import { loadAccountsView, type AccountRow } from "./data";
 export interface AccountDetail {
   row: AccountRow;
   projected: Money;
+  /** Breakdown of the current balance, checked against the derivation (D4-17). */
+  reconciliation: Reconciliation;
   cards: Card[];
   movements: Movement[];
 }
@@ -53,12 +59,31 @@ export async function loadAccountDetail(
   )
     .filter((c) => c.deletedAt === null && c.accountId === id)
     .sort((a, b) => a.name.localeCompare(b.name, "es-AR"));
+  const cardTypes = cardTypesOf(
+    rawCards.filter((c) => ENTITY_SCHEMAS.cards.safeParse(c).success) as Card[],
+  );
   return {
     row,
+    reconciliation: reconcileAccount(row.account, transactions, cardTypes),
     projected: deriveAccountBalance(row.account, transactions, {
       mode: "projected",
+      cardTypes: cardTypesOf(
+        rawCards.filter(
+          (c) => ENTITY_SCHEMAS.cards.safeParse(c).success,
+        ) as Card[],
+      ),
     }),
     cards,
-    movements: movementsOfAccount(id, transactions, accounts, categories),
+    movements: movementsOfAccount(
+      id,
+      transactions,
+      accounts,
+      categories,
+      cardTypesOf(
+        rawCards.filter(
+          (c) => ENTITY_SCHEMAS.cards.safeParse(c).success,
+        ) as Card[],
+      ),
+    ),
   };
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { NEW_TRANSACTION_HREF, openNewTransactionHere } from "@/features/transactions/new-transaction";
 import { CalendarDays, Ellipsis, House, List, Plus, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -101,7 +102,8 @@ export function TabBarView({ pathname }: { pathname: string }) {
         <TabLink href={AREAS.transactions.href} label={es.nav.mobile.transactions} Icon={List} active={isActive(pathname, AREAS.transactions.href)} />
         <div className="flex items-center justify-center">
           <Link
-            href={AREAS.transactions.href}
+            href={NEW_TRANSACTION_HREF}
+            onClick={(e) => openNewTransactionHere(e, pathname)}
             aria-label={es.nav.newTransaction}
             className="grid size-13 place-items-center rounded-full bg-forest text-on-primary"
           >

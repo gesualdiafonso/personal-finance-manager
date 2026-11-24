@@ -34,7 +34,11 @@ export function Sheet({
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
+    if (open && !dialog.open) {
+      dialog.showModal();
+      // showModal focuses the first control; a field marked data-autofocus takes precedence.
+      dialog.querySelector<HTMLElement>("[data-autofocus]")?.focus();
+    }
     if (!open && dialog.open) dialog.close();
   }, [open]);
 

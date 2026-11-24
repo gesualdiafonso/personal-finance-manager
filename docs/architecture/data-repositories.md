@@ -34,6 +34,7 @@ Se qualquer passo falhar, nada é gravado.
 | Apagar conta, cartão ou categoria com referências | `REFERENCE_CONSTRAINT` — arquivar (`status: archived`) ou desativar (`inactive`, `isActive: false`) (D2-06) |
 | Mudar a moeda de uma conta ou cartão com referências | `REFERENCE_CONSTRAINT` |
 | Apagar | Tombstone: `deletedAt` preenchido, `rev` + 1; o registo fica no store e viaja na exportação |
+| Transações (Step 04) | Tipo imutável; cancelado só muda notas; só se apagam pendentes/cancelados; contas arquivadas e cartões inativos recusados em movimentos novos — ver [transaction-engine.md](transaction-engine.md) |
 
 ## Unidade de trabalho
 

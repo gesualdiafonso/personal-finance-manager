@@ -1,6 +1,6 @@
 # OD-8 — Compras com cartão, saldos e faturas
 
-**Estado:** decidida pelo responsável em 2026-11-24. **Ainda não implementada**: até ao step que a implementar, o código mantém a regra provisória D2-11 (nenhuma compra com cartão mexe no saldo da conta; aparecem como "comprometido").
+**Estado:** decidida pelo responsável em 2026-11-24. **Implementada em parte no Step 04 (D4-08):** débito e pré-pago descontam da conta na data da compra; as compras com crédito ficam como "comprometido" sem mexer na conta. **Por implementar** (step próprio): faturas, cuotas, pagamento de fatura, crédito disponível e devoluções.
 
 ## Decidido
 

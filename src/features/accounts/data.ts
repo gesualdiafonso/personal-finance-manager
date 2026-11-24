@@ -3,12 +3,14 @@ import {
   summarizeAccounts,
   type AccountsSummary,
 } from "@/domain/rules/accounts";
+import { cardTypesOf } from "@/domain/rules/balances";
 import {
   accountSchema,
   ENTITY_SCHEMAS,
   type Account,
   type EntityName,
   type Transaction,
+  type Card,
 } from "@/domain/schemas";
 import { DEFAULT_FINANCIAL_SETTINGS } from "@/domain/settings";
 import { countReferencesIn } from "@/services/repositories/repositories";
@@ -73,6 +75,11 @@ export async function loadAccountsView(db: LocalDb): Promise<AccountsView> {
     (await getFinancialSettings(db)) ?? DEFAULT_FINANCIAL_SETTINGS;
   const summary = summarizeAccounts(accounts, transactions, {
     baseCurrency: settings.baseCurrency,
+    cardTypes: cardTypesOf(
+      raw.cards.filter(
+        (c) => ENTITY_SCHEMAS.cards.safeParse(c).success,
+      ) as Card[],
+    ),
   });
   const pending = new Set(
     outbox

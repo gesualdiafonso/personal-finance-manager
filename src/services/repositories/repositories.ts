@@ -135,6 +135,36 @@ async function checkRules(tx: ReadWriteTx, entity: EntityName, r: AnyRecord): Pr
   }
 }
 
+/**
+ * D4-07: new movements cannot use an archived account or an inactive card. Existing movements
+ * that already use them stay valid: on update only a CHANGED reference is checked.
+ */
+async function assertActiveReferences(tx: ReadWriteTx, record: AnyRecord, previous: AnyRecord | null): Promise<void> {
+  if (record.deletedAt !== null) return;
+  const changed = (field: string) => record[field] !== null && record[field] !== undefined && (previous === null || previous[field] !== record[field]);
+  for (const field of ["accountId", "destinationAccountId"]) {
+    if (!changed(field)) continue;
+    const account = await live(tx, "accounts", record[field] as string);
+    if (account && account.status !== "active") throw new AppError("REFERENCE_CONSTRAINT", `${field} points to an archived account`, { details: [`${field}=${String(record[field])}`] });
+  }
+  if (changed("cardId")) {
+    const card = await live(tx, "cards", record.cardId as string);
+    if (card && card.status !== "active") throw new AppError("REFERENCE_CONSTRAINT", "cardId points to an inactive card", { details: [`cardId=${String(record.cardId)}`] });
+  }
+}
+
+/**
+ * Transaction edit policy, enforced here so no screen can bypass it (Step 04 §11):
+ * the type never changes (D4-01); a cancelled movement is final — only its notes change (D4-03).
+ */
+function assertTransactionEditAllowed(current: AnyRecord, next: AnyRecord): void {
+  if (next.type !== current.type) throw new AppError("PROTECTED_OPERATION", "The type of a transaction cannot change; cancel it and create a new one");
+  if (current.status === "cancelled") {
+    const changed = Object.keys(next).filter((k) => !["notes", "rev", "updatedAt", "deviceId"].includes(k) && JSON.stringify(next[k]) !== JSON.stringify(current[k]));
+    if (changed.length > 0) throw new AppError("PROTECTED_OPERATION", "A cancelled transaction is final: only its notes can change", { details: changed });
+  }
+}
+
 /** Live records that still point at `id` (D2-06): their presence blocks deletion. */
 export const REFERRERS: Partial<Record<EntityName, { entity: EntityName; fields: string[] }[]>> = {
   accounts: [
@@ -257,6 +287,7 @@ export class UnitOfWork {
         const draft: Record<string, unknown> = { ...input, id, rev: 1, createdAt: stamp, updatedAt: stamp, deletedAt: null, deviceId: this.deviceId };
         const record = this.validate(entity, draft) as unknown as AnyRecord;
         await checkRules(this.tx, entity, record);
+        if (entity === "transactions") await assertActiveReferences(this.tx, record, null);
         if (entity === "transactions" && !options.allowPossibleDuplicate) {
           const key = transactionDuplicateKey(record as never);
           const twin = ((await store().getAll()) as AnyRecord[]).find((r) => r.deletedAt === null && transactionDuplicateKey(r as never) === key);
@@ -282,13 +313,19 @@ export class UnitOfWork {
           // Its purchases are tied to the paying account: moving the card would break them (Step 03 §11).
           throw new AppError("REFERENCE_CONSTRAINT", "The paying account of a card with movements cannot change");
         }
+        if (entity === "transactions") assertTransactionEditAllowed(current, record);
         await checkRules(this.tx, entity, record);
+        if (entity === "transactions") await assertActiveReferences(this.tx, record, current);
         await this.write(entity, "update", record, current.rev);
         return record as EntityOf<N>;
       },
       delete: async (id, expectedRev) => {
         const current = await load(id);
         checkRev(current, expectedRev);
+        if (entity === "transactions" && current.status === "completed") {
+          // D4-04: a completed movement is cancelled (kept, audited), never deleted directly.
+          throw new AppError("PROTECTED_OPERATION", "A completed transaction must be cancelled before it can be deleted");
+        }
         const refs = await countReferrers(this.tx, entity, id);
         if (refs > 0) {
           const hint = ARCHIVE_HINT[entity];
@@ -371,4 +408,24 @@ export async function clearLocalData(db: LocalDb, options: { confirmation: strin
   const tx = db.transaction([...ENTITY_STORES, "outbox", "snapshot", "publications", "settings"], "readwrite");
   await Promise.all([...ENTITY_STORES, "outbox", "snapshot", "publications", "settings"].map((n) => tx.objectStore(n as never).clear()));
   await tx.done;
+}
+
+/* ------------------------------------------------------------------------------ */
+/* Initial categories (D4-09)                                                      */
+/* ------------------------------------------------------------------------------ */
+
+/**
+ * Creates DEFAULT_CATEGORIES in one unit of work if — and only if — this device has no
+ * category at all (live or deleted). Idempotent; returns how many were created.
+ */
+export async function ensureDefaultCategories(ctx: RepositoryContext): Promise<number> {
+  const { DEFAULT_CATEGORIES } = await import("@/domain/default-categories");
+  if ((await ctx.db.count("categories")) > 0) return 0;
+  return unitOfWork(ctx, async (repos) => {
+    if ((await repos.categories.getAll({ includeDeleted: true })).length > 0) return 0;
+    for (const c of DEFAULT_CATEGORIES) {
+      await repos.categories.create({ id: c.id, name: c.name, type: c.type, parentId: null, icon: null, color: null, isDefault: true, isActive: true });
+    }
+    return DEFAULT_CATEGORIES.length;
+  });
 }

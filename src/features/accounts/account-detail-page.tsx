@@ -16,7 +16,7 @@ import { formatDate, type LocalDate } from "@/lib/formatting/date";
 import { es } from "@/lib/i18n/es";
 import { MovementList } from "../movements/movement-list";
 import { AccountSheet } from "./account-sheet";
-import { loadAccountDetail } from "./detail-data";
+import { loadAccountDetail, type AccountDetail } from "./detail-data";
 
 const t = es.accounts;
 const d = es.detail;
@@ -210,6 +210,7 @@ function AccountDetailContent() {
         )}
       </section>
 
+      <Reconciliation detail={detail} />
       <MovementList movements={movements} />
       <AccountSheet
         open={editing}
@@ -217,5 +218,46 @@ function AccountDetailContent() {
         onClose={() => setEditing(false)}
       />
     </>
+  );
+}
+
+/** "Cómo se calcula el saldo": the auditable breakdown of the current balance (D4-17). */
+function Reconciliation({ detail }: { detail: AccountDetail }) {
+  const r = detail.reconciliation;
+  const h = d.how;
+  const c = detail.row.account.currency;
+  const rows: [string, number, "explicit" | "negative"][] = [
+    [h.initial, r.initial.amount, "negative"],
+    [h.income, r.income.amount, "explicit"],
+    [h.expenses, -r.expenses.amount, "explicit"],
+    [h.transfersIn, r.transfersIn.amount, "explicit"],
+    [h.transfersOut, -r.transfersOut.amount, "explicit"],
+  ];
+  return (
+    <section aria-labelledby="como-se-calcula" className="mb-12 max-w-xl" data-testid="reconciliation">
+      <h2 id="como-se-calcula" className="mb-3 type-subheading">
+        {d.howTitle}
+      </h2>
+      <dl>
+        {rows.map(([label, amount, sign]) => (
+          <div key={label} className="flex items-baseline justify-between gap-4 border-b border-line py-2">
+            <dt className="type-body-sm text-ink-2">{label}</dt>
+            <dd className="type-amount">
+              <Money amount={amount} currency={c} sign={amount === 0 ? "negative" : sign} />
+            </dd>
+          </div>
+        ))}
+        <div className="flex items-baseline justify-between gap-4 py-2">
+          <dt className="type-body font-semibold">{h.result}</dt>
+          <dd className="type-amount font-semibold" data-testid="reconciliation-result">
+            <Money amount={r.rebuilt.amount} currency={c} />
+          </dd>
+        </div>
+      </dl>
+      <p className="type-caption text-ink-2">{h.excluded(r.excluded.pending, r.excluded.cancelled, r.excluded.creditCardPurchases)}</p>
+      <p className={r.matches ? "type-caption text-ink-2" : "type-caption text-alert-text"} data-testid="reconciliation-status">
+        {r.matches ? h.ok : h.mismatch}
+      </p>
+    </section>
   );
 }

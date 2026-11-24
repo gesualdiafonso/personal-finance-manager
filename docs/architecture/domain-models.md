@@ -35,7 +35,7 @@ Decisões aplicadas: D2-01 a D2-11 ([Step 02](../decisions/step-02-decisions.md)
 | `transfer` | `−amount` em `accountId` e `+amount` em `destinationAccountId`; nunca conta como receita nem despesa |
 
 - **Estado (D2-04):** `completed` conta no saldo atual; `pending` só no saldo projetado; `cancelled` nunca. Registos apagados nunca contam.
-- **Compras com cartão (D2-11, enquanto a OD-8 estiver aberta):** não mexem no saldo da conta; aparecem em `committedOnCards` ("comprometido em cartões"). Continuam a contar como despesa nos totais de receitas/despesas.
+- **Compras com cartão (OD-8, D4-08):** débito e pré-pago descontam da conta na data da compra; crédito não mexe no saldo da conta e aparece em `committedOnCards` ("comprometido em cartões"). Todas contam como despesa nos totais de receitas/despesas. Detalhe em [financial-calculations.md](financial-calculations.md).
 - **Totais por moeda:** `incomeAndExpenses` e `totalsByCurrency` devolvem um valor por moeda; somar ARS com USD lança `CURRENCY_MISMATCH`.
 
 ## Dinheiro no código ([`src/domain/money.ts`](../../src/domain/money.ts))

@@ -2,7 +2,7 @@
 
 Aplicação web de finanças pessoais: responsiva, instalável como PWA, single-user, em pesos argentinos (ARS) e dólares (USD, sem conversões), com o fuso horário `America/Argentina/Buenos_Aires`.
 
-**Estado:** Step 03 — Contas e Cartões: gestão de contas e cartões, detalhes com movimentos e indicadores, sobre o motor de dados do Step 02 (schemaVersion 2.1.0). As transações ainda não se registam na interface (Step 04). Relatórios: [Step 01](docs/reports/step-01-report.md), [Step 02](docs/reports/step-02-report.md), [Step 03](docs/reports/step-03-report.md). Funcionalidades: [Contas](docs/features/accounts.md) · [Cartões](docs/features/cards.md).
+**Estado:** Step 04 — Transações: registo, lista, pesquisa, filtros, detalhe, edição, cancelamento e reconciliação, sobre contas e cartões (Step 03) e o motor de dados (Step 02, schemaVersion 2.1.0). Faturas de cartão de crédito ainda não. Relatórios: [Step 01](docs/reports/step-01-report.md), [Step 02](docs/reports/step-02-report.md), [Step 03](docs/reports/step-03-report.md), [Step 04](docs/reports/step-04-report.md). Funcionalidades: [Contas](docs/features/accounts.md) · [Cartões](docs/features/cards.md) · [Transações](docs/features/transactions.md).
 
 ## Princípios que não se negociam
 
@@ -53,7 +53,7 @@ scripts/         tokens, schemas, validação de dados, service worker, ícones,
 src/app/         rotas (App Router): as nove áreas, offline, manifest, erros
 src/components/  ui/ (shadcn/ui personalizado), layout/ (sidebar, rail, tab bar), shared/
 src/domain/      modelos Zod, dinheiro e moedas, regras (saldos, categorias, recorrências), ids
-src/features/    accounts/, cards/, movements/, dashboard/ (estado vazio), settings/ (aparência, dados locais)
+src/features/    accounts/, cards/, movements/, transactions/, dashboard/ (estado vazio), settings/ (aparência, dados locais)
 src/hooks/       use-local-data (leituras/escritas pelos repositórios), use-detail-id
 src/lib/         config/, formatting/ (ARS, datas), validation/ (Zod), errors/, i18n/, utils/
 src/services/    data/ (validação, fontes), storage/ (IndexedDB, LocalStorage), repositories/, exchange/ (importação/exportação), versioning/ (migrações), crypto/

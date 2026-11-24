@@ -1,15 +1,18 @@
 import { money, type Money } from "@/domain/money";
+import { isCreditCardPurchase, type CardTypes } from "@/domain/rules/balances";
 import type { Account, Category, Transaction } from "@/domain/schemas";
 
 /**
  * Movements of one account or card, read-only (Step 03 §12). Transactions are created in
  * Step 04; here they are only listed and filtered. The signed amount is the direction for
- * the account (income +, expense −, transfer out −, transfer in +); a card purchase keeps its
- * sign but is marked, because it does not change the account balance (D2-11).
+ * the account (income +, expense −, transfer out −, transfer in +); a CREDIT-card purchase keeps
+ * its sign but is marked, because it does not change the account balance (D4-08). Debit and
+ * prepaid purchases are ordinary account expenses.
  */
 export interface Movement {
   tx: Transaction;
   signed: Money;
+  /** Credit-card purchase: shown, but not part of the account balance (D4-08). */
   viaCard: boolean;
   /** Transfers: the other account. */
   counterpart: Account | null;
@@ -21,6 +24,7 @@ export function movementsOfAccount(
   txs: readonly Transaction[],
   accounts: readonly Account[],
   categories: readonly Category[],
+  cardTypes?: CardTypes,
 ): Movement[] {
   const accountById = new Map(accounts.map((a) => [a.id, a]));
   const categoryById = new Map(categories.map((c) => [c.id, c]));
@@ -43,7 +47,7 @@ export function movementsOfAccount(
       return {
         tx,
         signed: money(incoming ? tx.amount : -tx.amount, tx.currency),
-        viaCard: tx.cardId !== null,
+        viaCard: isCreditCardPurchase(tx, cardTypes),
         counterpart: otherId ? (accountById.get(otherId) ?? null) : null,
         category: tx.categoryId
           ? (categoryById.get(tx.categoryId) ?? null)
@@ -57,6 +61,7 @@ export function movementsOfCard(
   cardId: string,
   txs: readonly Transaction[],
   categories: readonly Category[],
+  cardTypes?: CardTypes,
 ): Movement[] {
   const categoryById = new Map(categories.map((c) => [c.id, c]));
   return txs
@@ -64,7 +69,7 @@ export function movementsOfCard(
     .map((tx) => ({
       tx,
       signed: money(tx.type === "income" ? tx.amount : -tx.amount, tx.currency),
-      viaCard: true,
+      viaCard: isCreditCardPurchase(tx, cardTypes),
       counterpart: null,
       category: tx.categoryId
         ? (categoryById.get(tx.categoryId) ?? null)

@@ -36,7 +36,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       <Suspense fallback={<TabBarView pathname="" />}>
         <TabBar />
       </Suspense>
-      <KeyboardShortcuts />
+      <Suspense fallback={null}>
+        <KeyboardShortcuts />
+      </Suspense>
     </div>
   );
 }

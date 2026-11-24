@@ -24,7 +24,7 @@ Reutiliza integralmente o motor de dados do Step 02. Não há segunda camada de 
 
 `loadAccountsView(db)` lê `accounts`, `transactions`, `cards`, `bills`, `recurrences` e `outbox` numa transação, descarta (e conta) os registos que falham o schema, e calcula:
 
-- saldos com `deriveAccountBalances` (regra central D2-04/D2-11; nenhum cálculo paralelo);
+- saldos com `deriveAccountBalances` (regra central D2-04 e D4-08, com o tipo de cada cartão; nenhum cálculo paralelo);
 - indicadores com `summarizeAccounts`: ativas, arquivadas, bancárias, em efetivo, saldo das ativas **por moeda**;
 - referências com `countReferencesIn` (a mesma regra D2-06 do repositório);
 - "Solo en este dispositivo" a partir das operações pendentes do `outbox`.

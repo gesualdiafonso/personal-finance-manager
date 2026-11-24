@@ -1,5 +1,6 @@
 "use client";
 
+import { NEW_TRANSACTION_HREF, openNewTransactionHere } from "@/features/transactions/new-transaction";
 import {
   CalendarDays,
   ChartColumn,
@@ -61,7 +62,8 @@ export function RailView({ pathname }: { pathname: string }) {
   return (
     <aside className="sticky top-0 hidden h-dvh w-(--layout-rail) shrink-0 flex-col items-center gap-1 border-r border-line bg-paper-2 py-6 landscape:flex desktop:hidden">
       <Link
-        href={AREAS.transactions.href}
+        href={NEW_TRANSACTION_HREF}
+        onClick={(e) => openNewTransactionHere(e, pathname)}
         aria-label={es.nav.newTransaction}
         title={es.nav.newTransaction}
         className="mb-4 grid size-11 place-items-center rounded-full bg-forest text-on-primary"

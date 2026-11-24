@@ -29,11 +29,11 @@
 | Conta de um cartão com movimentos não muda | Repositório (`REFERENCE_CONSTRAINT`) e formulário (campo bloqueado) |
 | Eliminar só sem movimentos | Repositório (D2-06) e interface |
 | Próximo fecho / vencimento | `nextMonthlyDate`: dia ajustado ao último dia do mês; aritmética de calendário em `AAAA-MM-DD`, sem relógio nem fuso do dispositivo (data de hoje em Buenos Aires) |
-| Comprometido | `committedOnCards` (D2-11): compras não canceladas, por cartão, na moeda do cartão |
+| Comprometido | `committedOnCards`: compras não canceladas com cartão de **crédito**, por cartão, na moeda do cartão (D4-08) |
 | Limite total | Soma dos limites dos cartões de crédito **ativos**, por moeda; nunca somado a saldos nem chamado "disponível" |
 
 ## Limitações
 
-- D2-11 aplica-se a todos os tipos: uma compra com cartão de **débito** também não desconta da conta. Fica assim até a OD-8 definir a regra por tipo.
+- Desde o Step 04 (D4-08): compras com débito e pré-pago descontam da conta na data da compra; só as de crédito ficam como comprometido.
 - Sem faturas (abertas, fechadas, pagas) nem crédito disponível: OD-8.
 - Cartões migrados do 1.x podem ter `accountId: null`; a interface obriga a escolher conta na edição seguinte.

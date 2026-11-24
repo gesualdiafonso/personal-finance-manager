@@ -42,6 +42,11 @@ export async function loadCardDetail(
   return {
     row,
     accounts: view.accounts,
-    movements: movementsOfCard(id, transactions, categories),
+    movements: movementsOfCard(
+      id,
+      transactions,
+      categories,
+      new Map([[row.card.id, row.card.cardType]]),
+    ),
   };
 }

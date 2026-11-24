@@ -37,6 +37,9 @@ Lê também o [README](README.md) e, antes de mexer em interface, o [Design Syst
 | Ler/escrever dados a partir da interface | `src/hooks/use-local-data.ts` (`useLocalQuery`, `mutate`) — nunca abrir o IndexedDB num componente |
 | Componentes de formulário, sheet, diálogo, badge | `src/components/ui/` (`<dialog>` nativo, sem dependências) |
 | Contas e cartões | `src/features/accounts/`, `src/features/cards/`, `docs/features/` |
+| Transações (registo, lista, detalhe) | `src/features/transactions/`; regras em `src/domain/rules/transactions.ts`, `reconciliation.ts` |
+| Decisões do Step 04 (D4-01…D4-17) | `docs/decisions/step-04-decisions.md` |
+| Cálculos financeiros (fórmulas, estados, cartões) | `docs/architecture/financial-calculations.md` |
 | IndexedDB | `src/services/storage/local-store.ts` |
 | Preferências (LocalStorage) | `src/services/storage/preferences.ts` |
 | Cifragem do pacote publicado | `src/services/crypto/bundle.ts` |

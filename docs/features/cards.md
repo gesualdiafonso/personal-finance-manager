@@ -21,7 +21,7 @@ Número completo, CVV, PIN, palavras-passe, credenciais. O formulário não tem 
 
 ## Resumo e indicadores
 
-- **Valor herói:** "Comprometido en tarjetas" — compras com cartão não canceladas, cartões ativos, por moeda (D2-11).
+- **Valor herói:** "Comprometido en tarjetas" — compras com cartão de **crédito** não canceladas, cartões ativos, por moeda. Débito e pré-pago descontam da conta (D4-08).
 - **Límite de crédito total:** soma dos limites dos cartões de crédito ativos, por moeda, com a nota "es el límite acordado con el emisor, no dinero disponible". Não há "crédito disponível" (D3-06, OD-8).
 - **Vencen pronto:** cartões de crédito ativos cujo próximo vencimento é nos próximos 7 dias (dias 29–31 ajustados ao fim do mês).
 
