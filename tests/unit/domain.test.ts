@@ -17,10 +17,10 @@ const sample = () => {
 };
 
 describe("currencies (D2-02)", () => {
-  it("supports exactly ARS and USD", () => {
-    expect(isCurrencyCode("ARS")).toBe(true);
-    expect(isCurrencyCode("USD")).toBe(true);
-    expect(isCurrencyCode("EUR")).toBe(false);
+  it("supports the listed ISO 4217 currencies only (D-FX-01)", () => {
+    for (const code of ["ARS", "USD", "EUR", "BRL", "UYU", "CLP", "PYG", "GBP"]) expect(isCurrencyCode(code)).toBe(true);
+    expect(isCurrencyCode("JPY")).toBe(false);
+    expect(currencyCodeSchema.safeParse("JPY").success).toBe(false);
     expect(currencyCodeSchema.safeParse("ars").success).toBe(false);
   });
 

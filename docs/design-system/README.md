@@ -1,5 +1,7 @@
 # PFM — Design System
 
+> **AUREON (24 nov 2026).** O produto passou a chamar-se **AUREON**. A identidade AUREON estende este Design System, sem o substituir: mantém a grelha, as regras, os componentes e a arquitetura de navegação; muda a paleta (Aureon Forest, Heritage Gold, Ivory Paper, Stone Grey, Deep Charcoal, Sage), a tipografia (Cormorant Garamond + Manrope, em vez de Instrument Serif + Instrument Sans), o logótipo (monograma A e wordmark) e acrescenta ícones à navegação. Os tokens continuam em [tokens.json](tokens.json) (versão 2.0.0). Ver [docs/branding](../branding/BRAND-IDENTITY.md). Onde este livro e a identidade AUREON divergem, prevalece AUREON.
+
 **Finanças pessoais com a calma de uma página bem composta.**
 
 Este é o resultado do STEP 00 (Product Discovery, Art Direction & Design System) do Personal Finance Manager: aplicação web responsiva e PWA, single-user, em ARS, em português, com timezone America/Argentina/Buenos_Aires. Nada aqui é código de implementação: os previews são composições estáticas de referência, e os tokens são o contrato que a implementação (Tailwind + shadcn/ui) vai consumir depois de aprovado.

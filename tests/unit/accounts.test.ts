@@ -25,7 +25,7 @@ describe("account form (Step 03 §7)", () => {
   });
 
   it("rejects an unsupported currency and type", () => {
-    const r = parseCreateForm({ ...valid, currency: "EUR", accountType: "crypto" });
+    const r = parseCreateForm({ ...valid, currency: "JPY", accountType: "crypto" });
     expect(r.ok).toBe(false);
     expect(Object.keys((r as { errors: object }).errors).sort()).toEqual(["accountType", "currency"]);
   });

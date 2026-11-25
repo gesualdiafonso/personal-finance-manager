@@ -49,29 +49,26 @@
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* The PFM wordmark (no logo yet: docs/design-system/README.md §6). 24/28 Instrument Serif,
-   as in the approved DashboardDesktop preview. */
-@utility brand-wordmark {
+/* Editorial eyebrow of the AUREON identity (docs/branding/UI-BRANDING.md): a short gold hairline
+   before a label. Decorative only; never a state. */
+@utility brand-rule {
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  background: var(--gold);
+  vertical-align: middle;
+}
+
+/* Brand statement (taglines): Cormorant Garamond italic. */
+@utility brand-statement {
   font-family: var(--pfm-font-serif);
-  font-size: 24px;
-  line-height: 28px;
-  font-weight: 400;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 26px;
 }
 
 /* Tablet landscape: rail instead of tab bar (docs/design-system/responsivo.md). */
 @theme {
   --breakpoint-landscape: 1024px;
-}
-
-/* Printing / "Guardar como PDF" (Step 08 reports): paper background, no app chrome (the
-   navigations carry print:hidden), page margins. Colours stay the tokens of the light theme. */
-@media print {
-  @page {
-    margin: 16mm 14mm;
-  }
-  html {
-    background: var(--bg-paper);
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
 }

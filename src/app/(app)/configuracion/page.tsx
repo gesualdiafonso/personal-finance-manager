@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/layout/page-header";
+import { AboutBrand } from "@/features/settings/about-brand";
 import { AppearanceSettings } from "@/features/settings/appearance-settings";
-import { InstallSettings } from "@/features/settings/install-settings";
 import { LocalDataPanel } from "@/features/settings/local-data-panel";
+import { CurrencySettings } from "@/features/exchange/currency-settings";
 import { AREAS } from "@/lib/config/navigation";
 
 export const metadata: Metadata = { title: AREAS.settings.label };
@@ -13,8 +14,9 @@ export default function SettingsPage() {
     <>
       <PageHeader title={AREAS.settings.label} />
       <AppearanceSettings />
-      <InstallSettings />
+      <CurrencySettings />
       <LocalDataPanel />
+      <AboutBrand />
     </>
   );
 }

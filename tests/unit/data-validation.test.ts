@@ -35,9 +35,9 @@ describe("layer 1 — structure", () => {
     expect(transactionSchema.safeParse({ ...record, date: "2026-02-30" }).success).toBe(false);
   });
 
-  it("rejects an unsupported currency (D2-02: ARS and USD only)", () => {
+  it("rejects an unsupported currency (D-FX-01: only the listed ISO 4217 codes)", () => {
     const files = clone(loadSampleFiles());
-    (files["accounts.json"] as Json).records[0]!.currency = "EUR";
+    (files["accounts.json"] as Json).records[0]!.currency = "JPY";
     expect(validateDataFiles(files).issues).toContainEqual(expect.objectContaining({ file: "accounts.json", layer: "structure" }));
   });
 

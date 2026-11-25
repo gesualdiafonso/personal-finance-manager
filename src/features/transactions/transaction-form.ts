@@ -7,6 +7,7 @@ import type { Transaction } from "@/domain/schemas";
 import { formatMoney } from "@/lib/formatting/money";
 import { MONEY_ERRORS } from "../accounts/account-form";
 import type { TransactionFormData } from "./form-data";
+import { planConversion, type RateChoice } from "@/features/exchange/conversion";
 
 /**
  * The transaction form: what the user types → the domain input. Field-level Spanish errors
@@ -29,6 +30,9 @@ export interface TransactionFormValues {
   categoryId: string;
   status: "completed" | "pending";
   notes: string;
+  /** Estimate in the primary currency, for an account in another currency (Step 10 addendum). */
+  rateChoice: RateChoice;
+  customRate: string;
 }
 export type TransactionFieldErrors = Partial<
   Record<keyof TransactionFormValues, string>
@@ -50,12 +54,15 @@ export function emptyTransactionForm(
     categoryId: "",
     status: "completed",
     notes: "",
+    rateChoice: "current",
+    customRate: "",
   };
 }
 
 export function parseTransactionForm(
   v: TransactionFormValues,
   data: TransactionFormData,
+  options: { stored?: Transaction["conversion"]; now?: Date } = {},
 ):
   | { ok: true; input: Input<"transactions"> }
   | { ok: false; errors: TransactionFieldErrors } {
@@ -64,12 +71,6 @@ export function parseTransactionForm(
   if (description === "") errors.description = t.descriptionRequired;
   else if (description.length > 140) errors.description = t.descriptionTooLong;
   else if (CARD_NUMBER.test(description)) errors.description = t.cardNumber;
-
-  const amount = parseMoneyInput(v.amount);
-  if (!amount.ok)
-    errors.amount =
-      amount.error === "empty" ? t.amountRequired : MONEY_ERRORS[amount.error];
-  else if (amount.value <= 0) errors.amount = t.amountZero;
 
   if (!isLocalDate(v.date)) errors.date = t.date;
 
@@ -82,6 +83,26 @@ export function parseTransactionForm(
   const accountId = card?.accountId ?? v.accountId;
   const account = data.accounts.find((a) => a.id === accountId);
   if (!account) errors.accountId = t.account;
+
+  // Decimals allowed follow the account's currency (none for CLP and PYG).
+  const amount = parseMoneyInput(v.amount, { currency: account?.currency });
+  if (!amount.ok)
+    errors.amount =
+      amount.error === "empty" ? t.amountRequired : MONEY_ERRORS[amount.error];
+  else if (amount.value <= 0) errors.amount = t.amountZero;
+
+  const plan = account
+    ? planConversion({
+        amount: amount.ok ? amount.value : null,
+        from: account.currency,
+        ctx: data.exchange,
+        choice: v.rateChoice,
+        customRate: v.customRate,
+        stored: options.stored,
+        now: options.now ?? new Date(),
+      })
+    : null;
+  if (plan?.kind === "error") errors.customRate = es.exchange.errors[plan.error];
 
   let destinationAccountId: string | null = null;
   if (v.type === "transfer") {
@@ -127,6 +148,7 @@ export function parseTransactionForm(
       notes: notes === "" ? null : notes,
       billId: null,
       recurrenceId: null,
+      ...(plan?.kind === "ok" ? { conversion: plan.snapshot } : {}),
     },
   };
 }
@@ -152,6 +174,9 @@ export function transactionToForm(tx: Transaction): TransactionFormValues {
     categoryId: tx.categoryId ?? "",
     status: tx.status === "pending" ? "pending" : "completed",
     notes: tx.notes ?? "",
+    // History first: an edit keeps the rate recorded when the movement was saved (D-FX-05).
+    rateChoice: tx.conversion ? "stored" : "none",
+    customRate: "",
   };
 }
 
@@ -159,7 +184,9 @@ export function transactionToForm(tx: Transaction): TransactionFormValues {
 export function editPatch(
   input: Input<"transactions">,
 ): Omit<Input<"transactions">, "type" | "billId" | "recurrenceId"> {
-  const patch: Partial<Input<"transactions">> = { ...input };
+  // conversion always present in the patch: undefined removes an estimate that no longer applies
+  // (the account changed to the primary currency); the repository refuses any other removal.
+  const patch: Partial<Input<"transactions">> = { ...input, conversion: input.conversion };
   delete patch.type;
   delete patch.billId;
   delete patch.recurrenceId;

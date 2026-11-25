@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ACCOUNT_TYPES, type Account } from "@/domain/schemas";
+import { CURRENCY_CODES, isCurrencyCode, type CurrencyCode } from "@/domain/currency";
 import { isAppError } from "@/lib/errors/app-error";
 import { formatMoney, parseMoneyInput } from "@/lib/formatting/money";
 import { es } from "@/lib/i18n/es";
@@ -20,7 +21,8 @@ export const MONEY_ERRORS = {
   "out-of-range": t.amountRange,
 } as const;
 
-export const moneyField = (options: { allowNegative?: boolean } = {}) =>
+/** Amount typed as text → minor units; decimals allowed follow `currency` (none for CLP/PYG). */
+export const moneyField = (options: { allowNegative?: boolean; currency?: CurrencyCode } = {}) =>
   z.string().transform((value, ctx) => {
     const parsed = parseMoneyInput(value, options);
     if (!parsed.ok) {
@@ -42,7 +44,9 @@ const institution = z
   .max(80, t.institutionTooLong)
   .refine((v) => !CARD_NUMBER.test(v), t.cardNumber);
 const accountType = z.enum(ACCOUNT_TYPES, { error: t.type });
-const currency = z.enum(["ARS", "USD"], { error: t.currency });
+const currency = z.enum(CURRENCY_CODES as [CurrencyCode, ...CurrencyCode[]], { error: t.currency });
+/** The currency chosen in the form, when valid — decides how the amounts are read. */
+export const formCurrency = (value: string): CurrencyCode => (isCurrencyCode(value) ? value : "ARS");
 
 export const createAccountFormSchema = z.object({
   name,
@@ -103,7 +107,9 @@ function fieldErrors(error: z.ZodError): FieldErrors {
 export function parseCreateForm(
   values: AccountFormValues,
 ): { ok: true; input: Input<"accounts"> } | { ok: false; errors: FieldErrors } {
-  const r = createAccountFormSchema.safeParse(values);
+  const r = createAccountFormSchema
+    .extend({ initialBalance: moneyField({ allowNegative: true, currency: formCurrency(values.currency) }) })
+    .safeParse(values);
   if (!r.success) return { ok: false, errors: fieldErrors(r.error) };
   return {
     ok: true,

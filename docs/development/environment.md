@@ -1,13 +1,12 @@
 # Configuração de ambiente
 
-**A app não precisa de nenhuma variável de ambiente** (Step 01, confirmado no Step 09 — ver [PRODUCTION.md](../PRODUCTION.md)). A app não tem backend, base de dados nem API remota. `.env.example` documenta as variáveis opcionais.
+**O Step 01 não precisa de nenhuma variável de ambiente.** A app não tem backend, base de dados nem API remota. `.env.example` documenta as variáveis opcionais.
 
 | Variável | Onde | Para quê |
 | --- | --- | --- |
 | `NEXT_TELEMETRY_DISABLED=1` | CI, local (opcional) | Desliga a telemetria anónima do Next.js |
 | `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` | Local (opcional) | Usa um Chrome existente nos testes E2E |
 | `E2E_PORT` | Local (opcional) | Porta do servidor de produção nos E2E (por omissão 3200) |
-| `E2E_ALL_BROWSERS=1` | Local (opcional) | E2E também em Firefox, Safari desktop e Safari iPhone (WebKit) |
 | `GITHUB_SHA` | CI (automática) | Versão da cache do service worker |
 
 ## Regras

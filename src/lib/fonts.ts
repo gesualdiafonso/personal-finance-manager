@@ -1,26 +1,31 @@
 import localFont from "next/font/local";
 
 /**
- * Fonts are self-hosted with next/font/local (decision D3): the WOFF2 files live in
- * src/styles/fonts, are bundled at build time and never requested from Google Fonts.
- * Licence: SIL Open Font License 1.1 (src/styles/fonts/OFL-*.txt).
+ * AUREON typography (docs/branding/TYPOGRAPHY.md). Fonts are self-hosted with next/font/local
+ * (decision D3): the WOFF2 files (Latin subset, variable weight) live in src/styles/fonts, are
+ * bundled at build time and never requested from Google Fonts or any other host.
+ * Licence: SIL Open Font License 1.1 (src/styles/fonts/OFL-*.txt). Source: Fontsource 5.3.0.
+ *
+ * - Manrope: interface, body, forms, buttons, tables and every financial figure (tabular).
+ * - Cormorant Garamond: editorial headings, page titles, the dashboard hero, brand statements.
  */
-export const instrumentSans = localFont({
-  src: "../styles/fonts/InstrumentSans-Variable.woff2",
-  weight: "400 700",
+export const manrope = localFont({
+  src: "../styles/fonts/Manrope-Variable.woff2",
+  weight: "200 800",
   style: "normal",
   display: "swap",
   preload: true,
-  variable: "--font-instrument-sans",
+  variable: "--font-manrope",
   adjustFontFallback: "Arial",
 });
 
-export const instrumentSerif = localFont({
-  src: "../styles/fonts/InstrumentSerif-Regular.woff2",
-  weight: "400",
-  style: "normal",
+export const cormorantGaramond = localFont({
+  src: [
+    { path: "../styles/fonts/CormorantGaramond-Variable.woff2", weight: "300 700", style: "normal" },
+    { path: "../styles/fonts/CormorantGaramond-Italic-Variable.woff2", weight: "300 700", style: "italic" },
+  ],
   display: "swap",
   preload: true,
-  variable: "--font-instrument-serif",
+  variable: "--font-cormorant-garamond",
   adjustFontFallback: "Times New Roman",
 });

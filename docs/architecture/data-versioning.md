@@ -4,9 +4,9 @@
 
 | Número | Onde | Significado |
 | --- | --- | --- |
-| `schemaVersion` | Todos os ficheiros de `data/` e das exportações | Formato dos dados (semver). Atual: **2.3.0** (`SCHEMA_VERSION`, `DATA_COMPATIBILITY`) |
+| `schemaVersion` | Todos os ficheiros de `data/` e das exportações | Formato dos dados (semver). Atual: **2.4.0** (`SCHEMA_VERSION`, `DATA_COMPATIBILITY`) |
 | `dataRevision` | `meta.json` | Revisão dos dados publicados. Só sobe. |
-| `LOCAL_DB_VERSION` | IndexedDB | Estrutura dos stores no dispositivo. Atual: **2** |
+| `LOCAL_DB_VERSION` | IndexedDB | Estrutura dos stores no dispositivo. Atual: **3** |
 
 ## Compatibilidade — [`src/lib/validation/compatibility.ts`](../../src/lib/validation/compatibility.ts)
 
@@ -25,6 +25,10 @@ Cada migração é `{ from, to, description, migrate(files, ctx) }`, registada e
 - **valida o resultado** nas quatro camadas antes de o devolver;
 - **é idempotente:** dados já atuais voltam iguais (`changed: false`);
 - **produz um relatório** com versões, contagens, campos renomeados, valores por omissão aplicados, fusões e avisos — nunca valores nem descrições.
+
+### 2.3.0 → 2.4.0 (Step 10, adenda multimoeda)
+
+Só aditiva: moedas EUR, BRL, UYU, CLP, PYG e GBP (casas decimais próprias); `Transaction.conversion?` (fotografia da conversão para a moeda principal) e `FinancialSettings.exchange?` (moedas ativas, modo, configurações de taxa). Dados 2.0–2.3 leem-se sem migração e nada é recalculado. IndexedDB sem alteração (a configuração vive na store `settings`). Ver [currency-exchange.md](../features/currency-exchange.md).
 
 ### 2.2.0 → 2.3.0 (Step 06)
 

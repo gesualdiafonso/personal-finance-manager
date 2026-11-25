@@ -42,13 +42,17 @@ test.describe("application foundation", () => {
 });
 
 test.describe("navigation", () => {
-  test("desktop: sidebar lists the nine areas, text only", async ({ page }, info) => {
+  test("desktop: AUREON sidebar lists the nine areas, each with its icon; profile and theme switch", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop");
     await page.goto("/");
     const sidebar = page.locator("aside").filter({ hasText: "Nueva transacción" });
     await expect(sidebar).toBeVisible();
     for (const [, title] of AREAS) await expect(sidebar.getByRole("link", { name: title, exact: true })).toBeVisible();
-    await expect(sidebar.locator("svg")).toHaveCount(0);
+    // AUREON branding (replaces the Step 00 "text only" rule): logo, one icon per area.
+    await expect(sidebar.getByRole("link", { name: "AUREON, ir al Panel" }).getByRole("img", { name: "AUREON" })).toBeVisible();
+    for (const [, title] of AREAS) await expect(sidebar.getByRole("link", { name: title, exact: true }).locator("svg")).toHaveCount(1);
+    await expect(sidebar.getByTestId("profile-link")).toHaveAttribute("href", "/configuracion");
+    await expect(sidebar.getByTestId("theme-toggle")).toBeVisible();
     await expect(sidebar.getByRole("link", { name: "Panel", exact: true })).toHaveAttribute("aria-current", "page");
     await expect(page.getByTestId("data-status")).toContainText("Sin datos publicados");
   });

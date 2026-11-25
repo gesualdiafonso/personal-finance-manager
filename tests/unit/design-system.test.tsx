@@ -20,7 +20,21 @@ describe("Design System integration", () => {
       expect(css.match(new RegExp(`--${t.name}:`, "g"))?.length).toBe(2);
     }
     expect(css).toContain('[data-theme="dark"]');
-    expect(css).toContain("--bg-paper: #161A17;");
+    // AUREON: Ivory Paper (light) and Deep Forest (dark) backgrounds.
+    expect(css).toContain("--bg-paper: #F4F0E7;");
+    expect(css).toContain("--bg-paper: #0E1612;");
+  });
+
+  it("carries the AUREON brand palette (docs/branding/COLOR-SYSTEM.md)", () => {
+    const value = (name: string) => (tokens.color.tokens as { name: string; value: Record<string, string> }[]).find((t) => t.name === name)!.value;
+    expect(value("forest").paper).toBe("#17251F"); // Aureon Forest
+    expect(value("gold").paper).toBe("#B99A60"); // Heritage Gold
+    expect(value("bg-paper").paper).toBe("#F4F0E7"); // Ivory Paper
+    expect(value("stone").paper).toBe("#AAA69B"); // Stone Grey
+    expect(value("ink").paper).toBe("#252923"); // Deep Charcoal
+    expect(value("sage").paper).toBe("#899585"); // Sage
+    // Financial semantics stay distinct from the brand gold.
+    for (const semantic of ["income", "expense", "warning", "alert", "lake"]) expect(value(semantic).paper).not.toBe(value("gold").paper);
   });
 
   it("closes the Tailwind palette (no default colours, shadows or fonts)", () => {
@@ -32,8 +46,8 @@ describe("Design System integration", () => {
 
   it("maps the font families to next/font/local variables", () => {
     const css = buildTokensCss(tokens);
-    expect(css).toContain("--pfm-font-sans: var(--font-instrument-sans)");
-    expect(css).toContain("--pfm-font-serif: var(--font-instrument-serif)");
+    expect(css).toContain("--pfm-font-sans: var(--font-manrope)");
+    expect(css).toContain("--pfm-font-serif: var(--font-cormorant-garamond)");
   });
 });
 

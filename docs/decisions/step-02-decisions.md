@@ -5,7 +5,7 @@ Propostas na auditoria e plano do Step 02 (fases 00 e 01) e **aprovadas pelo res
 | ID | Decisão | Substitui / relação |
 | --- | --- | --- |
 | D2-01 | Nomes de campos do Step 02 (`amount`, `initialBalance`, `creditLimit`, `type`, `lastFourDigits`…) e `schemaVersion` **2.0.0**, com migração 1.0.0 → 2.0.0 | Formato 1.x do Step 01 |
-| D2-02 | Moedas **ARS e USD**, ambas com 2 casas. Cada transação, fatura, recorrência e orçamento tem a moeda da sua conta/cartão. Transferências entre moedas diferentes são recusadas. Totais sempre por moeda; não há conversão | Substitui o invariante I-02 (moeda única ARS) |
+| D2-02 | Moedas **ARS e USD**, ambas com 2 casas. Cada transação, fatura, recorrência e orçamento tem a moeda da sua conta/cartão. Transferências entre moedas diferentes são recusadas. Totais sempre por moeda; não há conversão | Substitui o invariante I-02 (moeda única ARS). **Revisto no Step 10 (D-FX-01…10):** mais moedas e estimativas de conversão explícitas, nunca implícitas |
 | D2-03 | Transferência = **um registo** com `destinationAccountId` | Substitui o invariante I-03 (duas pernas) |
 | D2-04 | `completed` conta no saldo atual; `pending` só no projetado; `cancelled` nunca | — |
 | D2-05 | Os stores do IndexedDB guardam a publicação **com** as alterações locais aplicadas; o `snapshot` guarda a publicação tal como veio; uma importação reconstrói tudo numa transação | Muda o Step 01 (stores oficiais só com a publicação) |

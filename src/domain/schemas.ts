@@ -1,3 +1,4 @@
+import { conversionSnapshotSchema, exchangeSettingsSchema } from "./fx";
 import { z } from "zod";
 import { isLocalDate } from "@/lib/formatting/date";
 import { currencyCodeSchema } from "./currency";
@@ -31,8 +32,13 @@ import { currencyCodeSchema } from "./currency";
  * quarterly, description and status (active | archived); new entities Goal and
  * GoalContribution (files goals.json and goal-contributions.json, optional). Additive only:
  * every 2.0–2.2 file is valid 2.3.0 data; a data folder without the goal files has no goals.
+ *
+ * 2.4.0 (Step 10 addendum, multi-currency): more currencies (EUR, BRL, UYU, CLP, PYG, GBP, each
+ * with its own minor digits); optional Transaction.conversion (rate snapshot, src/domain/fx.ts);
+ * optional FinancialSettings.exchange (rate sets, default mode). Additive: every 2.0–2.3 file
+ * is valid 2.4.0 data and nothing is recalculated.
  */
-export const SCHEMA_VERSION = "2.3.0";
+export const SCHEMA_VERSION = "2.4.0";
 
 /* ----------------------------------------------------------------------------- */
 /* Primitives                                                                    */
@@ -136,8 +142,18 @@ export const transactionSchema = z
     recurrenceId: uuid.nullable(),
     /** Ids of 1.x records merged into this one by a migration (provenance; never reused). */
     legacyIds: z.array(uuid).optional(),
+    /**
+     * 2.4.0: estimate of this transaction in the primary currency, fixed when it was saved
+     * (rate, mode, source, time). Only for a currency other than the primary one; never
+     * recalculated when rates change (D-FX-05).
+     */
+    conversion: conversionSnapshotSchema.optional(),
   })
   .superRefine((t, ctx) => {
+    if (t.conversion) {
+      if (t.conversion.from !== t.currency) ctx.addIssue({ code: "custom", path: ["conversion", "from"], message: "conversion.from must be the transaction's currency" });
+      if (t.conversion.amount !== t.amount) ctx.addIssue({ code: "custom", path: ["conversion", "amount"], message: "conversion.amount must be the transaction's original amount" });
+    }
     if (t.type === "transfer") {
       if (t.destinationAccountId === null) ctx.addIssue({ code: "custom", path: ["destinationAccountId"], message: "A transfer needs destinationAccountId" });
       if (t.destinationAccountId === t.accountId) ctx.addIssue({ code: "custom", path: ["destinationAccountId"], message: "A transfer must move money between two different accounts" });
@@ -323,6 +339,8 @@ export const financialSettingsSchema = z.strictObject({
   locale: z.string().regex(/^[a-z]{2}-[A-Z]{2}$/, "Expected a BCP 47 locale like es-AR"),
   firstDayOfWeek: z.enum(["monday", "sunday"]),
   numberFormat: z.string().regex(/^[a-z]{2}-[A-Z]{2}$/, "Expected a BCP 47 locale like es-AR"),
+  /** 2.4.0: currencies, default conversion mode and named rate sets (D-FX-03). */
+  exchange: exchangeSettingsSchema.optional(),
 });
 
 /* ----------------------------------------------------------------------------- */

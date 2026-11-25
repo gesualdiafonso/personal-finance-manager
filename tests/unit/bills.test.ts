@@ -65,7 +65,7 @@ const recurrence = (over: Loose<Recurrence> = {}): Recurrence => ({
 }) as Recurrence;
 
 describe("schema 2.2.0+ (D5-01, additive)", () => {
-  it("is the current version", () => expect(SCHEMA_VERSION).toBe("2.3.0"));
+  it("is the current version", () => expect(SCHEMA_VERSION).toBe("2.4.0"));
 
   it("reads a 2.1 bill and recurrence without the new fields", () => {
     expect(billSchema.safeParse(bill()).success).toBe(true);

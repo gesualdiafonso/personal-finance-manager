@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Personal Finance Manager \u2014 local-first, database-free personal finance PWA (ARS).",
+  "description": "AUREON \u2014 Personal Financial Intelligence: local-first, database-free personal finance PWA (ARS/USD).",
   "engines": {
     "node": "^22.22.2 || ^24.15.0"
   },
@@ -37,7 +37,6 @@
     "test:security": "vitest run tests/unit/data-security.test.ts tests/unit/crypto.test.ts"
   },
   "dependencies": {
-    "@hookform/resolvers": "^7.0.9",
     "@radix-ui/react-slot": "^1.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -46,7 +45,6 @@
     "next": "16.4.6",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "react-hook-form": "^7.92.0",
     "recharts": "^3.11.1",
     "tailwind-merge": "^3.7.1",
     "zod": "^4.6.7"

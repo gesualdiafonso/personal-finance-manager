@@ -90,7 +90,7 @@ export function parseCardForm(
   let dueDay: number | null = null;
   if (values.cardType === "credit") {
     if (values.creditLimit.trim() !== "") {
-      const limit = moneyField().safeParse(values.creditLimit);
+      const limit = moneyField({ currency: account?.currency }).safeParse(values.creditLimit);
       if (limit.success) creditLimit = limit.data;
       else errors.creditLimit = limit.error.issues[0]!.message;
     }

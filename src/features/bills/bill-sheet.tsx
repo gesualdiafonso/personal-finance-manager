@@ -1,5 +1,6 @@
 "use client";
 
+import { CurrencyOptions } from "@/features/exchange/currency-options";
 import { useRef, useState, type FormEvent } from "react";
 import type { Account, Bill, Category } from "@/domain/schemas";
 import { Button } from "@/components/ui/button";
@@ -227,8 +228,7 @@ export function BillForm({
                   onChange={set("currency")}
                   disabled={hasPayments}
                 >
-                  <option value="ARS">{es.common.currencies.ARS}</option>
-                  <option value="USD">{es.common.currencies.USD}</option>
+                  <CurrencyOptions value={values.currency} />
                 </Select>
               )}
             </Field>

@@ -5,7 +5,7 @@ import { assertCurrentSchema, assertRevisionNotOlder, assertSchemaCompatible, cl
 
 describe("data version compatibility", () => {
   it("reads the current version and newer minors/patches of the same major", () => {
-    expect(DATA_COMPATIBILITY.current).toBe("2.3.0");
+    expect(DATA_COMPATIBILITY.current).toBe("2.4.0");
     expect(isSchemaCompatible(DATA_COMPATIBILITY.current)).toBe(true);
     expect(isSchemaCompatible("2.4.0")).toBe(true);
     expect(isSchemaCompatible("2.0.9")).toBe(true);
@@ -14,7 +14,7 @@ describe("data version compatibility", () => {
   it("classifies older majors as needing migration and newer majors as unsupported", () => {
     expect(classifySchemaVersion("2.1.0")).toBe("current"); // 2.2.0 is additive: 2.1 data is read as-is
     expect(classifySchemaVersion("2.2.0")).toBe("current");
-    expect(classifySchemaVersion("2.3.0")).toBe("current");
+    expect(classifySchemaVersion("2.4.0")).toBe("current");
     expect(classifySchemaVersion("1.0.0")).toBe("needs-migration");
     expect(classifySchemaVersion("3.0.0")).toBe("unsupported-future");
     expect(() => assertCurrentSchema("1.0.0")).toThrow(/migrate/);

@@ -190,6 +190,10 @@ async function assertActiveReferences(tx: ReadWriteTx, record: AnyRecord, previo
  */
 function assertTransactionEditAllowed(current: AnyRecord, next: AnyRecord): void {
   if (next.type !== current.type) throw new AppError("PROTECTED_OPERATION", "The type of a transaction cannot change; cancel it and create a new one");
+  // A stored conversion is history (D-FX-05): it can be replaced by an explicit new one, never dropped silently.
+  if (current.conversion && !next.conversion && next.currency === current.currency) {
+    throw new AppError("PROTECTED_OPERATION", "The recorded exchange-rate estimate of a transaction cannot be removed");
+  }
   if (current.status === "cancelled") {
     const changed = Object.keys(next).filter((k) => !["notes", "rev", "updatedAt", "deviceId"].includes(k) && JSON.stringify(next[k]) !== JSON.stringify(current[k]));
     if (changed.length > 0) throw new AppError("PROTECTED_OPERATION", "A cancelled transaction is final: only its notes can change", { details: changed });
@@ -429,7 +433,9 @@ export class UnitOfWork {
         checkRev(current, expectedRev);
         const touched = Object.keys(patch).filter((k) => (CONTROL_FIELDS as string[]).includes(k));
         if (touched.length > 0) throw new AppError("VALIDATION_FAILED", "Control fields cannot be changed", { details: touched });
-        const draft = { ...current, ...patch, rev: current.rev + 1, updatedAt: toIsoWithOffset(this.now()), deviceId: this.deviceId };
+        const draft: AnyRecord = { ...current, ...patch, rev: current.rev + 1, updatedAt: toIsoWithOffset(this.now()), deviceId: this.deviceId };
+        // An optional field set to undefined in the patch is removed (e.g. a conversion no longer needed).
+        for (const k of Object.keys(draft)) if (draft[k] === undefined) delete draft[k];
         const record = this.validate(entity, draft) as unknown as AnyRecord;
         if (entity === "accounts" || entity === "cards") {
           // Currency is part of every linked record (D2-02): it cannot change while referenced.

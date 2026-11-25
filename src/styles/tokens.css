@@ -1,73 +1,91 @@
-/* PFM — generated from docs/design-system/tokens.json. Do not edit by hand. */
+/* AUREON — generated from docs/design-system/tokens.json. Do not edit by hand. */
 /* Regenerate with `npm run tokens:build`; `npm run tokens:check` fails on drift. */
 
 :root,
 [data-theme="paper"] {
   color-scheme: light;
-  --bg-paper: #F5F3ED;
-  --bg-paper-2: #ECE9E1;
-  --bg-surface: #FFFFFF;
-  --bg-surface-hover: #FAF9F5;
-  --ink: #202622;
-  --ink-2: #66665E;
-  --ink-3: #8A8679;
-  --line: #DDDAD1;
+  --bg-paper: #F4F0E7;
+  --bg-paper-2: #EAE5D9;
+  --bg-surface: #FBF9F4;
+  --bg-surface-hover: #F5F1E8;
+  --ink: #252923;
+  --ink-2: #5D6058;
+  --ink-3: #868379;
+  --line: #DBD5C7;
   --line-strong: var(--ink-3);
-  --forest: #344B3C;
-  --forest-hover: #2A3D31;
-  --forest-pressed: #22332A;
-  --on-primary: #F5F3ED;
-  --forest-tint: #E3E7DE;
-  --sage: #7A8873;
+  --forest: #17251F;
+  --forest-hover: #22362D;
+  --forest-pressed: #0F1914;
+  --on-primary: #F4F0E7;
+  --forest-tint: #E1E5DC;
+  --sage: #899585;
   --lake: #46606E;
   --lake-tint: #E2E8EA;
   --focus-ring: var(--lake);
   --success: var(--forest);
-  --alert: #B75C4B;
-  --alert-text: #9A4A3A;
-  --alert-tint: #F4E4DF;
+  --alert: #B04A3B;
+  --alert-text: #963D30;
+  --alert-tint: #F5E3DE;
   --on-alert: #FFFFFF;
-  --warning: #AD7B28;
-  --warning-text: #7D560E;
-  --warning-tint: #F3E9D3;
-  --chart-muted: #C8C3B6;
-  --scrim: rgba(32, 38, 34, 0.32);
-  --shadow-overlay: 0 1px 0 rgba(32, 38, 34, 0.04), 0 16px 40px -16px rgba(32, 38, 34, 0.22);
-  --shadow-tabbar: 0 -1px 0 #DDDAD1;
+  --warning: #B86A22;
+  --warning-text: #7F4510;
+  --warning-tint: #F6E5D2;
+  --chart-muted: #CBC5B7;
+  --gold: #B99A60;
+  --gold-text: #7A6233;
+  --gold-tint: #EFE6D2;
+  --stone: #AAA69B;
+  --income: #3F6E4F;
+  --expense: #9A5B43;
+  --brand-mark: #17251F;
+  --brand-base: #B99A60;
+  --brand-word: #252923;
+  --scrim: rgba(23, 37, 31, 0.36);
+  --shadow-overlay: 0 1px 0 rgba(23, 37, 31, 0.04), 0 18px 44px -18px rgba(23, 37, 31, 0.24);
+  --shadow-tabbar: 0 -1px 0 #DBD5C7;
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --bg-paper: #161A17;
-  --bg-paper-2: #1D221E;
-  --bg-surface: #232924;
-  --bg-surface-hover: #2A312C;
-  --ink: #ECE9E1;
-  --ink-2: #A9A79D;
-  --ink-3: #767569;
-  --line: #313833;
+  --bg-paper: #0E1612;
+  --bg-paper-2: #131E19;
+  --bg-surface: #1A2822;
+  --bg-surface-hover: #20302A;
+  --ink: #F1ECE1;
+  --ink-2: #B6B2A6;
+  --ink-3: #827F74;
+  --line: #2A3832;
   --line-strong: var(--ink-3);
-  --forest: #8DB09A;
-  --forest-hover: #A3C1AD;
-  --forest-pressed: #B5CDBB;
-  --on-primary: #161A17;
-  --forest-tint: #243329;
-  --sage: #7E8C77;
+  --forest: #9DBBA5;
+  --forest-hover: #B0C9B6;
+  --forest-pressed: #C2D6C6;
+  --on-primary: #0E1612;
+  --forest-tint: #1F3329;
+  --sage: #8E9B8A;
   --lake: #93AEBC;
-  --lake-tint: #1F2B31;
+  --lake-tint: #1C2A30;
   --focus-ring: var(--lake);
   --success: var(--forest);
-  --alert: #D07A68;
-  --alert-text: #E59C8C;
-  --alert-tint: #3A231E;
-  --on-alert: #161A17;
-  --warning: #C99A4A;
-  --warning-text: #DDB36A;
-  --warning-tint: #352B1A;
-  --chart-muted: #454D47;
-  --scrim: rgba(0, 0, 0, 0.55);
-  --shadow-overlay: 0 0 0 1px #313833, 0 16px 40px -16px rgba(0, 0, 0, 0.6);
-  --shadow-tabbar: 0 -1px 0 #313833;
+  --alert: #E07A68;
+  --alert-text: #EE9C8C;
+  --alert-tint: #3A221D;
+  --on-alert: #0E1612;
+  --warning: #D9924A;
+  --warning-text: #EDB27A;
+  --warning-tint: #36261A;
+  --chart-muted: #3A4943;
+  --gold: #C9AD74;
+  --gold-text: #D8C08F;
+  --gold-tint: #2B2619;
+  --stone: #5E625B;
+  --income: #8FC29F;
+  --expense: #D99A7E;
+  --brand-mark: #B99A60;
+  --brand-base: #6B5736;
+  --brand-word: #F1ECE1;
+  --scrim: rgba(0, 0, 0, 0.6);
+  --shadow-overlay: 0 0 0 1px #2A3832, 0 18px 44px -18px rgba(0, 0, 0, 0.65);
+  --shadow-tabbar: 0 -1px 0 #2A3832;
 }
 
 :root {
@@ -93,8 +111,8 @@
   --layout-row: 52px;
   --bp-tablet: 768px;
   --bp-desktop: 1200px;
-  --pfm-font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
-  --pfm-font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
+  --pfm-font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --pfm-font-serif: var(--font-cormorant-garamond), ui-serif, Georgia, serif;
 }
 
 @theme {
@@ -146,6 +164,15 @@
   --color-warning-text: var(--warning-text);
   --color-warning-tint: var(--warning-tint);
   --color-chart-muted: var(--chart-muted);
+  --color-gold: var(--gold);
+  --color-gold-text: var(--gold-text);
+  --color-gold-tint: var(--gold-tint);
+  --color-stone: var(--stone);
+  --color-income: var(--income);
+  --color-expense: var(--expense);
+  --color-brand-mark: var(--brand-mark);
+  --color-brand-base: var(--brand-base);
+  --color-brand-word: var(--brand-word);
   --color-scrim: var(--scrim);
   --radius-xs: var(--radius-xs);
   --radius-sm: var(--radius-sm);
@@ -160,33 +187,34 @@
 
 @utility type-display-hero {
   font-family: var(--pfm-font-serif);
-  font-size: 76px;
+  font-size: 80px;
   line-height: 0.95;
-  font-weight: 400;
-  letter-spacing: -0.02em;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 @utility type-display-hero-mobile {
   font-family: var(--pfm-font-serif);
-  font-size: 52px;
+  font-size: 54px;
   line-height: 1;
-  font-weight: 400;
-  letter-spacing: -0.02em;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 @utility type-title-page {
   font-family: var(--pfm-font-serif);
-  font-size: 44px;
+  font-size: 46px;
   line-height: 1;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: -0.01em;
 }
 
 @utility type-title-page-mobile {
   font-family: var(--pfm-font-serif);
-  font-size: 34px;
+  font-size: 36px;
   line-height: 1.05;
-  font-weight: 400;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 @utility type-heading {
@@ -245,7 +273,7 @@
   font-family: var(--pfm-font-sans);
   font-size: 32px;
   line-height: 36px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums lining-nums;
   font-feature-settings: "tnum" 1, "lnum" 1;
@@ -255,7 +283,7 @@
   font-family: var(--pfm-font-sans);
   font-size: 22px;
   line-height: 28px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums lining-nums;
   font-feature-settings: "tnum" 1, "lnum" 1;
@@ -283,7 +311,7 @@
   font-family: var(--pfm-font-sans);
   font-size: 22px;
   line-height: 24px;
-  font-weight: 500;
+  font-weight: 600;
   font-variant-numeric: tabular-nums lining-nums;
   font-feature-settings: "tnum" 1, "lnum" 1;
 }

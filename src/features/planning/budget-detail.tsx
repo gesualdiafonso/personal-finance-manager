@@ -1,5 +1,6 @@
 "use client";
 
+import type { CurrencyCode } from "@/domain/currency";
 import { useRef, useState, type ReactNode } from "react";
 import { Money } from "@/components/shared/money";
 import { LocalOnlyMark } from "@/components/ui/badge";
@@ -82,7 +83,7 @@ function Row({
   );
 }
 
-const money = (amount: number, currency: "ARS" | "USD") =>
+const money = (amount: number, currency: CurrencyCode) =>
   formatMoney(amount, { currency });
 
 /** Usage, history against the same limit and the expenses counted; edit, archive and delete. */

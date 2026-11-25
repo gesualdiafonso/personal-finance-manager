@@ -1,5 +1,7 @@
 "use client";
 
+import { activeRateSet, consolidate } from "@/domain/fx";
+import { ConsolidatedEstimate } from "@/features/exchange/estimates";
 import Link from "next/link";
 import { useMemo, useState, type ReactNode } from "react";
 import {
@@ -255,7 +257,8 @@ function Dashboard({ data }: { data: DashboardData }) {
         aria-label={t.availableBalance}
       >
         <div className="desktop:col-span-7" data-testid="dashboard-hero">
-          <h2 className="type-label text-ink-2">
+          <h2 className="flex items-center gap-2.5 type-label text-ink-2">
+            <span aria-hidden="true" className="brand-rule" />
             {timing === "past" ? t.balanceAtEnd : t.availableBalance}
           </h2>
           {hero.length === 0 ? (
@@ -294,6 +297,15 @@ function Dashboard({ data }: { data: DashboardData }) {
               )}
             </>
           )}
+          <ConsolidatedEstimate
+            className="mt-4"
+            total={consolidate(
+              hero,
+              data.form.exchange.primary,
+              activeRateSet(data.form.exchange.exchange),
+              data.form.exchange.exchange.defaultMode,
+            )}
+          />
           <AccountsBar data={data} />
           <p className="mt-2 type-body-sm text-ink-2">
             {t.accountsCount(data.accountsSummary.active)}
@@ -303,7 +315,8 @@ function Dashboard({ data }: { data: DashboardData }) {
           className="desktop:col-span-4 desktop:col-start-9"
           data-testid="period-flow"
         >
-          <h2 className="type-label text-ink-2">
+          <h2 className="flex items-center gap-2.5 type-label text-ink-2">
+            <span aria-hidden="true" className="brand-rule" />
             {timing === "current" ? t.period.toDate(title) : title}
           </h2>
           {flows.length === 0 ? (
@@ -376,7 +389,11 @@ function Dashboard({ data }: { data: DashboardData }) {
           className="desktop:col-span-6 desktop:col-start-7"
         >
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-3">
-            <h2 id="dash-flow" className="type-label text-ink-2">
+            <h2
+              id="dash-flow"
+              className="flex items-center gap-2.5 type-label text-ink-2"
+            >
+              <span aria-hidden="true" className="brand-rule" />
               {t.chart.title} · {title}
             </h2>
             {chartCurrencies.length > 1 && (
@@ -663,7 +680,8 @@ function SectionHead({
 }) {
   return (
     <div className="mb-3 flex flex-wrap items-baseline justify-between gap-3">
-      <h2 id={id} className="type-label text-ink-2">
+      <h2 id={id} className="flex items-center gap-2.5 type-label text-ink-2">
+        <span aria-hidden="true" className="brand-rule" />
         {title}
       </h2>
       <Link
@@ -790,8 +808,19 @@ function Recent({
                   data-testid="recent-item"
                 >
                   <span className="min-w-0">
-                    <span className="block truncate type-body">
-                      {tx.description}
+                    <span className="flex items-center gap-2 truncate type-body">
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "size-2 shrink-0 rounded-full",
+                          tx.type === "income"
+                            ? "bg-income"
+                            : tx.type === "expense"
+                              ? "bg-expense"
+                              : "bg-stone",
+                        )}
+                      />
+                      <span className="truncate">{tx.description}</span>
                     </span>
                     <span className="block truncate type-caption text-ink-2">
                       {[

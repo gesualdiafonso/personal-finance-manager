@@ -34,7 +34,7 @@ function bucketLabel(b: FlowBucket, granularity: DashboardGranularity): string {
 
 /**
  * Income and expenses per bucket (bars) and the derived balance of the accounts (line), one
- * currency at a time — never converted. Colours are Design System tokens (sage, forest, ink-2);
+ * currency at a time — never converted. Colours are AUREON tokens (income, expense, gold balance line) and follow the theme;
  * the same numbers are in a table for screen readers.
  */
 export function FlowChart({
@@ -92,7 +92,7 @@ export function FlowChart({
               yAxisId="flow"
               dataKey="income"
               name={t.flow.income}
-              fill="var(--sage)"
+              fill="var(--income)"
               radius={[2, 2, 0, 0]}
               maxBarSize={18}
             />
@@ -100,7 +100,7 @@ export function FlowChart({
               yAxisId="flow"
               dataKey="expenses"
               name={t.flow.expenses}
-              fill="var(--forest)"
+              fill="var(--expense)"
               radius={[2, 2, 0, 0]}
               maxBarSize={18}
             />
@@ -121,18 +121,18 @@ export function FlowChart({
       </div>
       <figcaption className="mt-3 flex flex-wrap gap-x-5 gap-y-1 type-caption text-ink-2">
         <span className="inline-flex items-center gap-1.5">
-          <span aria-hidden="true" className="size-2.5 rounded-xs bg-sage" />
+          <span aria-hidden="true" className="size-2.5 rounded-xs bg-income" />
           {t.flow.income}
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span aria-hidden="true" className="size-2.5 rounded-xs bg-forest" />
+          <span aria-hidden="true" className="size-2.5 rounded-xs bg-expense" />
           {t.flow.expenses}
         </span>
         {hasBalance && (
           <span className="inline-flex items-center gap-1.5">
             <span
               aria-hidden="true"
-              className="h-0 w-4 border-t-2 border-dashed border-ink-2"
+              className="h-0 w-4 border-t-2 border-dashed border-gold"
             />
             {t.chart.balance}
           </span>

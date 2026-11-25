@@ -5,7 +5,9 @@ import {
   type Category,
   type Transaction,
 } from "@/domain/schemas";
-import type { LocalDb } from "@/services/storage/local-store";
+import { DEFAULT_FINANCIAL_SETTINGS } from "@/domain/settings";
+import { getFinancialSettings, type LocalDb } from "@/services/storage/local-store";
+import { exchangeContextOf, type ExchangeContext } from "@/features/exchange/conversion";
 
 export interface CategoryOption {
   category: Category;
@@ -20,6 +22,8 @@ export interface TransactionFormData {
   cards: Card[];
   /** Active categories by type, most used first then alphabetical. */
   categories: { income: CategoryOption[]; expense: CategoryOption[] };
+  /** Primary currency and rate sets, for the estimate of a foreign-currency movement. */
+  exchange: ExchangeContext;
 }
 
 /** What the new-transaction form needs, in one read-only IndexedDB transaction. */
@@ -79,9 +83,11 @@ export async function loadTransactionFormData(
           (usage.get(b.category.id) ?? 0) - (usage.get(a.category.id) ?? 0) ||
           a.label.localeCompare(b.label, "es-AR"),
       );
+  const settings = (await getFinancialSettings(db)) ?? DEFAULT_FINANCIAL_SETTINGS;
   return {
     accounts,
     cards,
     categories: { income: options("income"), expense: options("expense") },
+    exchange: exchangeContextOf(settings),
   };
 }

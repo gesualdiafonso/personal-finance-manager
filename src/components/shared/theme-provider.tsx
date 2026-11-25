@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useSyncExternalStore, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
 import {
   readPreference,
   resolveTheme,
@@ -11,7 +17,10 @@ import {
 } from "@/services/storage/preferences";
 
 /** Browser chrome colour per theme (PWA status bar), from tokens bg-paper. */
-const THEME_COLOR: Record<ResolvedTheme, string> = { paper: "#F5F3ED", dark: "#161A17" };
+const THEME_COLOR: Record<ResolvedTheme, string> = {
+  paper: "#F4F0E7",
+  dark: "#0E1612",
+};
 
 interface ThemeContextValue {
   preference: ThemePreference;
@@ -19,7 +28,8 @@ interface ThemeContextValue {
   setPreference: (preference: ThemePreference) => void;
 }
 
-const ThemeContext = createContext<ThemeContextValue | null>(null);
+/** Only marks that a ThemeProvider is mounted (the theme itself is read from the store). */
+const ThemeContext = createContext<boolean>(false);
 
 const listeners = new Set<() => void>();
 /** Used only when LocalStorage is unavailable: the choice then lasts for this session. */
@@ -44,7 +54,8 @@ function subscribe(listener: () => void): () => void {
 }
 
 function getSnapshot(): string {
-  const preference = readPreference(THEME_STORAGE_KEY) ?? sessionPreference ?? "system";
+  const preference =
+    readPreference(THEME_STORAGE_KEY) ?? sessionPreference ?? "system";
   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   return `${preference}|${resolveTheme(preference, prefersDark)}`;
 }
@@ -53,27 +64,44 @@ function getServerSnapshot(): string {
   return "system|paper";
 }
 
+function useThemeSnapshot(): [ThemePreference, ResolvedTheme] {
+  const snapshot = useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getServerSnapshot,
+  );
+  return snapshot.split("|") as [ThemePreference, ResolvedTheme];
+}
+
+function setThemePreference(next: ThemePreference): void {
+  sessionPreference = writePreference(THEME_STORAGE_KEY, next) ? null : next;
+  notify();
+}
+
+/**
+ * Applies the resolved theme to <html> and the browser chrome colour. It does not pass the
+ * theme down through context: a context value that changes after the root hydrates reaches
+ * Suspense boundaries that hydrate later (sidebar, phone header) and makes their markup
+ * differ from the server HTML (React error #418, Step 10 QA). Each consumer reads the store
+ * itself with useTheme(), so React uses the server snapshot while that consumer hydrates.
+ */
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const snapshot = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  const [preference, resolved] = snapshot.split("|") as [ThemePreference, ResolvedTheme];
+  const [, resolved] = useThemeSnapshot();
 
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute("data-theme", resolved);
-    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", THEME_COLOR[resolved]);
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", THEME_COLOR[resolved]);
   }, [resolved]);
 
-  const setPreference = useCallback((next: ThemePreference) => {
-    sessionPreference = writePreference(THEME_STORAGE_KEY, next) ? null : next;
-    notify();
-  }, []);
-
-  const value = useMemo(() => ({ preference, resolved, setPreference }), [preference, resolved, setPreference]);
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return <ThemeContext.Provider value={true}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme(): ThemeContextValue {
-  const context = useContext(ThemeContext);
-  if (!context) throw new Error("useTheme must be used inside <ThemeProvider>");
-  return context;
+  if (!useContext(ThemeContext))
+    throw new Error("useTheme must be used inside <ThemeProvider>");
+  const [preference, resolved] = useThemeSnapshot();
+  return { preference, resolved, setPreference: setThemePreference };
 }

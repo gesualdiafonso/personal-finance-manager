@@ -1,5 +1,6 @@
 "use client";
 
+import { CurrencyOptions } from "@/features/exchange/currency-options";
 import { useState } from "react";
 import {
   activeFilterCount,
@@ -258,8 +259,7 @@ export function FiltersBar({
               }
             >
               <option value="all">{t.allFem}</option>
-              <option value="ARS">ARS</option>
-              <option value="USD">USD</option>
+              <CurrencyOptions value={filters.currency} short />
             </Select>
           )}
         </Field>

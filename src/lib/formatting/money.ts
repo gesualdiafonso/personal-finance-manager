@@ -1,3 +1,4 @@
+import { SUPPORTED_CURRENCIES, type CurrencyCode } from "@/domain/currency";
 import { APP_CONFIG } from "@/lib/config/app";
 import { type MinorUnits, MoneyError, toMinorUnits } from "@/types/money";
 
@@ -22,12 +23,15 @@ export type SignMode = "negative" | "explicit";
 export interface MoneyFormatOptions {
   cents?: CentsMode;
   sign?: SignMode;
-  /** Currency of the amount (D2-02). Default ARS. Only changes the symbol: es-AR digits for all. */
-  currency?: "ARS" | "USD";
+  /**
+   * Currency of the amount. Default ARS. Sets the symbol and the number of minor digits
+   * (2 for most, 0 for CLP and PYG); es-AR digits and separators for every currency.
+   */
+  currency?: CurrencyCode;
 }
 
 /** Symbol per supported currency (src/domain/currency.ts). */
-export const CURRENCY_SYMBOLS = { ARS: "$", USD: "US$" } as const;
+export const CURRENCY_SYMBOLS = Object.fromEntries(Object.entries(SUPPORTED_CURRENCIES).map(([code, c]) => [code, c.symbol])) as Record<CurrencyCode, string>;
 
 export interface MoneyParts {
   sign: "" | "+" | typeof MINUS;
@@ -43,10 +47,11 @@ const groupFormatter = new Intl.NumberFormat(APP_CONFIG.locale, {
   useGrouping: true,
 });
 
-/** Splits an integer amount without floating-point division. */
-function split(abs: number): { whole: number; cents: number } {
-  const cents = abs % 100;
-  const whole = (abs - cents) / 100; // exact: abs - cents is a multiple of 100
+/** Splits an integer amount without floating-point division (`digits` minor digits). */
+function split(abs: number, digits: number): { whole: number; cents: number } {
+  const unit = 10 ** digits;
+  const cents = abs % unit;
+  const whole = (abs - cents) / unit; // exact: abs - cents is a multiple of unit
   return { whole, cents };
 }
 
@@ -54,10 +59,11 @@ export function formatMoneyParts(amount: MinorUnits | number, options: MoneyForm
   const value = toMinorUnits(amount);
   const { cents: centsMode = "always", sign: signMode = "negative" } = options;
   const abs = Math.abs(value);
-  const { cents } = split(abs);
-  let { whole } = split(abs);
+  const digits = SUPPORTED_CURRENCIES[options.currency ?? "ARS"]?.minorDigits ?? 2;
+  const { cents } = split(abs, digits);
+  let { whole } = split(abs, digits);
 
-  if (centsMode === "never" && cents >= 50) {
+  if (digits > 0 && centsMode === "never" && cents * 2 >= 10 ** digits) {
     whole += 1;
   }
   const roundedZero = centsMode === "never" ? whole === 0 : abs === 0;
@@ -69,8 +75,8 @@ export function formatMoneyParts(amount: MinorUnits | number, options: MoneyForm
   }
 
   let centsText = "";
-  if (centsMode === "always" || (centsMode === "auto" && cents !== 0)) {
-    centsText = `,${String(cents).padStart(2, "0")}`;
+  if (digits > 0 && (centsMode === "always" || (centsMode === "auto" && cents !== 0))) {
+    centsText = `,${String(cents).padStart(digits, "0")}`;
   }
 
   const symbol = options.currency ? CURRENCY_SYMBOLS[options.currency] : CURRENCY_SYMBOL;
@@ -115,10 +121,18 @@ export type ParseMoneyResult = { ok: true; value: MinorUnits } | { ok: false; er
  * separator; dots are thousands separators and are ignored. The sign is never typed
  * (it comes from the transaction kind), so "-" is rejected — unless `allowNegative`
  * (only for an account's initialBalance, which may start overdrawn).
- * Accepts "1.234,56", "1234,56", "1234", "$ 1.234", "US$ 1.234"; with allowNegative also "−1.234,56".
+ * Accepts "1.234,56", "1234,56", "1234", "$ 1.234", "US$ 1.234", "€ 1.234", "EUR 1.234"; with
+ * allowNegative also "−1.234,56". `currency` sets how many decimals are allowed (2 for most,
+ * none for CLP and PYG); more decimals are refused, never rounded.
  */
-export function parseMoneyInput(input: string, options: { allowNegative?: boolean } = {}): ParseMoneyResult {
-  let cleaned = input.replace(/US\$/gi, "").replace(/\$/g, "").replace(/[\s  ]/g, "").replace(/\./g, "");
+export function parseMoneyInput(input: string, options: { allowNegative?: boolean; currency?: CurrencyCode } = {}): ParseMoneyResult {
+  const digits = SUPPORTED_CURRENCIES[options.currency ?? "ARS"]?.minorDigits ?? 2;
+  // Any supported symbol or ISO code may be typed or pasted along with the number.
+  let cleaned = input
+    .replace(new RegExp(`\\b(${Object.keys(SUPPORTED_CURRENCIES).join("|")})\\b`, "gi"), "")
+    .replace(/US\$|R\$|\$U|[$€£₲]/gi, "")
+    .replace(/[\s\u00a0\u202f]/g, "")
+    .replace(/\./g, "");
   let negative = false;
   if (options.allowNegative && /^[-−]/.test(cleaned)) {
     negative = true;
@@ -129,8 +143,8 @@ export function parseMoneyInput(input: string, options: { allowNegative?: boolea
   if (!match) return { ok: false, error: "invalid" };
   const wholeDigits = match[1] ?? "0";
   const decimals = match[2] ?? "";
-  if (decimals.length > 2) return { ok: false, error: "too-many-decimals" };
-  const centsDigits = decimals.padEnd(2, "0");
+  if (decimals.length > digits) return { ok: false, error: "too-many-decimals" };
+  const centsDigits = decimals.padEnd(digits, "0");
   const asString = `${wholeDigits.replace(/^0+(?=\d)/, "")}${centsDigits}`;
   const value = Number(asString);
   if (!Number.isSafeInteger(value)) return { ok: false, error: "out-of-range" };
@@ -140,7 +154,8 @@ export function parseMoneyInput(input: string, options: { allowNegative?: boolea
 export { MoneyError };
 
 /**
- * Formats a Money value with its own currency symbol: ARS "$ 1.234,56", USD "US$ 1.234,56".
+ * Formats a Money value with its own currency symbol: ARS "$ 1.234,56", USD "US$ 1.234,56",
+ * EUR "€ 1.234,56", CLP "CLP$ 1.234".
  * Number formatting stays es-AR for every currency (Financial Settings numberFormat).
  */
 export function formatCurrencyAmount(
@@ -148,5 +163,5 @@ export function formatCurrencyAmount(
   options: MoneyFormatOptions = {},
 ): string {
   if (!(value.currency in CURRENCY_SYMBOLS)) throw new MoneyError(`Unsupported currency ${value.currency}`);
-  return formatMoney(value.amount, { ...options, currency: value.currency as keyof typeof CURRENCY_SYMBOLS });
+  return formatMoney(value.amount, { ...options, currency: value.currency as CurrencyCode });
 }

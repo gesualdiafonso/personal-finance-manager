@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { PwaRuntime } from "@/components/shared/pwa-runtime";
+import { ServiceWorkerRegister } from "@/components/shared/service-worker-register";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { APP_CONFIG } from "@/lib/config/app";
-import { instrumentSans, instrumentSerif } from "@/lib/fonts";
+import { cormorantGaramond, manrope } from "@/lib/fonts";
 import { es } from "@/lib/i18n/es";
 import { THEME_INIT_SCRIPT } from "@/services/storage/preferences";
 import "./globals.css";
@@ -14,8 +14,7 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, title: es.app.name, statusBarStyle: "default" },
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon.svg", type: "image/svg+xml" },
       { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
     ],
     apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
@@ -28,7 +27,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   // Replaced at runtime by ThemeProvider for the resolved theme.
-  themeColor: "#F5F3ED",
+  themeColor: "#F4F0E7",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -37,7 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang={APP_CONFIG.htmlLang}
       data-theme="paper"
       suppressHydrationWarning
-      className={`${instrumentSans.variable} ${instrumentSerif.variable}`}
+      className={`${manrope.variable} ${cormorantGaramond.variable}`}
     >
       <head>
         {/* Applies the stored theme before the first paint (no flash). */}
@@ -45,7 +44,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body>
         <ThemeProvider>{children}</ThemeProvider>
-        <PwaRuntime />
+        <ServiceWorkerRegister />
       </body>
     </html>
   );

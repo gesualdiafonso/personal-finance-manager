@@ -26,6 +26,7 @@ import { Money } from "@/components/shared/money";
 import { getLocalDb } from "@/hooks/use-local-data";
 import type { BalanceImpact } from "@/domain/rules/transactions";
 import { loadEditImpact } from "./edit-impact";
+import { ConversionPanel } from "@/features/exchange/conversion-panel";
 import type { TransactionFormData } from "./form-data";
 import {
   editPatch,
@@ -146,7 +147,7 @@ export function TransactionForm({
   ) {
     if (busy.current) return; // double submit
     setFormError(null);
-    const parsed = parseTransactionForm(values, data);
+    const parsed = parseTransactionForm(values, data, { stored: transaction?.conversion });
     if (!parsed.ok) {
       setErrors(parsed.errors);
       return;
@@ -412,6 +413,20 @@ export function TransactionForm({
               {t.currency}:{" "}
               {account ? es.common.currencies[account.currency] : "—"}
             </p>
+          )}
+          {account && (
+            <ConversionPanel
+              amountText={values.amount}
+              from={account.currency}
+              ctx={data.exchange}
+              choice={values.rateChoice}
+              customRate={values.customRate}
+              stored={transaction?.conversion}
+              editing={editing}
+              error={errors.customRate}
+              onChoice={(c) => set("rateChoice", c)}
+              onCustomRate={(r) => set("customRate", r)}
+            />
           )}
         </div>
 

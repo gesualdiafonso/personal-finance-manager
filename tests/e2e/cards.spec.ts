@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 /** Step 03 — Cards management on the production build, desktop and iPhone viewport. Fictitious data only. */
-const isPhone = (name: string) => name.includes("iphone");
+const isPhone = (name: string) => name === "iphone";
 
 async function createAccount(page: Page, name: string, currency: "ARS" | "USD" = "ARS") {
   await page.goto("/cuentas");

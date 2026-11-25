@@ -35,6 +35,149 @@
         "numberFormat": {
           "type": "string",
           "pattern": "^[a-z]{2}-[A-Z]{2}$"
+        },
+        "exchange": {
+          "type": "object",
+          "properties": {
+            "enabledCurrencies": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              }
+            },
+            "defaultMode": {
+              "type": "string",
+              "enum": [
+                "automatic",
+                "manual"
+              ]
+            },
+            "activeRateSetId": {
+              "type": "string"
+            },
+            "rateSets": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9-]{1,40}$"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "official",
+                      "mep",
+                      "blue",
+                      "card",
+                      "custom"
+                    ]
+                  },
+                  "base": {
+                    "type": "string",
+                    "pattern": "^[A-Z]{3}$"
+                  },
+                  "manual": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "pattern": "^[A-Z]{3}$"
+                    },
+                    "additionalProperties": {
+                      "type": "object",
+                      "properties": {
+                        "rate": {
+                          "type": "string",
+                          "pattern": "^(?:0|[1-9]\\d{0,11})(?:\\.\\d{1,10})?$"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                        },
+                        "source": {
+                          "type": "string",
+                          "enum": [
+                            "manual",
+                            "dolarapi"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "rate",
+                        "updatedAt",
+                        "source"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "automatic": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "pattern": "^[A-Z]{3}$"
+                    },
+                    "additionalProperties": {
+                      "type": "object",
+                      "properties": {
+                        "rate": {
+                          "type": "string",
+                          "pattern": "^(?:0|[1-9]\\d{0,11})(?:\\.\\d{1,10})?$"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                        },
+                        "source": {
+                          "type": "string",
+                          "enum": [
+                            "manual",
+                            "dolarapi"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "rate",
+                        "updatedAt",
+                        "source"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "kind",
+                  "base",
+                  "manual",
+                  "automatic"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "providerEnabled": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "enabledCurrencies",
+            "defaultMode",
+            "activeRateSetId",
+            "rateSets",
+            "providerEnabled"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [

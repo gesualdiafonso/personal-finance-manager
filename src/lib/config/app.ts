@@ -3,8 +3,8 @@
  * Changing any of them requires a documented decision (docs/decisions).
  */
 export const APP_CONFIG = {
-  name: "PFM",
-  fullName: "Personal Finance Manager",
+  name: "AUREON",
+  fullName: "AUREON — Personal Financial Intelligence",
   /** Step 01: initial interface language is Spanish (see docs/decisions/ADR-005). */
   locale: "es-AR",
   htmlLang: "es",
@@ -18,8 +18,8 @@ export const APP_CONFIG = {
 
 /** Data format versions this build can read (docs/architecture/data.md). */
 export const DATA_COMPATIBILITY = {
-  /** Current schemaVersion written by this build (Step 06: 2.3.0, see data-versioning.md). */
-  current: "2.3.0",
+  /** Current schemaVersion written by this build (Step 10 addendum: 2.4.0, see data-versioning.md). */
+  current: "2.4.0",
   /** Major version this build reads. Older majors are migrated; newer majors are rejected. */
   supportedMajor: 2,
 } as const;

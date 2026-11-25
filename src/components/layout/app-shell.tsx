@@ -1,7 +1,7 @@
 import { Suspense, type ReactNode } from "react";
 import { es } from "@/lib/i18n/es";
-import { ConnectionStatus } from "./connection-status";
 import { KeyboardShortcuts } from "./keyboard-shortcuts";
+import { MobileHeader, MobileHeaderView } from "./mobile-header";
 import { TabBar, TabBarView } from "./mobile-nav";
 import { Rail, RailView } from "./rail";
 import { Sidebar, SidebarView } from "./sidebar";
@@ -30,9 +30,11 @@ export function AppShell({ children }: { children: ReactNode }) {
       </Suspense>
       <main
         id="contenido"
-        className="min-w-0 flex-1 px-4 pt-14 pb-28 tablet:px-8 landscape:pb-16 desktop:max-w-(--layout-content-max) desktop:px-12 desktop:pt-10 print:max-w-none print:p-0"
+        className="min-w-0 flex-1 px-4 pt-4 pb-28 tablet:px-8 landscape:pt-14 landscape:pb-16 desktop:max-w-(--layout-content-max) desktop:px-12 desktop:pt-10"
       >
-        <ConnectionStatus />
+        <Suspense fallback={<MobileHeaderView pathname="" />}>
+          <MobileHeader />
+        </Suspense>
         {children}
       </main>
       <Suspense fallback={<TabBarView pathname="" />}>

@@ -39,8 +39,8 @@ export const CSS_PATH = resolve(root, "src/styles/tokens.css");
 
 /** next/font/local exposes these variables; the Design System names the families. */
 const FONT_VARIABLES: Record<string, string> = {
-  "Instrument Sans": "var(--font-instrument-sans)",
-  "Instrument Serif": "var(--font-instrument-serif)",
+  Manrope: "var(--font-manrope)",
+  "Cormorant Garamond": "var(--font-cormorant-garamond)",
 };
 
 function resolveValue(value: ThemedValue, theme: string, firstTheme: string): string {
@@ -63,7 +63,7 @@ export function buildTokensCss(tokens: Tokens): string {
   const first = themes[0];
   if (!first) throw new Error("tokens.json has no colour themes");
   const out: string[] = [];
-  out.push("/* PFM — generated from docs/design-system/tokens.json. Do not edit by hand. */");
+  out.push("/* AUREON — generated from docs/design-system/tokens.json. Do not edit by hand. */");
   out.push("/* Regenerate with `npm run tokens:build`; `npm run tokens:check` fails on drift. */", "");
 
   themes.forEach((theme, index) => {

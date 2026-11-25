@@ -1,6 +1,6 @@
 # Arquitetura — visão geral
 
-O PFM é uma aplicação Next.js (App Router) **sem servidor de dados**. Todas as páginas são pré-renderizadas como estáticas. Os dados financeiros nunca passam pelo servidor: vivem no IndexedDB do dispositivo e chegam lá a partir de ficheiros JSON oficiais (no futuro, de uma publicação cifrada).
+O AUREON (antes PFM) é uma aplicação Next.js (App Router) **sem servidor de dados**. Todas as páginas são pré-renderizadas como estáticas. Os dados financeiros nunca passam pelo servidor: vivem no IndexedDB do dispositivo e chegam lá a partir de ficheiros JSON oficiais (no futuro, de uma publicação cifrada).
 
 ```text
            repositório privado                         dispositivo (navegador)
@@ -44,5 +44,5 @@ Regra de dependência: `app → features → components → lib/services → typ
 
 ## Documentos relacionados
 
-- [Dados JSON](json-data-architecture.md) · [Modelos de domínio](domain-models.md) · [Repositórios](data-repositories.md) · [Persistência local](local-persistence.md) · [Importação/exportação](data-import-export.md) · [Versionamento](data-versioning.md) · [Segurança dos dados](data-security.md) · [Gestão de contas](account-management.md) · [Gestão de cartões](card-management.md) · [Motor de transações](transaction-engine.md) · [Cálculos financeiros](financial-calculations.md) · [Cifragem](crypto.md) · [PWA](../PWA.md)
+- [Dados JSON](json-data-architecture.md) · [Modelos de domínio](domain-models.md) · [Repositórios](data-repositories.md) · [Persistência local](local-persistence.md) · [Importação/exportação](data-import-export.md) · [Versionamento](data-versioning.md) · [Segurança dos dados](data-security.md) · [Gestão de contas](account-management.md) · [Gestão de cartões](card-management.md) · [Motor de transações](transaction-engine.md) · [Cálculos financeiros](financial-calculations.md) · [Cifragem](crypto.md) · [PWA](pwa.md)
 - [Decisões](../decisions/) · [Design System](../design-system/README.md)

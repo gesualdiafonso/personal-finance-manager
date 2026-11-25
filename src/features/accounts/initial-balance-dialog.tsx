@@ -38,7 +38,7 @@ export function InitialBalanceDialog({
   const [saving, setSaving] = useState(false);
   const busy = useRef(false);
   const { account, balance } = row;
-  const parsed = parseMoneyInput(value, { allowNegative: true });
+  const parsed = parseMoneyInput(value, { allowNegative: true, currency: account.currency });
   const after = parsed.ok
     ? addMoney(
         subtractMoney(balance, money(account.initialBalance, account.currency)),

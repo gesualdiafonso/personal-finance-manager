@@ -34,6 +34,9 @@ export function EmptyDashboard() {
           {zero.whole}
         </p>
         <p className="mb-4 type-body text-ink-2">{es.dashboard.emptyHint}</p>
+        <p className="mb-6 brand-statement text-gold-text" lang="en">
+          {es.brand.tagline}
+        </p>
         <Button asChild variant="secondary">
           <Link href={AREAS.accounts.href}>{es.dashboard.addAccount}</Link>
         </Button>

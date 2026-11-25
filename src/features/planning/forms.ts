@@ -1,3 +1,5 @@
+import { CURRENCY_CODES, type CurrencyCode } from "@/domain/currency";
+import { formCurrency } from "@/features/accounts/account-form";
 import { z } from "zod";
 import { periodContaining, periodEnd } from "@/domain/rules/budgets";
 import {
@@ -23,9 +25,10 @@ const noCardNumber = (v: string) => !CARD_NUMBER.test(v);
 function money(
   messages: { required: string; zero: string },
   allowZero = false,
+  currency: CurrencyCode = "ARS",
 ) {
   return z.string().transform((value, ctx) => {
-    const parsed = parseMoneyInput(value);
+    const parsed = parseMoneyInput(value, { currency });
     if (!parsed.ok) {
       ctx.addIssue({
         code: "custom",
@@ -158,8 +161,8 @@ export function parseBudgetForm(
         .max(80, bt.nameTooLong)
         .refine(noCardNumber, bt.cardNumber),
       categoryId: z.string(),
-      amount: money({ required: bt.amountRequired, zero: bt.amountZero }),
-      currency: z.enum(["ARS", "USD"]),
+      amount: money({ required: bt.amountRequired, zero: bt.amountZero }, false, formCurrency(values.currency)),
+      currency: z.enum(CURRENCY_CODES as [CurrencyCode, ...CurrencyCode[]]),
       period: z.enum(BUDGET_PERIODS),
       startDate: z.string().refine(isLocalDate, bt.startDate),
       endDate: z.string(),
@@ -294,17 +297,17 @@ export function parseGoalForm(
         .max(200, gt.descriptionTooLong)
         .refine(noCardNumber, gt.cardNumber),
       kind: z.enum(GOAL_KINDS),
-      amount: money({ required: gt.amountRequired, zero: gt.amountZero }),
+      amount: money({ required: gt.amountRequired, zero: gt.amountZero }, false, formCurrency(values.currency)),
       initialAmount: z.string().transform((v, ctx) => {
         if (v.trim() === "") return 0;
-        const parsed = parseMoneyInput(v);
+        const parsed = parseMoneyInput(v, { currency: formCurrency(values.currency) });
         if (!parsed.ok || parsed.value < 0) {
           ctx.addIssue({ code: "custom", message: gt.initialInvalid });
           return z.NEVER;
         }
         return parsed.value;
       }),
-      currency: z.enum(["ARS", "USD"]),
+      currency: z.enum(CURRENCY_CODES as [CurrencyCode, ...CurrencyCode[]]),
       startDate: z.string().refine(isLocalDate, gt.startDate),
       targetDate: z.string(),
     })
@@ -382,7 +385,7 @@ export function parseContributionForm(
   | { ok: true; input: Input<"goalContributions"> }
   | { ok: false; errors: ContributionFieldErrors } {
   const schema = z.object({
-    amount: money({ required: ct.amountRequired, zero: ct.amountZero }),
+    amount: money({ required: ct.amountRequired, zero: ct.amountZero }, false, goal.currency),
     date: z.string().refine(isLocalDate, ct.date),
     description: z
       .string()

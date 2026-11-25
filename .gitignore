@@ -48,3 +48,6 @@ next-env.d.ts
 /playwright-report/
 /test-results/
 /blob-report/
+
+# delivery archives (built locally, never committed)
+/delivery/

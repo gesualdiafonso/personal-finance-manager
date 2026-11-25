@@ -1,75 +1,63 @@
-# Personal Finance Manager (PFM)
+# AUREON — Personal Financial Intelligence
 
-Aplicação web de finanças pessoais: responsiva, instalável como PWA, single-user, em pesos argentinos (ARS) e dólares (USD, sem conversões), com o fuso horário `America/Argentina/Buenos_Aires`.
+*Wealth is built with intention.*
 
-**Estado:** Step 09 — PWA e preparação para produção, sobre contas, cartões, transações, contas domésticas, recorrências, orçamentos, metas, Panel e Informes. Faturas de cartão de crédito ainda não (OD-8). Funcionalidades: [Contas](docs/features/accounts.md) · [Cartões](docs/features/cards.md) · [Transações](docs/features/transactions.md) · [Orçamentos](docs/features/budgets.md) · [Metas](docs/features/financial-goals.md) · [Panel](docs/features/dashboard.md) · [Informes](docs/features/reports.md). Plataforma: [PWA](docs/PWA.md) · [Produção](docs/PRODUCTION.md).
+AUREON (antes Personal Finance Manager) é uma aplicação web de finanças pessoais: responsiva, instalável como PWA, single-user e **local-first**, multimoeda (ARS como moeda principal por omissão; USD, EUR, BRL, UYU, CLP, PYG, GBP), com conversões explícitas e rotuladas como estimativa ([docs/features/currency-exchange.md](docs/features/currency-exchange.md)), no fuso horário `America/Argentina/Buenos_Aires`. Interface em espanhol (es-AR).
 
-## Princípios que não se negociam
+**Estado (Step 10 — release final):** Panel, Transacciones, Cuentas, Tarjetas, Cuentas domésticas (fase 1: gestão, sem pagamentos), Presupuesto (orçamentos e metas), Configuración, identidade AUREON com tema claro e escuro. Por fazer: pagamentos de contas domésticas, recorrências (interface e geração), faturas de cartão, relatórios (Informes) e cifragem local. Relatório final: [docs/testing/step-10-final-qa.md](docs/testing/step-10-final-qa.md).
 
-- **Sem base de dados** ([ADR-001](docs/decisions/ADR-001-sem-base-de-dados.md)). A fonte oficial são ficheiros JSON versionados neste repositório; cada dispositivo guarda os dados no seu IndexedDB.
-- **Local-first** ([ADR-002](docs/decisions/ADR-002-local-first.md)). A app não escreve no GitHub e não tem credenciais. As alterações entram por exportação, `git commit` e `git push`.
-- **Dados publicados sempre cifrados** ([ADR-003](docs/decisions/ADR-003-cifragem.md)). Nada de texto simples num artefacto público; a CI verifica-o.
-- **O Design System aprovado manda** ([`docs/design-system/`](docs/design-system/README.md)). Os tokens são gerados de `tokens.json`; o tema do Tailwind está fechado aos valores do sistema; as fontes são locais ([ADR-004](docs/decisions/ADR-004-fontes-locais.md)).
-- **Dinheiro em inteiros** (centavos), sempre com moeda. Nunca vírgula flutuante como valor de referência.
-- **O armazenamento local não está cifrado** (OD-3 decidida — "recordar neste dispositivo" —, por implementar): só dados fictícios até estar implementado ([segurança dos dados](docs/architecture/data-security.md)).
+## Arquitetura em poucas linhas
+
+- **Sem backend, sem base de dados, sem autenticação** ([ADR-001](docs/decisions/ADR-001-sem-base-de-dados.md), [ADR-002](docs/decisions/ADR-002-local-first.md)). Cada dispositivo guarda os dados financeiros no seu **IndexedDB**; o LocalStorage só guarda preferências leves (tema, período do Panel). Não há Supabase, contas de utilizador, sessões ou RLS: não há dados de outros utilizadores no servidor para proteger.
+- Todas as páginas são **estáticas**: o servidor (Vercel ou `next start`) só entrega HTML, JS e CSS; nenhum dado financeiro passa por ele.
+- A fonte oficial opcional são ficheiros JSON versionados em `data/` (aqui só exemplos **fictícios**); a app nunca escreve no GitHub. Dados publicados são sempre cifrados ([ADR-003](docs/decisions/ADR-003-cifragem.md)).
+- **Dinheiro em inteiros** (centavos), sempre com moeda; nunca vírgula flutuante como valor.
+- **O armazenamento local não está cifrado** (OD-3 decidida, por implementar): usar só dados fictícios até lá ([segurança](docs/architecture/data-security.md)).
 
 ## Começar
 
-Requisitos: Node.js 22 (≥ 22.22.2) ou 24 (≥ 24.15.0); o `.nvmrc` fixa o 22, como a CI. O Node 25 não é suportado. npm 10 ou 11.
+Requisitos: Node.js 22 (≥ 22.22.2, fixado em `.nvmrc`) ou 24 (≥ 24.15.0); npm 10 ou 11. Não há variáveis de ambiente obrigatórias ([.env.example](.env.example)).
 
 ```bash
 npm ci
-npm run dev          # http://localhost:3000
+npm run dev                 # http://localhost:3000 (sem service worker)
+npm run build && npm start  # produção local (gera public/sw.js antes do build)
 ```
 
 | Comando | O que faz |
 | --- | --- |
-| `npm run dev` | Servidor de desenvolvimento (sem service worker) |
-| `npm run build` / `npm start` | Build de produção (gera `public/sw.js` antes) e servidor |
-| `npm run lint` | ESLint |
-| `npm run typecheck` | Tipos de rotas do Next.js + `tsc --noEmit` (strict) |
-| `npm test` | Vitest: testes unitários e de integração |
-| `npm run test:e2e` | Playwright sobre o build de produção (corre `npm run build` antes); `E2E_ALL_BROWSERS=1` junta Firefox e Safari |
-| `npm run icons:build` | Gera os ícones PWA e o favicon (precisa de um Chromium) |
-| `npm run data:validate` | Valida `data/` nas quatro camadas (`-- --only <camada>` para uma) |
-| `npm run data:migrate` | Migra `data/` para a versão atual (`-- --check` só verifica) |
-| `npm run data:checksums` | Recalcula as somas de controlo de `meta.json` |
-| `npm run data:changeset -- <f>` | Verifica um changeset exportado contra `data/`, sem escrever |
-| `npm run test:domain` · `test:data` · `test:repositories` · `test:migrations` · `test:exchange` · `test:security` | Grupos de testes (passos com nome na CI) |
-| `npm run schemas:build` / `schemas:check` | Gera / verifica `schemas/*.schema.json` a partir do Zod |
-| `npm run tokens:build` / `tokens:check` | Gera / verifica `src/styles/tokens.css` a partir do Design System |
-| `npm run guard:deps` | Falha se existir dependência de base de dados, ORM, armazenamento remoto ou cliente de escrita no GitHub |
+| `npm run check` | Todas as verificações rápidas, como na CI: dependências proibidas, ESLint, TypeScript strict, tokens, JSON Schemas, dados de exemplo, migrações, changeset e testes |
+| `npm test` | Vitest: testes unitários e de integração (jsdom + fake-indexeddb) |
+| `npm run test:e2e` | Playwright sobre o build de produção (desktop 1440×900 e iPhone 390×844) |
+| `npm run lint` / `npm run typecheck` | ESLint / tipos de rotas + `tsc --noEmit` |
+| `npm run build` / `npm start` | Build e servidor de produção |
 | `npm run guard:artifacts` | Falha se houver dados em texto simples nos artefactos públicos (depois do build) |
-| `npm run check` | Todas as verificações rápidas, como na CI |
+| `npm run tokens:build` | Gera `src/styles/tokens.css` a partir de `docs/design-system/tokens.json` |
+| `npm run icons:build` | Gera os ícones PNG da PWA a partir do monograma AUREON |
+| `npm run data:validate` · `data:migrate` · `data:checksums` · `data:changeset` | Ferramentas dos ficheiros de dados |
 
-### Instalar no dispositivo (PWA)
-
-Abrir a app por HTTPS (ou `npm run build && npm start` em `localhost`) e usar **Configuración → Instalar la aplicación**, ou o menu do navegador. No iPhone: Safari → Compartir → "Agregar a inicio". Sem rede, todas as áreas abrem e os dados continuam no dispositivo; ver [docs/PWA.md](docs/PWA.md) (limitações offline) e [docs/PRODUCTION.md](docs/PRODUCTION.md) (build, cabeçalhos, deploy).
-
-Mais detalhe: [instalação](docs/development/setup.md), [testes](docs/development/testing.md), [ambiente](docs/development/environment.md).
+Mais detalhe: [instalação](docs/development/setup.md), [testes](docs/development/testing.md), [ambiente](docs/development/environment.md), [deploy na Vercel](docs/deployment/VERCEL.md).
 
 ## Estrutura
 
 ```text
 data/            dados oficiais versionados (aqui: só exemplos FICTÍCIOS)
 schemas/         JSON Schema gerados a partir do Zod
-docs/            design-system/ (aprovado), architecture/, development/, decisions/, reports/
-scripts/         tokens, schemas, validação de dados, service worker, ícones, guardas da CI
-src/app/         rotas (App Router): as nove áreas, offline, manifest, erros
-src/components/  ui/ (shadcn/ui personalizado), layout/ (sidebar, rail, tab bar), shared/
-src/domain/      modelos Zod, dinheiro e moedas, regras (saldos, categorias, recorrências), ids
-src/features/    accounts/, bills/, cards/, dashboard/, movements/, planning/, reports/, settings/ (aparência, instalação, dados locais), transactions/
-src/hooks/       use-local-data (leituras/escritas pelos repositórios), use-detail-id, use-pwa
-src/lib/         config/, formatting/ (ARS, datas), validation/ (Zod), errors/, i18n/, utils/
-src/services/    data/ (validação, fontes), storage/ (IndexedDB, LocalStorage), repositories/, exchange/ (importação/exportação), versioning/ (migrações), crypto/, reports/ (relatórios e exportação), pwa/ (instalação, ligação, atualizações)
-src/styles/      tokens.css gerado, fontes WOFF2 locais
-tests/           unit/, integration/, e2e/, fixtures/ (exemplo 1.x, changeset fictício)
+docs/            branding/ (AUREON), design-system/, architecture/, features/, deployment/, decisions/, testing/, reports/
+public/          brand/ (logótipos SVG), icons/ (PWA), sw.js (gerado no build)
+scripts/         tokens, schemas, dados, service worker, ícones, guardas da CI
+src/app/         rotas (App Router): as nove áreas, offline, manifest, ícone
+src/components/  brand/ (logótipo), ui/, layout/ (sidebar, rail, tab bar, cabeçalho móvel), shared/
+src/domain/      modelos Zod, dinheiro, regras (saldos, transações, contas a pagar, orçamentos, metas, Panel)
+src/features/    accounts, cards, transactions, bills, planning, dashboard, settings
+src/services/    storage/ (IndexedDB, LocalStorage), repositories/, data/, exchange/, versioning/, crypto/
+src/styles/      tokens.css gerado, fontes WOFF2 locais (Manrope, Cormorant Garamond)
+tests/           unit/, integration/, e2e/, fixtures/
 ```
 
-As diferenças em relação à estrutura sugerida no Step 01 estão justificadas em [docs/architecture/overview.md](docs/architecture/overview.md).
+## Documentação
 
-## Em aberto
-
-As secções 11–14 do brief original continuam **por verificar**: o documento completo não foi recebido e o conteúdo não foi presumido. As decisões ainda por tomar (OD-1 a OD-8, idioma) estão em [docs/decisions/open-decisions.md](docs/decisions/open-decisions.md); as aprovadas no Step 02 em [step-02-decisions.md](docs/decisions/step-02-decisions.md).
-
-Arquitetura de dados: [JSON](docs/architecture/json-data-architecture.md) · [modelos](docs/architecture/domain-models.md) · [repositórios](docs/architecture/data-repositories.md) · [persistência local](docs/architecture/local-persistence.md) · [importação/exportação](docs/architecture/data-import-export.md) · [versionamento](docs/architecture/data-versioning.md) · [segurança](docs/architecture/data-security.md).
+- Marca: [identidade](docs/branding/BRAND-IDENTITY.md) · [cores](docs/branding/COLOR-SYSTEM.md) · [tipografia](docs/branding/TYPOGRAPHY.md) · [logótipo](docs/branding/LOGO-SYSTEM.md) · [interface](docs/branding/UI-BRANDING.md) · [Design System](docs/design-system/README.md)
+- Funcionalidades: [Panel](docs/features/dashboard.md) · [Contas](docs/features/accounts.md) · [Cartões](docs/features/cards.md) · [Transações](docs/features/transactions.md) · [Orçamentos](docs/features/budgets.md) · [Metas](docs/features/financial-goals.md)
+- Arquitetura: [visão geral](docs/architecture/overview.md) · [cálculos financeiros](docs/architecture/financial-calculations.md) · [persistência local](docs/architecture/local-persistence.md) · [versionamento](docs/architecture/data-versioning.md) · [importação/exportação](docs/architecture/data-import-export.md) · [segurança](docs/architecture/data-security.md) · [PWA](docs/architecture/pwa.md)
+- Decisões em aberto (OD-1, OD-2, OD-4, OD-7, ADR-005, secções 11–14 do brief original): [open-decisions.md](docs/decisions/open-decisions.md)

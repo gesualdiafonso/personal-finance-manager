@@ -1,5 +1,7 @@
 "use client";
 
+import type { CurrencyCode } from "@/domain/currency";
+import { ApproxMoney, ConsolidatedEstimate } from "@/features/exchange/estimates";
 import Link from "next/link";
 import { useState } from "react";
 import { PageHeader } from "@/components/layout/page-header";
@@ -180,6 +182,7 @@ function AccountsBody({
             ))}
           </div>
         )}
+        <ConsolidatedEstimate total={view.consolidated} className="mt-4" />
         <p
           className="mt-4 type-body-sm text-ink-2"
           data-testid="accounts-facts"
@@ -195,6 +198,7 @@ function AccountsBody({
         rows={view.active}
         onEdit={onEdit}
         testId="accounts-active"
+        primary={view.exchange.primary}
       />
 
       {view.archived.length > 0 && (
@@ -206,6 +210,7 @@ function AccountsBody({
             rows={view.archived}
             onEdit={onEdit}
             testId="accounts-archived"
+            primary={view.exchange.primary}
           />
         </section>
       )}
@@ -256,10 +261,12 @@ function AccountsList({
   rows,
   onEdit,
   testId,
+  primary,
 }: {
   rows: AccountRow[];
   onEdit: (row: AccountRow) => void;
   testId: string;
+  primary: CurrencyCode;
 }) {
   if (rows.length === 0) return null;
   return (
@@ -336,6 +343,9 @@ function AccountsList({
                   amount={row.balance.amount}
                   currency={row.balance.currency}
                 />
+                {typeof row.approx === "number" && (
+                  <ApproxMoney amount={row.approx} currency={primary} className="block" />
+                )}
               </td>
               <td className="px-2 py-2 text-right whitespace-nowrap">
                 <Button
@@ -387,12 +397,17 @@ function AccountsList({
                 </span>
                 {row.localOnly && <LocalOnlyMark label={es.common.localOnly} />}
               </span>
-              <Money
-                amount={row.balance.amount}
-                currency={row.balance.currency}
-                cents="auto"
-                className="shrink-0 type-amount"
-              />
+              <span className="grid shrink-0 justify-items-end">
+                <Money
+                  amount={row.balance.amount}
+                  currency={row.balance.currency}
+                  cents="auto"
+                  className="type-amount"
+                />
+                {typeof row.approx === "number" && (
+                  <ApproxMoney amount={row.approx} currency={primary} />
+                )}
+              </span>
             </Link>
           </li>
         ))}

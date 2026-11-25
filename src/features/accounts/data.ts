@@ -13,6 +13,8 @@ import {
   type Card,
 } from "@/domain/schemas";
 import { DEFAULT_FINANCIAL_SETTINGS } from "@/domain/settings";
+import { activeRateSet, consolidate, convertMinor, type ConvertedTotal } from "@/domain/fx";
+import { exchangeContextOf, suggestedRate, type ExchangeContext } from "@/features/exchange/conversion";
 import { countReferencesIn } from "@/services/repositories/repositories";
 import {
   getFinancialSettings,
@@ -26,6 +28,11 @@ export interface AccountRow {
   references: number;
   /** Changed on this device and not exported yet (Ledger, D1). */
   localOnly: boolean;
+  /**
+   * Estimate of the balance in the primary currency (active rate set): undefined for an
+   * account already in the primary currency, null when there is no rate for its currency.
+   */
+  approx?: number | null;
 }
 
 export interface AccountsView {
@@ -34,6 +41,9 @@ export interface AccountsView {
   summary: AccountsSummary;
   /** Stored records that fail the schema: counted, never rendered (no values shown). */
   invalid: number;
+  exchange: ExchangeContext;
+  /** Active accounts consolidated in the primary currency (an estimate when converted). */
+  consolidated: ConvertedTotal;
 }
 
 const byName = (a: AccountRow, b: AccountRow) =>
@@ -93,17 +103,35 @@ export async function loadAccountsView(db: LocalDb): Promise<AccountsView> {
     recurrences: raw.recurrences,
   };
 
-  const rows = accounts.map<AccountRow>((account) => ({
-    account,
-    balance: summary.byAccount.get(account.id)!,
-    references: countReferencesIn(referrers, "accounts", account.id),
-    localOnly: pending.has(account.id),
-  }));
+  const exchange = exchangeContextOf(settings);
+  const approxOf = (balance: Money): number | null | undefined => {
+    if (balance.currency === exchange.primary) return undefined;
+    const rate = suggestedRate(exchange, balance.currency);
+    const converted = rate ? convertMinor(balance.amount, balance.currency, exchange.primary, rate.rate) : null;
+    return converted?.ok ? converted.amount : null;
+  };
+  const rows = accounts.map<AccountRow>((account) => {
+    const balance = summary.byAccount.get(account.id)!;
+    return {
+      account,
+      balance,
+      references: countReferencesIn(referrers, "accounts", account.id),
+      localOnly: pending.has(account.id),
+      approx: approxOf(balance),
+    };
+  });
   return {
     active: rows.filter((r) => r.account.status === "active").sort(byName),
     archived: rows.filter((r) => r.account.status === "archived").sort(byName),
     summary,
     invalid,
+    exchange,
+    consolidated: consolidate(
+      summary.balances,
+      exchange.primary,
+      activeRateSet(exchange.exchange),
+      exchange.exchange.defaultMode,
+    ),
   };
 }
 

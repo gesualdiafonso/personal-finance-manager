@@ -1,3 +1,5 @@
+import { exchangeContextOf } from "@/features/exchange/conversion";
+import { DEFAULT_FINANCIAL_SETTINGS } from "@/domain/settings";
 import { describe, expect, it } from "vitest";
 import { money } from "@/domain/money";
 import { balanceEffect, cardTypesOf, committedOnCards, deriveAccountBalance, incomeAndExpenses } from "@/domain/rules/balances";
@@ -15,7 +17,7 @@ const sample = () => {
 function formData(): TransactionFormData {
   const { accounts, cards, categories } = sample();
   const opt = (type: Category["type"]) => categories.filter((c) => c.type === type).map((c) => ({ category: c, label: c.name }));
-  return { accounts, cards, categories: { income: opt("income"), expense: opt("expense") } };
+  return { accounts, cards, categories: { income: opt("income"), expense: opt("expense") }, exchange: exchangeContextOf(DEFAULT_FINANCIAL_SETTINGS) };
 }
 
 const base = { ...emptyTransactionForm("2026-11-24", ID(1)), description: "EJEMPLO-FICTICIO", amount: "1.234,56" };

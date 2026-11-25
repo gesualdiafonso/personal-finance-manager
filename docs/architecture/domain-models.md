@@ -1,6 +1,6 @@
-# Modelos de domínio (schemaVersion 2.3.0)
+# Modelos de domínio (schemaVersion 2.4.0)
 
-> Step 05 (2.2.0) e Step 06 (2.3.0) acrescentaram campos e as entidades `Goal` e `GoalContribution`: ver [data-versioning.md](data-versioning.md), [budgets.md](../features/budgets.md) e [financial-goals.md](../features/financial-goals.md).
+> Step 05 (2.2.0), Step 06 (2.3.0) e a adenda multimoeda (2.4.0: `Transaction.conversion`, `FinancialSettings.exchange`, [currency-exchange.md](../features/currency-exchange.md)) acrescentaram campos e as entidades `Goal` e `GoalContribution`: ver [data-versioning.md](data-versioning.md), [budgets.md](../features/budgets.md) e [financial-goals.md](../features/financial-goals.md).
 
 Fonte de verdade: os schemas Zod em [`src/domain/schemas.ts`](../../src/domain/schemas.ts). Os ficheiros `schemas/*.schema.json` são gerados a partir deles (`npm run schemas:build`) e a CI falha se divergirem. Esta página resume-os; em caso de dúvida, manda o código.
 

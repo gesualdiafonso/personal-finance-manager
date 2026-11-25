@@ -1,3 +1,5 @@
+import { CURRENCY_CODES, type CurrencyCode } from "@/domain/currency";
+import { formCurrency } from "@/features/accounts/account-form";
 import { z } from "zod";
 import type { Account, Bill } from "@/domain/schemas";
 import { isAppError } from "@/lib/errors/app-error";
@@ -28,7 +30,7 @@ export type BillFormValues = {
 };
 export type BillFieldErrors = Partial<Record<keyof BillFormValues, string>>;
 
-export function billFormSchema(accounts: readonly Account[]) {
+export function billFormSchema(accounts: readonly Account[], currency: CurrencyCode = "ARS") {
   return z
     .object({
       name: z
@@ -43,7 +45,7 @@ export function billFormSchema(accounts: readonly Account[]) {
         .max(200, t.descriptionTooLong)
         .refine(noCardNumber, t.cardNumber),
       amount: z.string().transform((value, ctx) => {
-        const parsed = parseMoneyInput(value);
+        const parsed = parseMoneyInput(value, { currency });
         if (!parsed.ok) {
           ctx.addIssue({
             code: "custom",
@@ -63,7 +65,7 @@ export function billFormSchema(accounts: readonly Account[]) {
         }
         return parsed.value;
       }),
-      currency: z.enum(["ARS", "USD"], { error: t.currency }),
+      currency: z.enum(CURRENCY_CODES as [CurrencyCode, ...CurrencyCode[]], { error: t.currency }),
       dueDate: z.string().refine(isLocalDate, t.dueDate),
       categoryId: z.string(),
       accountId: z.string(),
@@ -128,7 +130,7 @@ export function parseBillForm(
   values: BillFormValues,
   accounts: readonly Account[],
 ): { ok: true; fields: BillFields } | { ok: false; errors: BillFieldErrors } {
-  const r = billFormSchema(accounts).safeParse(values);
+  const r = billFormSchema(accounts, formCurrency(values.currency)).safeParse(values);
   if (!r.success) return { ok: false, errors: fieldErrors(r.error) };
   const d = r.data;
   return {

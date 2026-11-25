@@ -10,7 +10,6 @@
 | IndexedDB | **Nenhuma.** Os registos ficam legíveis por quem tiver acesso ao perfil do navegador | Decidido: opção 2 do desenho B ("recordar neste dispositivo"), por implementar (OD-3) |
 | Exportações e changesets | **Nenhuma.** JSON em texto simples com SHA-256 de integridade (não é autenticação) | D2-07; cifragem aprovada (desenho A), por implementar |
 | `data/` no repositório | Repositório privado; só dados fictícios até a OD-2 ser fechada | OD-2 em aberto |
-| Relatórios exportados (CSV/JSON/PDF, Step 08) | **Nenhuma.** Texto simples gerado no navegador e descarregado pelo utilizador; nunca enviado | D8-05; a interface avisa que não estão cifrados |
 | LocalStorage | Só quatro preferências não financeiras | Implementado |
 
 **O que se garante hoje:** nenhuma chave, frase-passe ou sal é guardado junto dos dados (teste em `tests/unit/data-security.test.ts`); nada é publicado em texto simples (`guard:artifacts`); erros e relatórios não mostram valores, descrições nem a frase-passe; a app não escreve no GitHub (`guard:deps` verifica dependências e endpoints).
@@ -46,4 +45,4 @@ Opção 1 — desbloqueio por sessão (não escolhida): uma chave de dados aleat
 3. Plano de recuperação se a frase-passe se perder (depende da OD-2).
 4. Decisão sobre metadados visíveis (tamanhos, datas) e sobre os índices.
 
-Até a implementação estar feita e verificada (secção C): dados reais não devem entrar em `data/` nem nos dispositivos (OD-2; OD-3 por implementar), e nenhum botão de exportação **de dados** (`pfm.export`, backup ou changeset) aparece na interface. Exceção aprovada no brief do Step 08 (D8-05): a exportação de **relatórios** (CSV, JSON `pfm.report`, impressão/PDF), em texto simples e assinalada como não cifrada.
+Até a implementação estar feita e verificada (secção C): dados reais não devem entrar em `data/` nem nos dispositivos (OD-2; OD-3 por implementar), e nenhum botão de exportação aparece na interface.

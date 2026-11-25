@@ -4,9 +4,8 @@ import { es } from "@/lib/i18n/es";
 
 /**
  * Web app manifest, served at /manifest.webmanifest (Next.js metadata route; Step 01
- * suggested public/manifest.json — see docs/PWA.md for the deviation).
- * Shortcuts: icons are optional and omitted (P-08: no decorative icons).
- * Icons are PROVISIONAL: the PFM wordmark on paper, until the logo step.
+ * suggested public/manifest.json — see docs/architecture/pwa.md for the deviation).
+ * Icons: the AUREON monogram, gold on Aureon Forest (docs/branding/LOGO-SYSTEM.md).
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -19,20 +18,18 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: "/",
     display: "standalone",
     orientation: "any",
-    categories: ["finance", "productivity"],
-    prefer_related_applications: false,
-    background_color: "#F5F3ED",
-    theme_color: "#F5F3ED",
+    background_color: "#F4F0E7",
+    theme_color: "#17251F",
     icons: [
+      { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
       { src: "/icons/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     shortcuts: [
-      { name: es.nav.newTransaction, url: "/transacciones#nueva" },
+      { name: es.nav.newTransaction, url: "/transacciones" },
       { name: es.nav.areas.bills, url: "/cuentas-domesticas" },
       { name: es.nav.areas.cards, url: "/tarjetas" },
-      { name: es.nav.areas.reports, url: "/informes" },
     ],
   };
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { CurrencyOptions } from "@/features/exchange/currency-options";
 import { useRef, useState, type FormEvent } from "react";
 import { ACCOUNT_TYPES } from "@/domain/schemas";
 import { Money } from "@/components/shared/money";
@@ -207,8 +208,7 @@ function AccountForm({
                 onChange={set("currency")}
                 disabled={currencyLocked}
               >
-                <option value="ARS">{es.common.currencies.ARS}</option>
-                <option value="USD">{es.common.currencies.USD}</option>
+                <CurrencyOptions value={values.currency} />
               </Select>
             )}
           </Field>

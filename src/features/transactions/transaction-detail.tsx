@@ -1,5 +1,7 @@
 "use client";
 
+import { formatRate } from "@/domain/fx";
+import { formatInstant } from "@/features/exchange/format";
 import {
   useMemo,
   useRef,
@@ -116,7 +118,7 @@ function withOwnReferences(
     : undefined;
   if (cat && !categories[cat.type].some((o) => o.category.id === cat.id))
     categories[cat.type].push({ category: cat, label: cat.name });
-  return { accounts, cards, categories };
+  return { accounts, cards, categories, exchange: c.form.exchange };
 }
 
 function Row({
@@ -281,6 +283,18 @@ function DetailView({
             </>
           )}
           <Row term={t.currency}>{es.common.currencies[tx.currency]}</Row>
+          {tx.conversion && (
+            <>
+              <Row term={es.exchange.equivalent} testId="detail-conversion">
+                ≈ <Money amount={tx.conversion.converted} currency={tx.conversion.to} />
+              </Row>
+              <Row term={es.exchange.appliedRate} testId="detail-rate">
+                {formatRate(tx.conversion.rate)} {tx.conversion.to}/{tx.conversion.from} ·{" "}
+                {es.exchange.modes[tx.conversion.mode]} · {es.exchange.sources[tx.conversion.source]} ·{" "}
+                {formatInstant(tx.conversion.rateAt)}
+              </Row>
+            </>
+          )}
           <Row term={t.notes}>{tx.notes ?? t.none}</Row>
           <Row term={t.createdAt}>
             {formatDate(tx.createdAt.slice(0, 10) as LocalDate, "form")}

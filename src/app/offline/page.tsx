@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AureonLogo } from "@/components/brand/aureon-logo";
 import { es } from "@/lib/i18n/es";
 
 export const metadata: Metadata = { title: es.offline.title };
@@ -10,7 +11,7 @@ export const metadata: Metadata = { title: es.offline.title };
 export default function OfflinePage() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-[520px] flex-col justify-center px-6">
-      <div className="mb-2 type-label text-ink-2">{es.app.name}</div>
+      <AureonLogo className="mb-10 h-8 w-auto" />
       <h1 className="mb-4 type-title-page-mobile">{es.offline.title}</h1>
       <p className="mb-6 type-body text-ink-2">{es.offline.body}</p>
       {/* A full page load on purpose: retry the network, not a client-side navigation. */}

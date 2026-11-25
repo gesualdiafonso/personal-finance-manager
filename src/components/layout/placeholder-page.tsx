@@ -7,12 +7,22 @@ import { PageHeader } from "./page-header";
  * editorial header so navigation, typography and themes can be validated; the content
  * arrives in later steps.
  */
-export function PlaceholderPage({ title, label, before }: { title: string; label?: string; before?: ReactNode }) {
+export function PlaceholderPage({
+  title,
+  label,
+  before,
+}: {
+  title: string;
+  label?: string;
+  before?: ReactNode;
+}) {
   return (
     <>
       <PageHeader label={label} title={title} />
       {before}
-      <p className="max-w-[44ch] type-body text-ink-2">{es.placeholder.laterStep}</p>
+      <p className="max-w-[44ch] type-body text-ink-2">
+        {es.placeholder.laterStep}
+      </p>
     </>
   );
 }

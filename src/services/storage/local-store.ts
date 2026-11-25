@@ -4,6 +4,7 @@ import { uuidv7 } from "@/domain/ids";
 import {
   ENTITY_NAMES,
   ENTITY_SCHEMAS,
+  financialSettingsSchema,
   isoDateTime,
   uuid,
   type Account,
@@ -275,6 +276,21 @@ export async function getFinancialSettings(db: LocalDb): Promise<FinancialSettin
   return (await db.get("settings", "financial"))?.settings ?? null;
 }
 
+/**
+ * Saves the Financial Settings on this device (Step 10 addendum: primary currency and the
+ * "Moneda y cambio" configuration). Validated before writing; like every local change it
+ * reaches the official data only through an export the user publishes. Never touches any
+ * transaction: stored conversions are history (D-FX-05).
+ */
+export async function saveFinancialSettings(db: LocalDb, settings: FinancialSettings): Promise<FinancialSettings> {
+  const parsed = financialSettingsSchema.safeParse(settings);
+  if (!parsed.success) {
+    throw new AppError("VALIDATION_FAILED", "Invalid financial settings", { details: parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`) });
+  }
+  await db.put("settings", { key: "financial", settings: parsed.data });
+  return parsed.data;
+}
+
 /* ------------------------------------------------------------------------------ */
 /* Publication import: snapshot + rebuild working stores + replay outbox, atomic    */
 /* ------------------------------------------------------------------------------ */
@@ -320,7 +336,10 @@ export async function importPublication(
     const writes: Promise<unknown>[] = [];
     for (const name of ENTITY_STORES) for (const r of records[name]) writes.push(tx.objectStore(name).put(r as never));
     writes.push(tx.objectStore("snapshot").put({ key: "current", dataRevision: dataSet.meta.dataRevision, schemaVersion: dataSet.meta.schemaVersion, files }));
-    writes.push(tx.objectStore("settings").put({ key: "financial", settings: dataSet.settings }));
+    // A publication without exchange settings (pre-2.4.0) keeps the device's rate sets (D-FX-08).
+    const localSettings = (await tx.objectStore("settings").get("financial"))?.settings;
+    const incoming = dataSet.settings.exchange || !localSettings?.exchange ? dataSet.settings : { ...dataSet.settings, exchange: localSettings.exchange };
+    writes.push(tx.objectStore("settings").put({ key: "financial", settings: incoming }));
     writes.push(
       tx.objectStore("publications").put({
         dataRevision: dataSet.meta.dataRevision,
