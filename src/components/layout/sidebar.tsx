@@ -7,7 +7,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AureonLogo } from "@/components/brand/aureon-logo";
-import { ProfileLink, ThemeToggle } from "@/components/brand/brand-controls";
+import { ProfileMenu, ThemeToggle } from "@/components/brand/brand-controls";
 import { Button, Kbd } from "@/components/ui/button";
 import {
   AREAS,
@@ -93,7 +93,7 @@ export function SidebarView({ pathname }: { pathname: string }) {
         <DataStatus />
         <div className="mt-2 flex items-center gap-1 border-t border-line pt-3">
           <div className="min-w-0 flex-1">
-            <ProfileLink pathname={pathname} />
+            <ProfileMenu pathname={pathname} />
           </div>
           <ThemeToggle />
         </div>

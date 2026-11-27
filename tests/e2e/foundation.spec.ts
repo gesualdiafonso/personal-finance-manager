@@ -51,7 +51,12 @@ test.describe("navigation", () => {
     // AUREON branding (replaces the Step 00 "text only" rule): logo, one icon per area.
     await expect(sidebar.getByRole("link", { name: "AUREON, ir al Panel" }).getByRole("img", { name: "AUREON" })).toBeVisible();
     for (const [, title] of AREAS) await expect(sidebar.getByRole("link", { name: title, exact: true }).locator("svg")).toHaveCount(1);
-    await expect(sidebar.getByTestId("profile-link")).toHaveAttribute("href", "/configuracion");
+    // Profile menu (global user profile): shows the signed-in user, leads to Mi perfil and Configuración.
+    await expect(sidebar.getByTestId("profile-menu-name")).toHaveText("Usuario Ejemplo E2E");
+    await sidebar.getByTestId("profile-menu").click();
+    await expect(sidebar.getByRole("link", { name: "Mi perfil" })).toHaveAttribute("href", "/perfil");
+    await expect(sidebar.getByRole("link", { name: "Configuración" }).last()).toHaveAttribute("href", "/configuracion");
+    await page.keyboard.press("Escape");
     await expect(sidebar.getByTestId("theme-toggle")).toBeVisible();
     await expect(sidebar.getByRole("link", { name: "Panel", exact: true })).toHaveAttribute("aria-current", "page");
     await expect(page.getByTestId("data-status")).toContainText("Sin datos publicados");
@@ -66,6 +71,7 @@ test.describe("navigation", () => {
     await expect(page.getByRole("navigation", { name: "Obligaciones" }).getByRole("link", { name: "Tarjetas" })).toHaveAttribute("aria-current", "page");
     // Step 03: /tarjetas is now a client page; the switcher saves the area once hydrated
     // (the data has loaded), not when the prerendered HTML appears.
+    await expect(page.getByTestId("auth-checking")).toHaveCount(0);
     await expect(page.getByTestId("cards-loading")).toHaveCount(0);
     await page.goto("/");
     await expect(page.getByRole("link", { name: "Obligaciones" })).toHaveAttribute("href", "/tarjetas");

@@ -16,7 +16,7 @@ import {
 import { es } from "@/lib/i18n/es";
 import { cn } from "@/lib/utils/cn";
 import { AureonMonogram } from "@/components/brand/aureon-logo";
-import { ThemeToggle } from "@/components/brand/brand-controls";
+import { ProfileMenu, ThemeToggle } from "@/components/brand/brand-controls";
 import { NAV_ICONS } from "./nav-icons";
 
 function RailItem({ id, pathname }: { id: AreaId; pathname: string }) {
@@ -76,6 +76,7 @@ export function RailView({ pathname }: { pathname: string }) {
         ))}
       </nav>
       <div className="mt-auto flex flex-col items-center gap-1">
+        <ProfileMenu pathname={pathname} compact placement="right" />
         <ThemeToggle className="size-11" />
         <RailItem id="settings" pathname={pathname} />
       </div>

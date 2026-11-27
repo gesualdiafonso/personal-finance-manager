@@ -16,6 +16,10 @@
 
 **O que NÃO se garante:** confidencialidade dos dados no dispositivo e dos ficheiros exportados. Quem tiver o computador desbloqueado ou um ficheiro exportado lê os dados.
 
+## Conta local (autenticação)
+
+A palavra-passe guarda-se só como verificador PBKDF2 (600 000 iterações, sal próprio) numa store separada, nunca exportada; as sessões têm ids aleatórios e expiram. **Isto protege o acesso à interface, não os dados**: o IndexedDB continua sem cifragem (OD-3). Ver [authentication.md](authentication.md).
+
 ## Testes de segurança — `tests/unit/data-security.test.ts`, `tests/unit/crypto.test.ts`
 
 Texto cifrado alterado com hash recalculado (falha a autenticação GCM), texto cifrado truncado, chave inválida (frase-passe errada, sal alterado), IV alterado, `schemaVersion`/`dataRevision` trocados (AAD), metadados em falta (`kdf`, `cipher`, `sha256`, `schemaVersion`, `dataRevision`), derivação mais fraca, mensagens de erro sem frase-passe nem texto, e três testes que **afirmam** que o IndexedDB e as exportações não estão cifrados.

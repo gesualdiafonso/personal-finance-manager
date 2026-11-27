@@ -5,7 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
  * keyboard focus, no horizontal overflow (phone, tablet, laptop, desktop), no runtime errors,
  * and the PWA assets. Empty local data only (nothing is created here).
  */
-const ROUTES = ["/", "/transacciones", "/cuentas-domesticas", "/tarjetas", "/recurrencias", "/cuentas", "/presupuesto", "/informes", "/configuracion", "/offline"];
+const ROUTES = ["/", "/transacciones", "/cuentas-domesticas", "/tarjetas", "/recurrencias", "/cuentas", "/presupuesto", "/informes", "/configuracion", "/perfil", "/offline"];
 const THEMES = ["paper", "dark"] as const;
 
 async function unnamedControls(page: Page): Promise<string[]> {
@@ -66,6 +66,7 @@ for (const theme of THEMES) {
 
 test("keyboard: skip link first, visible focus ring", async ({ page }) => {
   await page.goto("/");
+  await expect(page.getByTestId("auth-checking")).toHaveCount(0);
   await page.keyboard.press("Tab");
   const focused = page.locator(":focus");
   await expect(focused).toHaveText("Ir al contenido");
@@ -103,4 +104,26 @@ test("PWA and brand assets are served with the right types", async ({ request })
   const html = await home.text();
   expect(html).toContain('rel="apple-touch-icon"');
   expect(html).toMatch(/<link rel="icon" href="\/icon\.svg/);
+});
+
+test.describe("account screens (signed out)", () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+  for (const theme of ["paper", "dark"] as const) {
+    test(`/registro and /entrar — ${theme}: one h1, named controls, no overflow, no errors`, async ({ page }) => {
+      const errors: string[] = [];
+      page.on("pageerror", (e) => errors.push(e.message.slice(0, 80)));
+      page.on("console", (m) => m.type() === "error" && errors.push(m.text().slice(0, 80)));
+      await page.addInitScript((t) => localStorage.setItem("pfm.theme", t), theme);
+      await page.goto("/registro");
+      await expect(page.getByRole("form", { name: "Crear tu cuenta" })).toBeVisible();
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+      await expect(page.locator("h1")).toHaveCount(1);
+      expect(await unnamedControls(page)).toEqual([]);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
+      // /entrar on a device without an account leads to registration.
+      await page.goto("/entrar");
+      await expect(page).toHaveURL(/\/registro$/);
+      expect(errors).toEqual([]);
+    });
+  }
 });

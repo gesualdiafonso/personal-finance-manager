@@ -47,7 +47,8 @@ test.describe("AUREON branding", () => {
 
   test("profile access and brand statement in Configuración", async ({ page }) => {
     await page.goto("/");
-    await page.getByTestId("profile-link").locator("visible=true").first().click();
+    await page.getByTestId("profile-menu").locator("visible=true").first().click();
+    await page.getByTestId("profile-menu-panel").getByRole("link", { name: "Configuración" }).click();
     await expect(page).toHaveURL(/\/configuracion$/);
     await expect(page.getByTestId("about-brand")).toContainText("Wealth is built with intention.");
     await expect(page.getByTestId("about-brand")).toContainText("Clarity in every financial decision.");

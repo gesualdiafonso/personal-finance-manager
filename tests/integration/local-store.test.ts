@@ -29,7 +29,7 @@ describe("IndexedDB v2 initialization", () => {
     expect(db.name).toBe(LOCAL_DB_NAME);
     expect(db.version).toBe(LOCAL_DB_VERSION);
     expect([...db.objectStoreNames].sort()).toEqual(
-      [...ENTITY_STORES, "device", "outbox", "publications", "snapshot", "settings", "legacy_v1", "migration_log", "rollback"].sort(),
+      [...ENTITY_STORES, "device", "outbox", "publications", "snapshot", "settings", "legacy_v1", "migration_log", "rollback", "profiles", "credentials", "sessions"].sort(),
     );
     expect([...db.transaction("transactions").store.indexNames].sort()).toEqual(["accountId", "cardId", "categoryId", "date", "destinationAccountId", "status", "type"]);
     db.close();
@@ -38,7 +38,7 @@ describe("IndexedDB v2 initialization", () => {
   it("reports an empty, healthy store", async () => {
     const db = await openLocalStore();
     const status = await getLocalStoreStatus(db);
-    expect(status.version).toBe(3);
+    expect(status.version).toBe(4);
     expect(status.latestPublication).toBeNull();
     expect(status.pendingOperations).toBe(0);
     expect(await checkLocalIntegrity(db)).toEqual({ ok: true, problems: [] });
@@ -70,7 +70,7 @@ describe("upgrade from the Step 01 (v1) database", () => {
     v1.close();
 
     const db = await openLocalStore();
-    expect(db.version).toBe(3);
+    expect(db.version).toBe(4);
     const legacy = await db.getAll("legacy_v1");
     expect(legacy).toHaveLength(4); // device stays in its own store
     expect(legacy.filter((l) => l.store === "transactions").map((l) => (l.record as { id: string }).id).sort()).toEqual(["t1", "t2"]);
@@ -79,6 +79,7 @@ describe("upgrade from the Step 01 (v1) database", () => {
     expect(await db.count("transactions")).toBe(0);
     expect((await getLocalStoreStatus(db)).legacyRecords).toBe(4);
     expect((await db.getAll("migration_log"))[1]).toMatchObject({ from: 2, to: 3, moved: {} });
+    expect((await db.getAll("migration_log"))[2]).toMatchObject({ from: 3, to: 4, moved: {} });
     db.close();
   });
 });
@@ -98,12 +99,12 @@ describe("upgrade from the Step 02–05 (v2) database (Step 06)", () => {
     v2.close();
 
     const db = await openLocalStore();
-    expect(db.version).toBe(3);
-    expect([...db.objectStoreNames]).toEqual(expect.arrayContaining(["goals", "goalContributions"]));
+    expect(db.version).toBe(4);
+    expect([...db.objectStoreNames]).toEqual(expect.arrayContaining(["goals", "goalContributions", "profiles", "credentials", "sessions"]));
     expect([...db.transaction("goalContributions").store.indexNames].sort()).toEqual(["goalId", "transactionId"]);
     expect(await db.get("budgets", "b1")).toEqual({ id: "b1", name: "EJEMPLO-FICTICIO" });
     expect(await db.count("outbox")).toBe(1);
-    expect(await db.getAll("migration_log")).toMatchObject([{ from: 2, to: 3, moved: {} }]);
+    expect(await db.getAll("migration_log")).toMatchObject([{ from: 2, to: 3, moved: {} }, { from: 3, to: 4, moved: {} }]);
     db.close();
   });
 });

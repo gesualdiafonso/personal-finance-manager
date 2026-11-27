@@ -11,7 +11,7 @@ O IndexedDB é uma API de armazenamento do navegador neste dispositivo: não é 
 
 > **O IndexedDB não está cifrado.** Guardar localmente não é cifrar. A cifragem em repouso (OD-3) está decidida — "recordar neste dispositivo" — mas ainda não implementada ([segurança dos dados](data-security.md)). Um teste (`tests/unit/data-security.test.ts`) confirma que os registos ficam legíveis, para que ninguém o presuma.
 
-## IndexedDB versão 3 — [`src/services/storage/local-store.ts`](../../src/services/storage/local-store.ts)
+## IndexedDB versão 4 — [`src/services/storage/local-store.ts`](../../src/services/storage/local-store.ts)
 
 | Store | Chave | Índices | Conteúdo |
 | --- | --- | --- | --- |
@@ -32,6 +32,8 @@ O IndexedDB é uma API de armazenamento do navegador neste dispositivo: não é 
 | `legacy_v1` | `id` | — | Registos da versão 1 postos de parte na atualização (nunca apagados) |
 
 **v2 → v3 (Step 06):** só cria `goals` e `goalContributions`, vazias; nenhum registo é movido; fica uma entrada `{ from: 2, to: 3 }` em `migration_log`.
+
+**v3 → v4 (autenticação local):** só cria `profiles`, `credentials` e `sessions`, vazias; nenhum registo financeiro é tocado; entrada `{ from: 3, to: 4 }`. Ver [authentication.md](authentication.md).
 | `migration_log` | `id` | — | Registo das atualizações de versão |
 | `rollback` | `key` | — | O estado imediatamente antes da última importação aplicada (um nível de anular) |
 

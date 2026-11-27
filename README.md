@@ -8,7 +8,8 @@ AUREON (antes Personal Finance Manager) é uma aplicação web de finanças pess
 
 ## Arquitetura em poucas linhas
 
-- **Sem backend, sem base de dados, sem autenticação** ([ADR-001](docs/decisions/ADR-001-sem-base-de-dados.md), [ADR-002](docs/decisions/ADR-002-local-first.md)). Cada dispositivo guarda os dados financeiros no seu **IndexedDB**; o LocalStorage só guarda preferências leves (tema, período do Panel). Não há Supabase, contas de utilizador, sessões ou RLS: não há dados de outros utilizadores no servidor para proteger.
+- **Sem backend nem base de dados** ([ADR-001](docs/decisions/ADR-001-sem-base-de-dados.md), [ADR-002](docs/decisions/ADR-002-local-first.md)). Cada dispositivo guarda os dados financeiros no seu **IndexedDB**; o LocalStorage só guarda preferências leves (tema, período do Panel). Não há Supabase nem RLS.
+- **Conta local do dispositivo** ([autenticação](docs/architecture/authentication.md)): registo, login com palavra-passe (PBKDF2, Web Crypto), sessões e um perfil global usado por todos os módulos. É um bloqueio da interface, **não** uma identidade de servidor: não sincroniza dispositivos nem cifra os dados.
 - Todas as páginas são **estáticas**: o servidor (Vercel ou `next start`) só entrega HTML, JS e CSS; nenhum dado financeiro passa por ele.
 - A fonte oficial opcional são ficheiros JSON versionados em `data/` (aqui só exemplos **fictícios**); a app nunca escreve no GitHub. Dados publicados são sempre cifrados ([ADR-003](docs/decisions/ADR-003-cifragem.md)).
 - **Dinheiro em inteiros** (centavos), sempre com moeda; nunca vírgula flutuante como valor.
@@ -59,5 +60,5 @@ tests/           unit/, integration/, e2e/, fixtures/
 
 - Marca: [identidade](docs/branding/BRAND-IDENTITY.md) · [cores](docs/branding/COLOR-SYSTEM.md) · [tipografia](docs/branding/TYPOGRAPHY.md) · [logótipo](docs/branding/LOGO-SYSTEM.md) · [interface](docs/branding/UI-BRANDING.md) · [Design System](docs/design-system/README.md)
 - Funcionalidades: [Panel](docs/features/dashboard.md) · [Contas](docs/features/accounts.md) · [Cartões](docs/features/cards.md) · [Transações](docs/features/transactions.md) · [Orçamentos](docs/features/budgets.md) · [Metas](docs/features/financial-goals.md)
-- Arquitetura: [visão geral](docs/architecture/overview.md) · [cálculos financeiros](docs/architecture/financial-calculations.md) · [persistência local](docs/architecture/local-persistence.md) · [versionamento](docs/architecture/data-versioning.md) · [importação/exportação](docs/architecture/data-import-export.md) · [segurança](docs/architecture/data-security.md) · [PWA](docs/architecture/pwa.md)
+- Arquitetura: [visão geral](docs/architecture/overview.md) · [autenticação e perfil](docs/architecture/authentication.md) · [cálculos financeiros](docs/architecture/financial-calculations.md) · [persistência local](docs/architecture/local-persistence.md) · [versionamento](docs/architecture/data-versioning.md) · [importação/exportação](docs/architecture/data-import-export.md) · [segurança](docs/architecture/data-security.md) · [PWA](docs/architecture/pwa.md)
 - Decisões em aberto (OD-1, OD-2, OD-4, OD-7, ADR-005, secções 11–14 do brief original): [open-decisions.md](docs/decisions/open-decisions.md)

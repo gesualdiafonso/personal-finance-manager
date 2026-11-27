@@ -1,3 +1,5 @@
+import type { UserProfile } from "@/domain/profile";
+import type { PasswordVerifier } from "@/services/auth/password";
 import { openDB, type DBSchema, type IDBPDatabase, type IDBPTransaction, type StoreNames } from "idb";
 import { z } from "zod";
 import { uuidv7 } from "@/domain/ids";
@@ -41,10 +43,16 @@ import { validateIntegrity, type DataFileMap, type OfficialDataSet } from "@/ser
  * - `settings`: Financial Settings (not UI preferences, which stay in LocalStorage).
  * - `legacy_v1`: version 1 records moved aside on upgrade — never deleted.
  * - `rollback`: the state right before the last applied import (one level of undo).
+ * - `profiles` · `credentials` · `sessions` (v4): the local account. Credentials hold only
+ *   PBKDF2 verifiers, in their own store, apart from the profile; nothing here is exported.
  */
 export const LOCAL_DB_NAME = "pfm-local";
-/** v3 (Step 06): adds the goals and goalContributions stores; nothing else changes. */
-export const LOCAL_DB_VERSION = 3;
+/**
+ * v3 (Step 06): adds the goals and goalContributions stores.
+ * v4 (local authentication): adds profiles, credentials and sessions — kept apart from the
+ * financial stores, never exported, never cleared by "Borrar datos locales" (D-AUTH-05).
+ */
+export const LOCAL_DB_VERSION = 4;
 
 export const ENTITY_STORES = ENTITY_NAMES;
 /** @deprecated Step 01 name; the entity stores are now working stores. */
@@ -136,6 +144,31 @@ export interface PfmLocalSchema extends DBSchema {
   legacy_v1: { key: number; value: LegacyRecord };
   migration_log: { key: number; value: MigrationLogRecord };
   rollback: { key: string; value: RollbackRecord };
+  profiles: { key: string; value: UserProfile; indexes: { username: string } };
+  credentials: { key: string; value: CredentialRecord };
+  sessions: { key: string; value: SessionRecord; indexes: { userId: string } };
+}
+
+/** Password verifier of a local account (never the password). Store `credentials`. */
+export interface CredentialRecord {
+  userId: string;
+  verifier: PasswordVerifier;
+  updatedAt: string;
+  /** Consecutive failed logins and the moment logins are accepted again (back-off). */
+  failedAttempts: number;
+  lockedUntil: string | null;
+}
+
+/** A login on this device. The id is random and opaque; no credential is stored in it. */
+export interface SessionRecord {
+  id: string;
+  userId: string;
+  createdAt: string;
+  lastSeenAt: string;
+  /** Absolute end of the session. */
+  expiresAt: string;
+  /** "Recordar sesión": survives closing the browser; otherwise ends with the tab session. */
+  remember: boolean;
 }
 
 export type LocalDb = IDBPDatabase<PfmLocalSchema>;
@@ -177,6 +210,13 @@ function createV3Stores(db: IDBPDatabase<PfmLocalSchema>): void {
   contributions.createIndex("transactionId", "transactionId");
 }
 
+/** v4: the local account (profile, password verifier, sessions). */
+function createV4Stores(db: IDBPDatabase<PfmLocalSchema>): void {
+  db.createObjectStore("profiles", { keyPath: "id" }).createIndex("username", "username", { unique: true });
+  db.createObjectStore("credentials", { keyPath: "userId" });
+  db.createObjectStore("sessions", { keyPath: "id" }).createIndex("userId", "userId");
+}
+
 const V1_STORES = ["accounts", "categories", "cards", "bills", "recurrences", "budgets", "transactions", "outbox", "publications"] as const;
 
 /** Opens the local store, creating it or upgrading it (v1 → v2 never discards a record). */
@@ -188,6 +228,7 @@ export async function openLocalStore(now: () => Date = () => new Date()): Promis
         if (oldVersion < 1) {
           createV2Stores(db);
           createV3Stores(db);
+          createV4Stores(db);
           db.createObjectStore("device", { keyPath: "key" });
           return;
         }
@@ -213,6 +254,12 @@ export async function openLocalStore(now: () => Date = () => new Date()): Promis
           // Additive: two new, empty stores. Every existing record stays where it is.
           createV3Stores(db);
           await transaction.objectStore("migration_log").add({ from: Math.max(oldVersion, 2), to: 3, at: toIsoWithOffset(now()), moved: {} });
+        }
+        if (oldVersion < 4) {
+          // Additive: three new, empty stores for the local account. No financial record is
+          // read, moved or rewritten; the first account registered here owns them (D-AUTH-01).
+          createV4Stores(db);
+          await transaction.objectStore("migration_log").add({ from: Math.max(oldVersion, 3), to: 4, at: toIsoWithOffset(now()), moved: {} });
         }
       },
       blocking() {

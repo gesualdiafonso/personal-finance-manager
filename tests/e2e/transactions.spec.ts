@@ -5,6 +5,7 @@ const isPhone = (name: string) => name === "iphone";
 
 async function createAccount(page: Page, name: string, balance: string) {
   await page.goto("/cuentas");
+  await expect(page.getByTestId("auth-checking")).toHaveCount(0);
   await expect(page.getByTestId("accounts-loading")).toHaveCount(0);
   const first = page.getByRole("button", { name: "Crear la primera cuenta" });
   if (await first.isVisible()) await first.click();
@@ -28,6 +29,7 @@ async function openNewTransaction(page: Page, phone: boolean) {
 
 async function balanceOf(page: Page, phone: boolean, name: string) {
   await page.goto("/cuentas");
+  await expect(page.getByTestId("auth-checking")).toHaveCount(0);
   await expect(page.getByTestId("accounts-loading")).toHaveCount(0);
   return page.getByTestId(phone ? "account-item" : "account-row").filter({ hasText: name });
 }

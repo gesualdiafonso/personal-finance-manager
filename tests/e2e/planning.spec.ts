@@ -5,6 +5,7 @@ const isPhone = (name: string) => name === "iphone";
 
 async function createAccount(page: Page, name: string, balance: string) {
   await page.goto("/cuentas");
+  await expect(page.getByTestId("auth-checking")).toHaveCount(0);
   await expect(page.getByTestId("accounts-loading")).toHaveCount(0);
   const first = page.getByRole("button", { name: "Crear la primera cuenta" });
   if (await first.isVisible()) await first.click();
@@ -30,6 +31,7 @@ async function createExpense(page: Page, phone: boolean, amount: string, categor
 
 async function openPlanning(page: Page, hash = "") {
   await page.goto(`/presupuesto${hash}`);
+  await expect(page.getByTestId("auth-checking")).toHaveCount(0);
   await expect(page.getByTestId("planning-loading")).toHaveCount(0);
 }
 
@@ -107,12 +109,14 @@ test.describe("Presupuesto", () => {
 
     // The contribution did not change the account balance (it is not an expense).
     await page.goto("/cuentas");
+    await expect(page.getByTestId("auth-checking")).toHaveCount(0);
     await expect(page.getByTestId("accounts-loading")).toHaveCount(0);
     await expect(page.getByTestId(phone ? "account-item" : "account-row").filter({ hasText: "EJEMPLO-FICTICIO Sueldo" })).toContainText("$ 455.000");
 
     // 9. Persistence after reload, summary per currency.
     await openPlanning(page);
     await page.reload();
+    await expect(page.getByTestId("auth-checking")).toHaveCount(0);
     await expect(page.getByTestId("planning-loading")).toHaveCount(0);
     await expect(page.getByTestId("budget-counts")).toHaveText("1 activo · 1 excedido");
     await expect(page.getByTestId("budget-total-ARS")).toContainText("$ 40.000");

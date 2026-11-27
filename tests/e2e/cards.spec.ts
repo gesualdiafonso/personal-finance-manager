@@ -5,6 +5,7 @@ const isPhone = (name: string) => name === "iphone";
 
 async function createAccount(page: Page, name: string, currency: "ARS" | "USD" = "ARS") {
   await page.goto("/cuentas");
+  await expect(page.getByTestId("auth-checking")).toHaveCount(0);
   await expect(page.getByTestId("accounts-loading")).toHaveCount(0);
   const first = page.getByRole("button", { name: "Crear la primera cuenta" });
   if (await first.isVisible()) await first.click();
@@ -19,6 +20,7 @@ async function createAccount(page: Page, name: string, currency: "ARS" | "USD" =
 }
 
 async function openCreate(page: Page) {
+  await expect(page.getByTestId("auth-checking")).toHaveCount(0);
   await expect(page.getByTestId("cards-loading")).toHaveCount(0);
   const first = page.getByRole("button", { name: "Crear la primera tarjeta" });
   if (await first.isVisible()) await first.click();
@@ -40,6 +42,7 @@ async function openEdit(page: Page, phone: boolean, name: string) {
 
 async function backToList(page: Page) {
   if (!page.url().endsWith("/tarjetas")) await page.getByRole("navigation", { name: "Ruta" }).getByRole("link", { name: "Tarjetas" }).click();
+  await expect(page.getByTestId("auth-checking")).toHaveCount(0);
   await expect(page.getByTestId("cards-loading")).toHaveCount(0);
 }
 
@@ -120,6 +123,7 @@ test.describe("Cards", () => {
     await page.getByRole("alertdialog").getByRole("button", { name: "Eliminar" }).click();
     await expect(page.getByText("Tarjeta eliminada.")).toBeVisible();
     await page.goto("/tarjetas");
+    await expect(page.getByTestId("auth-checking")).toHaveCount(0);
     await expect(page.getByTestId("cards-loading")).toHaveCount(0);
     await expect(page.getByTestId("cards-prepaid")).toHaveCount(0);
   });

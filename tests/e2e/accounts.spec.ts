@@ -8,6 +8,7 @@ import { expect, test, type Page } from "@playwright/test";
 const isPhone = (name: string) => name === "iphone";
 
 async function openCreate(page: Page) {
+  await expect(page.getByTestId("auth-checking")).toHaveCount(0);
   await expect(page.getByTestId("accounts-loading")).toHaveCount(0);
   const first = page.getByRole("button", { name: "Crear la primera cuenta" });
   if (await first.isVisible()) await first.click();
@@ -43,6 +44,7 @@ async function openEdit(page: Page, phone: boolean, name: string) {
 
 async function backToList(page: Page, phone: boolean) {
   if (phone && !page.url().endsWith("/cuentas")) await page.getByRole("navigation", { name: "Ruta" }).getByRole("link", { name: "Cuentas" }).click();
+  await expect(page.getByTestId("auth-checking")).toHaveCount(0);
   await expect(page.getByTestId("accounts-loading")).toHaveCount(0);
 }
 

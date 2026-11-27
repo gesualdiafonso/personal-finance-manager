@@ -8,6 +8,7 @@ const isPhone = (name: string) => name === "iphone";
 
 async function createAccount(page: Page, name: string, currency: string, balance: string) {
   await page.goto("/cuentas");
+  await expect(page.getByTestId("auth-checking")).toHaveCount(0);
   await expect(page.getByTestId("accounts-loading")).toHaveCount(0);
   const first = page.getByRole("button", { name: "Crear la primera cuenta" });
   if (await first.isVisible()) await first.click();
@@ -80,6 +81,7 @@ test("Moneda y cambio: rates, converter, estimate stored with the movement, cons
   await expect(page.getByTestId("detail-rate")).toContainText("1.450");
 
   await page.goto("/");
+  await expect(page.getByTestId("auth-checking")).toHaveCount(0);
   await expect(page.getByTestId("dashboard-loading")).toHaveCount(0);
   await expect(page.getByTestId("dashboard-hero").getByTestId("consolidated-estimate")).toContainText("Total estimado en ARS");
 

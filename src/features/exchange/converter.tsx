@@ -1,5 +1,6 @@
 "use client";
 
+import { useProfile } from "@/features/auth/auth-context";
 import { useState } from "react";
 import { ArrowLeftRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,9 @@ const t = es.exchange;
  * a custom estimate. Saves nothing.
  */
 export function Converter({ ctx, currencies }: { ctx: ExchangeContext; currencies: CurrencyCode[] }) {
-  const firstForeign = currencies.find((c) => c !== ctx.primary) ?? ctx.primary;
+  // Starts from the profile's secondary currency when it has one.
+  const secondary = useProfile()?.profile.secondaryCurrency;
+  const firstForeign = (secondary && secondary !== ctx.primary && currencies.includes(secondary) ? secondary : null) ?? currencies.find((c) => c !== ctx.primary) ?? ctx.primary;
   const [amount, setAmount] = useState("100");
   const [from, setFrom] = useState<CurrencyCode>(firstForeign);
   const [to, setTo] = useState<CurrencyCode>(ctx.primary);

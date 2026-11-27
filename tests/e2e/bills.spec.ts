@@ -9,6 +9,7 @@ function buenosAiresDate(offsetDays = 0): string {
 }
 
 async function openCreate(page: Page) {
+  await expect(page.getByTestId("auth-checking")).toHaveCount(0);
   await expect(page.getByTestId("bills-loading")).toHaveCount(0);
   const first = page.getByRole("button", { name: "Registrar la primera" });
   if (await first.isVisible()) await first.click();
@@ -58,6 +59,7 @@ test.describe("Cuentas domésticas", () => {
     await expect(page.getByTestId("bills-cancelled")).toContainText("EJEMPLO-FICTICIO Luz");
 
     await page.reload();
+    await expect(page.getByTestId("auth-checking")).toHaveCount(0);
     await expect(page.getByTestId("bills-loading")).toHaveCount(0);
     await expect(page.getByTestId("bills-overdue")).toContainText("EJEMPLO-FICTICIO Expensas");
     await expect(page.getByTestId("bills-cancelled")).toContainText("EJEMPLO-FICTICIO Luz");

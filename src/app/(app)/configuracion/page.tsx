@@ -5,6 +5,7 @@ import { AppearanceSettings } from "@/features/settings/appearance-settings";
 import { LocalDataPanel } from "@/features/settings/local-data-panel";
 import { CurrencySettings } from "@/features/exchange/currency-settings";
 import { AREAS } from "@/lib/config/navigation";
+import { ProfileSummary } from "@/features/auth/profile-summary";
 
 export const metadata: Metadata = { title: AREAS.settings.label };
 
@@ -13,6 +14,7 @@ export default function SettingsPage() {
   return (
     <>
       <PageHeader title={AREAS.settings.label} />
+      <ProfileSummary />
       <AppearanceSettings />
       <CurrencySettings />
       <LocalDataPanel />

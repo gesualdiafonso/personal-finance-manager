@@ -78,11 +78,21 @@ const formFormat = new Intl.DateTimeFormat(APP_CONFIG.locale, { timeZone: "UTC",
 
 export type DateStyle = "long" | "short" | "form";
 
-/** "lunes, 23 de noviembre" · "23 nov" · "23/11/2026" */
+/**
+ * Numeric date format chosen in the user's profile ("dd/MM/yyyy" by default, or ISO
+ * "yyyy-MM-dd"). Set by the auth provider when the profile loads or changes; applies to every
+ * date shown as digits ("form" style) in every module.
+ */
+let numericDateFormat: "dd/MM/yyyy" | "yyyy-MM-dd" = "dd/MM/yyyy";
+export function setNumericDateFormat(format: "dd/MM/yyyy" | "yyyy-MM-dd"): void {
+  numericDateFormat = format;
+}
+
+/** "lunes, 23 de noviembre" · "23 nov" · "23/11/2026" (or "2026-11-23" with the ISO format) */
 export function formatDate(date: LocalDate, style: DateStyle = "short"): string {
   const d = calendarDate(date);
   if (style === "long") return longFormat.format(d);
-  if (style === "form") return formFormat.format(d);
+  if (style === "form") return numericDateFormat === "yyyy-MM-dd" ? date : formFormat.format(d);
   return shortFormat.format(d).replace(/\.$/, "");
 }
 

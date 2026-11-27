@@ -1,5 +1,7 @@
 "use client";
 
+import { displayFirstName } from "@/domain/profile";
+import { useProfile } from "@/features/auth/auth-context";
 import { activeRateSet, consolidate } from "@/domain/fx";
 import { ConsolidatedEstimate } from "@/features/exchange/estimates";
 import Link from "next/link";
@@ -168,6 +170,7 @@ function Dashboard({ data }: { data: DashboardData }) {
   );
   const timing = periodTiming(period, today);
   const title = periodTitle(granularity, period, today);
+  const profile = useProfile();
   // Hour in the financial time zone (Buenos Aires by default), never the device's.
   const [hour] = useState(() =>
     Number(
@@ -236,7 +239,8 @@ function Dashboard({ data }: { data: DashboardData }) {
       <PageHeader
         label={
           <span suppressHydrationWarning>
-            {t.greeting(hour)} · {formatDate(today as LocalDate, "long")}
+            {t.greeting(hour)}
+            {profile ? `, ${displayFirstName(profile.profile)}` : ""} · {formatDate(today as LocalDate, "long")}
           </span>
         }
         title={<span data-testid="dashboard-title">{title}</span>}

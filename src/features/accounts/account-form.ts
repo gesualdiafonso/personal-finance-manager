@@ -73,12 +73,13 @@ export type AccountFormValues = {
 };
 export type FieldErrors = Partial<Record<keyof AccountFormValues, string>>;
 
-export function emptyAccountForm(): AccountFormValues {
+/** New account: currency defaults to the profile's preferred (primary) currency. */
+export function emptyAccountForm(currency: CurrencyCode = "ARS"): AccountFormValues {
   return {
     name: "",
     institution: "",
     accountType: "checking",
-    currency: "ARS",
+    currency,
     initialBalance: "",
     status: "active",
   };

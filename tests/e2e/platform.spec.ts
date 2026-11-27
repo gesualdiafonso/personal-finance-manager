@@ -27,6 +27,9 @@ test.describe("local fonts", () => {
       if (r.resourceType() === "font") fontRequests.push(url.pathname);
     });
     await page.goto("/");
+    // The Panel's serif title only renders once the session check is done.
+    await expect(page.getByTestId("auth-checking")).toHaveCount(0);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
     const loaded = await page.evaluate(() => [...document.fonts].filter((f) => f.status === "loaded").map((f) => f.family));
     expect(loaded.some((f) => /manrope/i.test(f))).toBe(true);
@@ -38,12 +41,12 @@ test.describe("local fonts", () => {
 });
 
 test.describe("IndexedDB", () => {
-  test("initialises the local store at version 3 (Step 06) and reports integrity", async ({ page }) => {
+  test("initialises the local store at version 4 (local account stores) and reports integrity", async ({ page }) => {
     await page.goto("/configuracion");
-    await expect(page.getByTestId("local-store-ready")).toHaveText("Listo · versión 3");
+    await expect(page.getByTestId("local-store-ready")).toHaveText("Listo · versión 4");
     await expect(page.getByTestId("integrity-ok")).toBeVisible();
     const dbs = await page.evaluate(async () => (await indexedDB.databases()).map((d) => `${d.name}@${d.version}`));
-    expect(dbs).toContain("pfm-local@3");
+    expect(dbs).toContain("pfm-local@4");
   });
 });
 

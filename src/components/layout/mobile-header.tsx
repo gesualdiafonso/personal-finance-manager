@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AureonLogo } from "@/components/brand/aureon-logo";
-import { ProfileLink, ThemeToggle } from "@/components/brand/brand-controls";
+import { ProfileMenu, ThemeToggle } from "@/components/brand/brand-controls";
 import { es } from "@/lib/i18n/es";
 
 /** Phone and tablet portrait (<1024px): AUREON logo, theme switch and profile access. */
@@ -22,7 +22,7 @@ export function MobileHeaderView({ pathname }: { pathname: string }) {
       </Link>
       <div className="flex items-center gap-1">
         <ThemeToggle />
-        <ProfileLink pathname={pathname} compact />
+        <ProfileMenu pathname={pathname} compact placement="down" />
       </div>
     </header>
   );

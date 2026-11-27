@@ -20,6 +20,12 @@ export type AppErrorCode =
   | "IMPORT_REJECTED"
   | "MIGRATION_BLOCKED"
   | "PROTECTED_OPERATION"
+  | "AUTH_FAILED"
+  | "AUTH_LOCKED"
+  | "ACCOUNT_EXISTS"
+  | "USERNAME_TAKEN"
+  | "WEAK_PASSWORD"
+  | "UNAUTHENTICATED"
   | "UNKNOWN";
 
 export class AppError extends Error {

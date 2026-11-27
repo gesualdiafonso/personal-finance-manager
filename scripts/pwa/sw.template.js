@@ -21,7 +21,7 @@ const DETAIL_SHELLS = [
   [/^\/cuentas\/[^/]+$/, "/cuentas/_"],
   [/^\/tarjetas\/[^/]+$/, "/tarjetas/_"],
 ];
-const SHELL_URLS = ["/", "/offline", "/cuentas/_", "/tarjetas/_", "/manifest.webmanifest", "/icon.svg", "/icons/icon-192.png", "/icons/icon-512.png", "/icons/apple-touch-icon.png"];
+const SHELL_URLS = ["/", "/offline", "/entrar", "/registro", "/cuentas/_", "/tarjetas/_", "/manifest.webmanifest", "/icon.svg", "/icons/icon-192.png", "/icons/icon-512.png", "/icons/apple-touch-icon.png"];
 const ASSET_PATTERN = /\/_next\/static\/[^"'\s)<>]+/g;
 
 async function precache() {

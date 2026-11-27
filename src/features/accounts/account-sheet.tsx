@@ -1,5 +1,6 @@
 "use client";
 
+import { useProfile } from "@/features/auth/auth-context";
 import { CurrencyOptions } from "@/features/exchange/currency-options";
 import { useRef, useState, type FormEvent } from "react";
 import { ACCOUNT_TYPES } from "@/domain/schemas";
@@ -67,8 +68,9 @@ function AccountForm({
   onDone: () => void;
 }) {
   const feedback = useFeedback();
+  const profile = useProfile();
   const [values, setValues] = useState<AccountFormValues>(() =>
-    row ? accountToForm(row.account) : emptyAccountForm(),
+    row ? accountToForm(row.account) : emptyAccountForm(profile?.preferredCurrency),
   );
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);

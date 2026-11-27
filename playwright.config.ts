@@ -25,10 +25,18 @@ export default defineConfig({
     launchOptions: { executablePath },
   },
   projects: [
-    { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 }, launchOptions: { executablePath } } },
+    // Registers the fictitious local account once; the other projects start signed in with it
+    // (tests/e2e/auth.setup.ts). tests/e2e/auth.spec.ts opts out and starts from an empty browser.
+    { name: "setup", testMatch: /auth\.setup\.ts/, use: { ...devices["Desktop Chrome"], launchOptions: { executablePath } } },
+    {
+      name: "desktop",
+      dependencies: ["setup"],
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 }, storageState: "tests/e2e/.auth/state.json", launchOptions: { executablePath } },
+    },
     {
       name: "iphone",
-      use: { viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true, launchOptions: { executablePath } },
+      dependencies: ["setup"],
+      use: { viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true, storageState: "tests/e2e/.auth/state.json", launchOptions: { executablePath } },
     },
   ],
   webServer: {

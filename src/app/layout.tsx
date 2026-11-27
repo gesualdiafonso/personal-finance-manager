@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { ServiceWorkerRegister } from "@/components/shared/service-worker-register";
 import { ThemeProvider } from "@/components/shared/theme-provider";
+import { AuthProvider } from "@/features/auth/auth-context";
 import { APP_CONFIG } from "@/lib/config/app";
 import { cormorantGaramond, manrope } from "@/lib/fonts";
 import { es } from "@/lib/i18n/es";
@@ -43,7 +44,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ThemeProvider>
         <ServiceWorkerRegister />
       </body>
     </html>
