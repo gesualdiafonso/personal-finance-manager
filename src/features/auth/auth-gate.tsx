@@ -32,18 +32,18 @@ export function AuthSplash() {
 /**
  * Protects every route of the application group: nothing inside it — navigation included —
  * renders until a valid local session is confirmed. Without one, it sends the user to
- * /entrar (or /registro on a device with no account yet), remembering the page asked for.
+ * /entrar — always the login screen first — remembering the page asked for.
  * The static HTML of these routes therefore holds only this splash, never financial panels.
  */
 export function AuthGate({ children }: { children: ReactNode }) {
-  const { status, hasAccount } = useAuth();
+  const { status } = useAuth();
   const router = useRouter();
   useEffect(() => {
     if (status !== "signed-out") return;
     const next = safeNext(window.location.pathname + window.location.search + window.location.hash);
-    const target = hasAccount ? LOGIN_PATH : REGISTER_PATH;
-    router.replace(next === "/" ? target : `${target}?next=${encodeURIComponent(next)}`);
-  }, [status, hasAccount, router]);
+    // Always the login screen first; it offers account creation from there.
+    router.replace(next === "/" ? LOGIN_PATH : `${LOGIN_PATH}?next=${encodeURIComponent(next)}`);
+  }, [status, router]);
   if (status !== "signed-in") return <AuthSplash />;
   return <>{children}</>;
 }

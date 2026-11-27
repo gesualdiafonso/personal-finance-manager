@@ -38,7 +38,7 @@ function Protected() {
 }
 
 describe("protected routes", () => {
-  it("renders nothing financial without a session and sends a new device to /registro", async () => {
+  it("renders nothing financial without a session and always sends to /entrar first", async () => {
     render(
       <AuthProvider>
         <AuthGate>
@@ -47,7 +47,7 @@ describe("protected routes", () => {
       </AuthProvider>,
     );
     expect(screen.getByTestId("auth-checking")).toBeInTheDocument();
-    await waitFor(() => expect(router.replace).toHaveBeenCalledWith("/registro"));
+    await waitFor(() => expect(router.replace).toHaveBeenCalledWith("/entrar"));
     expect(screen.queryByText("CONTENIDO-FINANCIERO")).not.toBeInTheDocument();
   });
 
@@ -81,6 +81,20 @@ describe("protected routes", () => {
 });
 
 describe("registration and login screens", () => {
+  it("the login screen stays put on a browser without an account and explains why", async () => {
+    render(
+      <ThemeProvider>
+        <AuthProvider>
+          <LoginScreen />
+        </AuthProvider>
+      </ThemeProvider>,
+    );
+    expect(await screen.findByRole("form", { name: "Ingresar" })).toBeInTheDocument();
+    expect(screen.getByTestId("no-local-account")).toHaveTextContent("Este navegador todavía no tiene ninguna cuenta");
+    expect(within(screen.getByTestId("no-local-account")).getByRole("link", { name: "Crear una cuenta" })).toHaveAttribute("href", "/registro");
+    expect(router.replace).not.toHaveBeenCalled();
+  });
+
   it("registers with full name, username, email, password and currency", async () => {
     const u = userEvent.setup();
     render(

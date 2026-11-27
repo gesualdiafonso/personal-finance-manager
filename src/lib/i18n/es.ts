@@ -991,6 +991,7 @@ export const es = {
     createAccount: "Crear una cuenta",
     haveAccount: "¿Ya tenés cuenta?",
     goLogin: "Ingresar",
+    noLocalAccount: "Este navegador todavía no tiene ninguna cuenta. Las cuentas son locales: si la creaste en otro navegador, dispositivo o dirección, ingresá desde allí o creá una nueva acá.",
     accountExists: "Este dispositivo ya tiene una cuenta. Ingresá con tu usuario y contraseña.",
     lockedFor: (s: number) => `Demasiados intentos. Probá de nuevo en ${s} s.`,
     checking: "Verificando la sesión…",

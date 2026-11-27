@@ -14,10 +14,13 @@ test("register → profile → logout → login → existing data → profile pr
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
 
-  // 1. Open AUREON: a protected route without an account goes to registration; nothing financial shows.
+  // 1. Open AUREON: a protected route goes to the login screen first; nothing financial shows.
   await page.goto("/cuentas");
-  await expect(page).toHaveURL(/\/registro\?next=%2Fcuentas$/);
+  await expect(page).toHaveURL(/\/entrar\?next=%2Fcuentas$/);
+  await expect(page.getByRole("form", { name: "Ingresar" })).toBeVisible();
   await expect(page.getByTestId("data-status")).toHaveCount(0);
+  await page.getByTestId("no-local-account").getByRole("link", { name: "Crear una cuenta" }).click();
+  await expect(page).toHaveURL(/\/registro$/);
 
   // 2. Create username and password.
   const reg = page.getByRole("form", { name: "Crear tu cuenta" });
@@ -106,8 +109,8 @@ test("register → profile → logout → login → existing data → profile pr
 });
 
 test("PWA: the login screen is available offline once the app was installed", async ({ page, context }) => {
-  await page.goto("/registro");
-  await expect(page.getByRole("form", { name: "Crear tu cuenta" })).toBeVisible();
+  await page.goto("/entrar");
+  await expect(page.getByRole("form", { name: "Ingresar" })).toBeVisible();
   await page.evaluate(async () => {
     const reg = await navigator.serviceWorker.ready;
     return Boolean(reg.active);
@@ -118,7 +121,6 @@ test("PWA: the login screen is available offline once the app was installed", as
     .toBe(true);
   await context.setOffline(true);
   await page.goto("/entrar");
-  // No account yet on this device → the login screen sends to registration, also offline.
-  await expect(page.getByRole("form", { name: "Crear tu cuenta" })).toBeVisible();
+  await expect(page.getByRole("form", { name: "Ingresar" })).toBeVisible();
   await context.setOffline(false);
 });

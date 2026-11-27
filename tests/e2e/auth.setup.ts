@@ -10,6 +10,8 @@ export const E2E_USER = { username: "e2e.ejemplo", password: "EJEMPLO-e2e-fictic
 
 setup("register the E2E local account", async ({ page }) => {
   await page.goto("/");
+  await expect(page).toHaveURL(/\/entrar$/); // login always comes first
+  await page.getByTestId("no-local-account").getByRole("link", { name: "Crear una cuenta" }).click();
   await expect(page).toHaveURL(/\/registro$/);
   const form = page.getByRole("form", { name: "Crear tu cuenta" });
   await form.getByLabel("Nombre completo").fill(E2E_USER.fullName);

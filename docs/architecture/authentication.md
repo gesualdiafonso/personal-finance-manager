@@ -43,7 +43,7 @@ LocalStorage não guarda nada da conta. A sessão é verificada ao abrir, a cada
 
 ## Rotas protegidas
 
-Todo o grupo `src/app/(app)` (Panel, Transacciones, Cuentas, Tarjetas, Cuentas domésticas, Recurrencias, Presupuesto, Informes, Configuración, Perfil) passa pelo `AuthGate`: **nada** — nem a navegação — é renderizado antes de uma sessão válida ser confirmada. O HTML estático dessas rotas contém só o ecrã "Verificando la sesión…". Sem sessão, o utilizador vai para `/entrar?next=<página>` (ou `/registro` num dispositivo sem conta). O `next` só aceita caminhos desta aplicação (nunca `//outro-sitio`).
+Todo o grupo `src/app/(app)` (Panel, Transacciones, Cuentas, Tarjetas, Cuentas domésticas, Recurrencias, Presupuesto, Informes, Configuración, Perfil) passa pelo `AuthGate`: **nada** — nem a navegação — é renderizado antes de uma sessão válida ser confirmada. O HTML estático dessas rotas contém só o ecrã "Verificando la sesión…". Sem sessão, o utilizador vai **sempre** para o login (`/entrar?next=<página>`). Num navegador sem conta, o login mantém-se e explica que as contas são locais (criadas noutro navegador, dispositivo ou endereço não aparecem aqui), com a ligação «Crear una cuenta». O `next` só aceita caminhos desta aplicação (nunca `//outro-sitio`).
 
 ## Perfil global — uma só fonte por valor
 

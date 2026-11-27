@@ -134,9 +134,6 @@ export function LoginScreen() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    if (status === "signed-out" && !hasAccount) router.replace(REGISTER_PATH + window.location.search);
-  }, [status, hasAccount, router]);
   if (status !== "signed-out") return <AuthSplash />;
 
   async function submit(e: FormEvent) {
@@ -174,6 +171,14 @@ export function LoginScreen() {
       }
     >
       <form aria-label={t.loginTitle} className="grid gap-5" onSubmit={(e) => void submit(e)} noValidate>
+        {!hasAccount && (
+          <p role="status" className="rounded-sm bg-paper-2 px-3 py-2 type-body-sm text-ink-2" data-testid="no-local-account">
+            {t.noLocalAccount}{" "}
+            <Link href={REGISTER_PATH} className="font-semibold text-lake underline-offset-4 hover:underline">
+              {t.createAccount}
+            </Link>
+          </p>
+        )}
         {endedReason === "expired" && (
           <p role="status" className="rounded-sm bg-paper-2 px-3 py-2 type-body-sm text-ink-2">
             {t.sessionEnded}

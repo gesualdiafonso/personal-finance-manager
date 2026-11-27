@@ -120,9 +120,12 @@ test.describe("account screens (signed out)", () => {
       await expect(page.locator("h1")).toHaveCount(1);
       expect(await unnamedControls(page)).toEqual([]);
       expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
-      // /entrar on a device without an account leads to registration.
+      // /entrar stays the login screen even without an account, and explains it.
       await page.goto("/entrar");
-      await expect(page).toHaveURL(/\/registro$/);
+      await expect(page.getByRole("form", { name: "Ingresar" })).toBeVisible();
+      await expect(page.getByTestId("no-local-account")).toBeVisible();
+      await expect(page.locator("h1")).toHaveCount(1);
+      expect(await unnamedControls(page)).toEqual([]);
       expect(errors).toEqual([]);
     });
   }
