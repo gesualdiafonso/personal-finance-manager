@@ -12,7 +12,7 @@ import {
   createRepositories,
   type Repositories,
 } from "@/services/repositories/repositories";
-import { openLocalStore, type LocalDb } from "@/services/storage/local-store";
+import { LOCAL_DB_NAME, openLocalStore, type LocalDb } from "@/services/storage/local-store";
 
 /**
  * The interface's only door to local data: one IndexedDB connection per tab, reads through
@@ -23,10 +23,30 @@ import { openLocalStore, type LocalDb } from "@/services/storage/local-store";
 const EVENT = "pfm:data-changed";
 let dbPromise: Promise<LocalDb> | null = null;
 let channel: BroadcastChannel | null = null;
+/** Step 14: which local database this tab works on (one per identity, D-SB-04). */
+let activeDbName: string = LOCAL_DB_NAME;
+
+export function getActiveLocalDbName(): string {
+  return activeDbName;
+}
+
+/**
+ * Switches the tab to another identity's database (Supabase mode: after the identity is
+ * resolved; back to the default on sign-out). The open connection is closed first, so no
+ * read or write can reach the previous identity's data afterwards.
+ */
+export async function setActiveLocalDb(name: string): Promise<void> {
+  if (name === activeDbName && dbPromise) return;
+  const previous = dbPromise;
+  dbPromise = null;
+  activeDbName = name;
+  if (previous) (await previous.catch(() => null))?.close();
+}
 
 export function getLocalDb(): Promise<LocalDb> {
   if (!dbPromise) {
-    dbPromise = openLocalStore()
+    const name = activeDbName;
+    dbPromise = openLocalStore(undefined, name)
       .then((db) => {
         // A newer version opened in another tab: let it upgrade, reopen on next use.
         db.addEventListener("versionchange", () => {
@@ -47,6 +67,7 @@ export function getLocalDb(): Promise<LocalDb> {
 export async function resetLocalDb(): Promise<void> {
   const p = dbPromise;
   dbPromise = null;
+  activeDbName = LOCAL_DB_NAME;
   if (p) (await p.catch(() => null))?.close();
 }
 

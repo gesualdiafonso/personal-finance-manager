@@ -159,12 +159,12 @@ Numeração fixada pelo proprietário no brief do Step 12: tabelas no Step 13, S
 | --- | --- | --- | --- |
 | **12 — Fundações** ✅ | `@supabase/supabase-js` + `@supabase/ssr`; guardas; config Zod; clientes browser/servidor; proxy Next 16; health check; CSP; docs | ADR-006 | Feito ([SUPABASE_SETUP.md](../SUPABASE_SETUP.md)) |
 | **13 — Esquema PostgreSQL** ✅ | `database/sql/00–08` (+99) para o SQL Editor: 17 tabelas, FKs compostas, CHECK, triggers, auditoria, RLS ativa sem políticas; tipos gerados | 12 | Feito: validado em PostgreSQL local ([STEP-13-VALIDATION.md](../database/STEP-13-VALIDATION.md)); execução no Supabase pelo utilizador |
-| **14 — Supabase Auth** | Registo/login/logout/verificação/recuperação; `profiles`/`user_settings`; proxy protege rotas com `getClaims()` | 12, 13 | E2E de auth contra Supabase local |
+| **14 — Supabase Auth** ✅ (2026-11-28) | Registo/login/logout/verificação/recuperação; sessões `HttpOnly` no servidor; proxy protege rotas (nega por omissão); migração assistida da conta local; uma base local por identidade; SQL 09 (próprio perfil). Ver [supabase-auth.md](../architecture/supabase-auth.md) | 12, 13 | E2E de auth contra um GoTrue falso (`npm run test:e2e:supabase`); por confirmar num projeto real |
 | **15 — RLS** | Políticas por operação, `force`, testes IDOR com dois utilizadores, teste "nenhuma tabela sem RLS" | 13, 14 | Testes de RLS verdes |
 | **16 — Camada remota** | `RemoteDataSource`, mapeamento snake/camel, validação Zod | 15 | Ida-e-volta por entidade |
 | **17 — Sincronização** | IndexedDB v5, push/pull, conflitos, offline, multi-dispositivo | 16 | E2E com dois dispositivos e offline |
 | **18 — Cifragem da aplicação** | Revisão de desenho (OD-11/12/13), chave de dados, envelopes, recuperação, cache cifrada | 15 | Testes de cifra/AAD/recuperação |
-| **19 — Migração de contas e dados locais** | "Conectar con la nube", reclamação idempotente, checksums, retirada do login local | 14, 17, **18** | Dados locais → nuvem → segundo dispositivo, sem perdas |
+| **19 — Migração de contas e dados locais** | "Conectar con la nube" (envio dos dados para a nuvem), reclamação idempotente, checksums. A ligação identidade ↔ dados locais e a desativação da conta local já foram feitas no Step 14 | 14, 17, **18** | Dados locais → nuvem → segundo dispositivo, sem perdas |
 | **20 — Backup cifrado e endurecimento** | Exportar/importar cifrado (OD-5); revisão de segurança, CSP com nonce, desempenho, retirar o pipeline GitHub | 12–19 | Relatório de QA final |
 
 > **Avisos de ordem:**

@@ -35,36 +35,35 @@ Escolhe **South America (São Paulo) — `sa-east-1`** (OD-15): a mais próxima 
 
 Verificação: abre a app → **Configuración → Nube (Supabase)** → "Configurada" → **Comprobar conexión** → "Conexión correcta". Se aparecer HTTP 401/403, a chave está errada; "No se pudo contactar" indica rede, URL errado ou projeto em pausa (os projetos Free pausam por inatividade).
 
-## 6. Autenticação por email (preparação do Step 14)
+## 6. Autenticação por email (Step 14 — em uso)
 
 **Authentication → Sign In / Providers → Email:**
 
 | Opção | Valor | Porquê |
 | --- | --- | --- |
-| Enable Email provider | Ligado | Login por email + password (substitui o login local no Step 14) |
-| Confirm email | **Ligado** | Só contas com email verificado |
-| Secure email change | Ligado | Mudar email exige confirmar o antigo e o novo |
-| Secure password change | Ligado | Mudar password exige sessão recente |
-| Minimum password length | 10 ou mais | A conta local exige 8; a da nuvem deve exigir mais |
-| Password requirements | Letras + dígitos (ou mais) | Complementa o comprimento |
+| Enable Email provider | Ligado | Login por email + password (o ingresso da app quando o Supabase está configurado) |
+| Confirm email | **Ligado** | Só contas com email verificado. Se estiver desligado, a app mostra na mesma "Verificá tu correo" e não abre os dados |
+| Secure email change | Ligado | Mudar o email exige confirmar o antigo e o novo |
+| Secure password change | Ligado | Mudar a password exige sessão recente. A app re-verifica a password atual antes de mudar |
+| Minimum password length | **10** | Igual à validação da app (`CLOUD_PASSWORD_MIN_LENGTH`) |
+| Password requirements | Sem requisitos extra, ou letras + dígitos | A app segue o NIST (comprimento, sem regras de composição). Se ligares requisitos, o Supabase recusa e a app mostra "La contraseña no cumple los requisitos" |
 | Leaked password protection | Ligado, se o plano o permitir | Recusa passwords que aparecem em fugas conhecidas |
 
-**Fluxo de verificação de email (requisitos para o Step 14):**
+**Authentication → Emails → Templates** (obrigatório: a app verifica as ligações no servidor por `token_hash`):
 
-- registo → email de confirmação com ligação para `<site>/auth/confirm` (PKCE, `token_hash`);
-- a página troca o token pela sessão e envia o utilizador para `/perfil`;
-- ligação expirada → mensagem e opção de reenviar;
-- até confirmar, nada da nuvem é acessível.
+| Modelo | Ligação a pôr no corpo do email |
+| --- | --- |
+| Confirm signup | `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email` |
+| Reset password | `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery` |
+| Magic link / Invite / Change email | Não usados pela app (podem ficar como estão) |
 
-**Recuperação de password (requisitos para o Step 14):**
+Os textos podem ser traduzidos para espanhol (es-AR). Exemplo para "Confirm signup": `<h2>Confirmá tu correo</h2><p><a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email">Verificar mi correo</a></p>`. Para previews com outro domínio, usa `{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=email`: a app envia `redirectTo = <origem>/auth/confirm`.
 
-- `/recuperar` pede o email e responde sempre "se existir, enviámos um email", sem revelar se a conta existe;
-- a ligação abre `/auth/confirm?type=recovery` e depois um formulário de password nova;
-- no fim, terminam as outras sessões.
+> A ligação por omissão (`{{ .ConfirmationURL }}`) também funciona no mesmo navegador do registo (fluxo PKCE com `code`). Falha noutro dispositivo, por isso usa os modelos acima.
 
-> **Aviso para o Step 18:** recuperar a password **não** recupera a chave de cifragem da aplicação. Por isso a recuperação da chave tem de ser desenhada à parte (OD-12/13).
+**Authentication → Emails → SMTP Settings:** o SMTP incluído no Supabase tem limites muito baixos (poucos emails por hora) e serve só para testes. Em produção configura um SMTP próprio (OD-14).
 
-**Authentication → Emails → SMTP Settings:** o SMTP incluído no Supabase tem limites muito baixos e serve só para testes. Em produção configura um SMTP próprio (OD-14). Os modelos de email podem ser traduzidos para espanhol aqui.
+> **Aviso para o Step 18:** recuperar a password **não** recupera a chave de cifragem da aplicação. A recuperação da chave tem de ser desenhada à parte (OD-12/13).
 
 ## 7. URLs de redirecionamento permitidas
 
@@ -80,6 +79,8 @@ Verificação: abre a app → **Configuración → Nube (Supabase)** → "Config
 | Previews Vercel (opcional, no projeto `aureon-dev`) | `https://*-<tua-equipa>.vercel.app/**` |
 
 O Supabase só redireciona para URLs desta lista. Sem isto, as ligações de confirmação e recuperação falham, e é isso que impede redirecionamentos abertos.
+
+A app pede sempre `redirectTo = <origem>/auth/confirm`, onde `<origem>` é `NEXT_PUBLIC_SITE_URL` ou, se não estiver definida, a origem do pedido. A entrada mínima por ambiente é `<origem>/auth/confirm`. O padrão `/**` também a cobre.
 
 ## 8. URLs de desenvolvimento local
 
@@ -106,21 +107,34 @@ O Supabase só redireciona para URLs desta lista. Sem isto, as ligações de con
 | Organização | MFA na tua conta do Supabase; acesso mínimo para colaboradores |
 | Chaves | Nunca partilhar a Secret key; rodar se houver suspeita; usá-la só em CI/servidor |
 
-## Integração futura (o que já está pronto no código)
+## 11. Checklist manual do Step 14 (alterações exatas no painel)
 
-| Peça | Ficheiro | Step em que entra em uso |
+Nada disto é feito pela app nem pelos scripts: és tu que fazes no painel. Marca à medida que avanças.
+
+1. **Authentication → Sign In / Providers → Email**: ligar o provider, **Confirm email** ligado, **Minimum password length = 10**, Secure email change e Secure password change ligados (§6).
+2. **Authentication → URL Configuration**: Site URL = domínio de produção. Redirect URLs = `https://<produção>/auth/confirm` (ou `/**`) e `http://localhost:3000/auth/confirm` para desenvolvimento (§7).
+3. **Authentication → Emails → Templates**: substituir a ligação em **Confirm signup** e **Reset password** pelos modelos `token_hash` (§6).
+4. **Authentication → Emails → SMTP**: SMTP próprio antes de convidar alguém (OD-14).
+5. **Authentication → Rate Limits**: manter os valores por omissão ou mais baixos.
+6. **Authentication → Sessions**: refresh token rotation ligado (por omissão). Opcional: limitar a duração das sessões ("Time-box user sessions").
+7. **SQL Editor** (opcional, recomendado): executar `database/sql/09_profile_access.sql` depois de 01–08. Confirmar que todas as linhas do resultado têm `ok = true` e voltar a correr `08_verification.sql` (deve dar 0 falhas). Sem o 09, o perfil fica só no dispositivo.
+8. **Vercel** (ou `.env.local`): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` e `NEXT_PUBLIC_SITE_URL`. Depois, novo deploy (o modo de autenticação é decidido no build).
+9. Depois de criares a tua conta, se a app for só tua: **Authentication → Sign In / Providers → Allow new users to sign up = desligado** (§10).
+10. Verificar: abrir a app → `/entrar` → registar → email → ligação → app aberta. Configuración → Nube mostra "Activa para el ingreso".
+
+## Código Supabase (Step 12 → Step 14)
+
+| Peça | Ficheiro | Estado |
 | --- | --- | --- |
-| Configuração validada | `src/lib/supabase/config.ts` | Já |
-| Cliente do browser (`createBrowserClient`, PKCE) | `src/lib/supabase/client.ts` | 14 |
-| Cliente do servidor (`createServerClient`, cookies `getAll`/`setAll`) | `src/lib/supabase/server.ts` | 14 |
-| Proxy Next.js 16 (refresca a sessão se existir; sem redirecionamentos) | `src/proxy.ts`, `src/lib/supabase/proxy.ts` | 14 (proteção de rotas no servidor com `getClaims()` e `PROTECTED_PATH_PREFIXES`) |
-| Tipos da base | `src/lib/supabase/types.ts` (gerado do esquema do Step 13) | Já (tipos); uso em 16 |
-| Health check | `src/lib/supabase/health.ts`, `GET /api/health/supabase`, Configuración → Nube | Já |
-| Cookies de sessão | `src/lib/supabase/cookies.ts` (`SameSite=Lax`, `Secure` em produção) | 14 |
+| Configuração validada | `src/lib/supabase/config.ts` | Em uso (escolhe o modo de autenticação) |
+| Serviço de auth (servidor) | `src/lib/supabase/auth-service.ts`, `src/features/auth/cloud-actions.ts` | Step 14 |
+| Ligações de email | `src/app/auth/confirm/route.ts` | Step 14 |
+| Estado da sessão | `src/app/api/auth/session/route.ts` | Step 14 |
+| Cliente do servidor (`createServerClient`, cookies `getAll`/`setAll`) | `src/lib/supabase/server.ts` | Em uso |
+| Proxy (refresca a sessão e protege as rotas) | `src/proxy.ts`, `src/lib/supabase/proxy.ts` | Step 14: `protectRequest` + `isProtectedPath` (nega por omissão) |
+| Cookies de sessão | `src/lib/supabase/cookies.ts` | Step 14: `HttpOnly`, `SameSite=Lax`, `Secure` em produção |
+| Cliente do browser (`createBrowserClient`) | `src/lib/supabase/client.ts` | **Não usado** desde o Step 14: a auth corre no servidor. Fica para o Step 16 (dados), a rever então |
+| Tipos da base | `src/lib/supabase/types.ts` | Tipos; uso em 16 |
+| Health check | `src/lib/supabase/health.ts`, `GET /api/health/supabase` | Em uso |
 
-**Sessões (arquitetura para o Step 14):**
-
-- o browser usa `createBrowserClient`, com sessão em cookies `sb-<ref>-auth-token` legíveis por JavaScript (é assim que o `@supabase/ssr` funciona);
-- o proxy verifica o JWT com `getClaims()` e refresca os tokens, escrevendo os cookies novos no pedido e na resposta (`Cache-Control: private, no-store`);
-- no servidor, só se confia em `getClaims()`/`getUser()`, nunca em `getSession()`;
-- a proteção contra roubo de sessão assenta na CSP, em tokens curtos e na rotação do *refresh token*.
+**Sessões (Step 14):** os cookies `sb-<ref>-auth-token` são **`HttpOnly`**. Só o servidor (Server Actions, rotas, proxy) os lê e escreve, por isso um XSS já não consegue ler a sessão. O proxy e as rotas verificam com `getClaims()`/`getUser()`, nunca com `getSession()`. Detalhes: [architecture/supabase-auth.md](architecture/supabase-auth.md).

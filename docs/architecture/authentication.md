@@ -1,5 +1,7 @@
 # Autenticação local e perfil global
 
+> **Step 14:** com o Supabase configurado, o ingresso é **Supabase Auth** ([supabase-auth.md](supabase-auth.md)). Esta página descreve o **modo local** (Supabase não configurado), que continua igual, e a conta local que o modo Supabase migra de forma assistida.
+
 Estado: **implementado e validado** (IndexedDB v4). Decisões D-AUTH-01…10 em [auth-decisions.md](../decisions/auth-decisions.md).
 
 > **Limite, dito sem rodeios:** é autenticação **local do dispositivo**, não identidade de servidor. Prova que quem está neste navegador conhece a palavra-passe definida aqui. **Não cifra os dados financeiros** (OD-3 decidida, por implementar): quem tiver acesso ao perfil do navegador (ferramentas de programador, cópia do disco) consegue ler o IndexedDB. Não há sincronização entre dispositivos nem recuperação de palavra-passe.

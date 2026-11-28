@@ -101,6 +101,12 @@ jobs:
       - name: 7. E2E tests (production build)
         run: npm run test:e2e
 
+      - name: 8. Supabase Auth E2E (separate build, fake Auth server — no real project)
+        run: |
+          npm run build:e2e:supabase
+          NEXT_DIST_DIR=.next-e2e-supabase npm run guard:artifacts
+          npm run test:e2e:supabase
+
       - name: Upload Playwright report on failure
         if: failure()
         uses: actions/upload-artifact@v4

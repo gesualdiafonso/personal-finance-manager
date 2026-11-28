@@ -25,6 +25,8 @@ export type PasswordVerifier = z.infer<typeof passwordVerifierSchema>;
 
 export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH = 128;
+/** Cloud accounts (Supabase Auth, Step 14): same policy, 10 characters minimum (docs/SUPABASE_SETUP.md §6). */
+export const CLOUD_PASSWORD_MIN_LENGTH = 10;
 
 /** A handful of passwords too common to accept (not a full breach list; no network call). */
 const TOO_COMMON = new Set(["12345678", "123456789", "1234567890", "password", "password1", "qwerty123", "contraseña", "contrasena", "aureon123", "11111111", "00000000", "abcd1234"]);
@@ -32,9 +34,9 @@ const TOO_COMMON = new Set(["12345678", "123456789", "1234567890", "password", "
 export type PasswordProblem = "too-short" | "too-long" | "same-as-username" | "same-as-current" | "too-common" | "mismatch";
 
 /** Policy (NIST SP 800-63B style): length matters; no composition rules; no obvious choices. */
-export function checkPassword(password: string, context: { username?: string; confirmation?: string } = {}): PasswordProblem | null {
+export function checkPassword(password: string, context: { username?: string; confirmation?: string; minLength?: number } = {}): PasswordProblem | null {
   const length = [...password].length;
-  if (length < PASSWORD_MIN_LENGTH) return "too-short";
+  if (length < (context.minLength ?? PASSWORD_MIN_LENGTH)) return "too-short";
   if (length > PASSWORD_MAX_LENGTH) return "too-long";
   const lower = password.toLowerCase();
   if (context.username && lower === context.username.toLowerCase()) return "same-as-username";

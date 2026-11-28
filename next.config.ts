@@ -44,6 +44,9 @@ function contentSecurityPolicy(): string {
  * from IndexedDB, never on the server.
  */
 const nextConfig: NextConfig = {
+  // Step 14: a second build (Supabase-mode E2E, playwright.supabase.config.ts) can live beside
+  // the default one. Must stay inside the project; defaults to ".next".
+  distDir: /^\.next[a-z0-9-]*$/.test(process.env.NEXT_DIST_DIR ?? "") ? process.env.NEXT_DIST_DIR : ".next",
   cacheComponents: true,
   partialPrefetching: true,
   reactStrictMode: true,

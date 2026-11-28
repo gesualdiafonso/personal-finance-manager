@@ -1,6 +1,6 @@
 # Arquitetura do AUREON
 
-Índice de alto nível. Estado em 2026-11-28 (Step 13). Detalhe: [architecture/overview.md](architecture/overview.md) (arquitetura atual, por camada) e [audit/supabase-blueprint.md](audit/supabase-blueprint.md) (destino).
+Índice de alto nível. Estado em 2026-11-28 (Step 14). Detalhe: [architecture/overview.md](architecture/overview.md) (arquitetura atual, por camada) e [audit/supabase-blueprint.md](audit/supabase-blueprint.md) (destino).
 
 ## Implementado vs. planeado
 
@@ -9,44 +9,47 @@
 | Next.js 16 App Router, páginas estáticas, PWA offline | **Implementado** | `src/app`, `scripts/pwa` |
 | Domínio (Zod + regras puras), módulos financeiros | **Implementado** | `src/domain`, `src/features` |
 | Dados no IndexedDB (`pfm-local` v4), repositórios com `outbox` | **Implementado — fonte de trabalho atual** | `src/services/storage`, `src/services/repositories` |
-| Login local (PBKDF2) e perfil global | **Implementado — login ativo** | `src/services/auth`, `src/features/auth` |
+| Login local (PBKDF2) e perfil global | **Implementado — ativo só sem Supabase configurado (modo local)** | `src/services/auth`, `src/features/auth` |
+| **Supabase Auth** (email + password, verificação, recuperação, sessões `HttpOnly`, proteção de rotas no servidor, migração assistida da conta local, uma base local por identidade) | **Implementado (Step 14) — ativo quando o Supabase está configurado** | [architecture/supabase-auth.md](architecture/supabase-auth.md), `src/lib/supabase/auth-service.ts`, `src/features/auth/cloud-*`, `src/services/auth/identity-binding.ts` |
 | Exportação/importação JSON 2.4.0 | Implementado (sem UI de descarga) | `src/services/exchange` |
 | Dependências Supabase (`@supabase/supabase-js` 2.119.2, `@supabase/ssr` 0.12.7) | **Implementado (Step 12)** | `package.json` |
 | Configuração Supabase validada (Zod), recusa de chaves privilegiadas | **Implementado (Step 12)** | `src/lib/supabase/config.ts`, `next.config.ts` |
-| Clientes Supabase de browser e de servidor | **Implementado (Step 12), ainda sem uso funcional** | `src/lib/supabase/client.ts`, `server.ts` |
-| Proxy Next.js 16 (refresh de sessão, sem redirecionamentos) | **Implementado (Step 12)** | `src/proxy.ts`, `src/lib/supabase/proxy.ts` |
+| Cliente Supabase de servidor (em uso, Step 14); cliente de browser (sem uso desde o Step 14) | Implementado | `src/lib/supabase/server.ts`, `client.ts` |
+| Proxy Next.js 16 (refresh de sessão + **proteção de rotas no servidor**, nega por omissão) | **Implementado (Step 12/14)** | `src/proxy.ts`, `src/lib/supabase/proxy.ts` |
 | Health check da ligação | **Implementado (Step 12)** | `src/lib/supabase/health.ts`, `/api/health/supabase`, Configuración → Nube |
 | CSP global (com `connect-src` limitado ao projeto Supabase e à DolarApi) | **Implementado (Step 12)** | `next.config.ts` |
 | Esquema PostgreSQL (17 tabelas, FKs compostas, CHECK, triggers, auditoria, RLS ativa sem políticas) | **Preparado e validado localmente (Step 13); por executar pelo utilizador no SQL Editor** | [database/sql/README.md](../database/sql/README.md), [database/](database/) |
-| Supabase Auth (substitui o login local) | Planeado — Step 14 | [SUPABASE_SETUP.md](SUPABASE_SETUP.md) |
+| Acesso ao próprio perfil na nuvem (2 políticas em `profiles`, por coluna) | **Preparado (Step 14), opcional; por executar no SQL Editor** | [database/sql/09_profile_access.sql](../database/sql/09_profile_access.sql) |
 | Row Level Security | **Ativada sem políticas nos scripts (acesso de clientes bloqueado); políticas por utilizador no Step 15** | [database/SECURITY.md](database/SECURITY.md) |
 | Sincronização nuvem ⇄ IndexedDB | Planeado | blueprint §6 |
 | Cifragem ao nível da aplicação | Planeado — Step 18 (OD-11/12/13) | blueprint §5 |
 | Backup JSON cifrado, independente do Supabase | Planeado | blueprint §8 |
 
-## Visão atual (Step 12)
+## Visão atual (Step 14, modo Supabase)
 
 ```mermaid
 flowchart LR
   subgraph Browser
-    UI["Módulos (cliente)"] --> Repo["Repositórios"] --> IDB[("IndexedDB pfm-local v4")]
-    UI --> LocalAuth["Login local (PBKDF2)"] --> IDB
-    UI --> Cloud["Configuración → Nube"]
-    SB["src/lib/supabase/client.ts<br/>(pronto, sem uso funcional)"]
+    UI["Módulos (cliente)"] --> Repo["Repositórios"] --> IDB[("IndexedDB<br/>pfm-local / pfm-local~userId")]
+    UI --> Prov["CloudAuthProvider<br/>(sem tokens)"]
+    Prov --> Bind["identity-binding<br/>(dono, migração)"] --> IDB
   end
   subgraph Next["Servidor Next.js (Vercel)"]
-    Proxy["src/proxy.ts<br/>refresh de sessão se existir"]
-    Health["GET /api/health/supabase"]
-    Server["src/lib/supabase/server.ts<br/>(pronto)"]
+    Proxy["src/proxy.ts<br/>refresh + proteção de rotas"]
+    Actions["Server Actions<br/>cloud-actions.ts"]
+    Confirm["GET /auth/confirm"]
+    Session["GET /api/auth/session"]
   end
-  Cloud --> Health -->|"/auth/v1/health"| Supa[("Supabase<br/>tabelas do Step 13 (se executadas):<br/>RLS ativa, sem políticas")]
-  Proxy -.->|"só com cookie sb-*"| Supa
+  Prov -->|"chamadas"| Actions
+  Prov -->|"quem sou?"| Session
+  Actions & Confirm & Session & Proxy -->|"cookies HttpOnly"| Auth[("Supabase Auth")]
+  Actions -.->|"perfil (SQL 09)"| Supa[("public.profiles")]
 ```
 
 **Regras desta fase:**
 
-- os dados financeiros e o login continuam locais;
-- nada financeiro é enviado ao Supabase;
+- os dados financeiros continuam no dispositivo; nada financeiro é enviado ao Supabase;
+- o ingresso é Supabase Auth quando o Supabase está configurado, e a conta local quando não está;
 - sem variáveis configuradas, a app comporta-se exatamente como antes do Step 12.
 
 ## Decisões

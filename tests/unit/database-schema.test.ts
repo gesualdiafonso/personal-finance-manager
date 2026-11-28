@@ -26,8 +26,11 @@ import { DATABASE_TABLES } from "@/lib/supabase/types";
  * database/tests/run-local.sh (docs/database/STEP-13-VALIDATION.md).
  */
 const DIR = "database/sql";
-const files = readdirSync(DIR).filter((f) => f.endsWith(".sql")).sort();
-const sql = Object.fromEntries(files.map((f) => [f, readFileSync(join(DIR, f), "utf8")]));
+const allFiles = readdirSync(DIR).filter((f) => f.endsWith(".sql")).sort();
+const sql = Object.fromEntries(allFiles.map((f) => [f, readFileSync(join(DIR, f), "utf8")]));
+/** Step 14 adds 09 (own-profile access), checked on its own below; Step 13 checks cover 00–08 and 99 unchanged. */
+const STEP14_FILES = ["09_profile_access.sql"];
+const files = allFiles.filter((f) => !STEP14_FILES.includes(f));
 const all = files.map((f) => sql[f]).join("\n");
 const stripComments = (s: string) => s.replace(/--[^\n]*/g, "");
 
@@ -69,7 +72,7 @@ const CONVERSION_COLUMNS = ["conv_from", "conv_to", "conv_amount", "conv_convert
 
 describe("SQL scripts: organisation", () => {
   it("has the documented scripts, in order", () => {
-    expect(files).toEqual([
+    expect(allFiles).toEqual([
       "00_preflight_checks.sql",
       "01_extensions.sql",
       "02_identity_schema.sql",
@@ -79,6 +82,7 @@ describe("SQL scripts: organisation", () => {
       "06_functions_and_triggers.sql",
       "07_rls_enablement.sql",
       "08_verification.sql",
+      "09_profile_access.sql",
       "99_uninstall_empty_install.sql",
     ]);
   });
@@ -178,5 +182,32 @@ describe("SQL security foundation", () => {
   });
   it("the audit log stores column names, never values", () => {
     expect(tableColumns("audit_logs")).toEqual(["id", "user_id", "occurred_at", "table_name", "record_key", "action", "changed_columns", "device_id", "actor_role"]);
+  });
+});
+
+describe("SQL 09 (Step 14): own-profile access only", () => {
+  const code = stripComments(sql["09_profile_access.sql"]!);
+  it("runs in one transaction and aborts on unknown policies, missing Step 13 or disabled RLS", () => {
+    expect(code).toMatch(/^\s*begin;/m);
+    expect(code).toMatch(/^commit;/m);
+    expect(code).toMatch(/raise exception 'public\.profiles não existe/);
+    expect(code).toMatch(/raise exception 'RLS não está ativa/);
+    expect(code).toMatch(/raise exception 'public\.profiles já tem outras políticas/);
+  });
+  it("creates exactly two policies, on profiles, for authenticated, scoped to auth.uid() = id", () => {
+    const policies = [...code.matchAll(/create policy (\w+) on public\.(\w+)\s+for (\w+) to (\w+)\s+using \(\(select auth\.uid\(\)\) = id\)/g)].map((m) => m.slice(1).join(" "));
+    expect(policies).toEqual(["aureon_profiles_select_own profiles select authenticated", "aureon_profiles_update_own profiles update authenticated"]);
+    expect([...code.matchAll(/create policy/gi)]).toHaveLength(2);
+    expect(code).toMatch(/with check \(\(select auth\.uid\(\)\) = id\)/);
+  });
+  it("grants only column privileges to authenticated (no insert/delete, no contact_email), nothing to anon", () => {
+    const grants = [...code.matchAll(/grant ([^;]+) to ([^;]+);/gi)].map((m) => `${m[1]!.replace(/\s+/g, " ")} → ${m[2]}`);
+    expect(grants).toEqual([
+      "select (id, username, full_name, phone, country, region, created_at, updated_at) on public.profiles → authenticated",
+      "update (full_name, phone, country, region) on public.profiles → authenticated",
+    ]);
+    expect(code).not.toMatch(/grant[^;]*\bto\b[^;]*\banon\b/i);
+    expect(code).not.toMatch(/\b(create|alter) table\b/i);
+    expect(code).not.toMatch(/service_role/i);
   });
 });

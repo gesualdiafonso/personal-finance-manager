@@ -173,6 +173,38 @@ export async function register(db: LocalDb, input: RegistrationInput, now: Now =
  * (AUTH_FAILED). After LOGIN_BACKOFF.freeAttempts failures, logins wait with exponential
  * back-off (AUTH_LOCKED, detail = seconds to wait).
  */
+async function recordFailedAttempt(db: LocalDb, credential: CredentialRecord, at: Date): Promise<void> {
+  const failedAttempts = credential.failedAttempts + 1;
+  const over = failedAttempts - LOGIN_BACKOFF.freeAttempts;
+  const lockedUntil = over >= 0 ? iso(new Date(at.getTime() + Math.min(LOGIN_BACKOFF.maxMs, LOGIN_BACKOFF.baseMs * 2 ** over))) : null;
+  await db.put("credentials", { ...credential, failedAttempts, lockedUntil });
+}
+
+/**
+ * Step 14 — proof of ownership for the migration to Supabase Auth: checks the local username and
+ * password (same back-off as the login) WITHOUT opening a local session. Returns the local
+ * profile id. The PBKDF2 verifier is only compared here; it is never sent anywhere or reused.
+ */
+export async function verifyLocalOwnership(db: LocalDb, input: { username: string; password: string }, now: Now = () => new Date()): Promise<string> {
+  const username = normalizeUsername(input.username);
+  const profile = await db.getFromIndex("profiles", "username", username);
+  const credential = profile ? await db.get("credentials", profile.id) : undefined;
+  const at = now();
+  if (credential?.lockedUntil && new Date(credential.lockedUntil).getTime() > at.getTime()) {
+    const seconds = Math.ceil((new Date(credential.lockedUntil).getTime() - at.getTime()) / 1000);
+    throw new AppError("AUTH_LOCKED", "Too many failed attempts", { details: [String(seconds)] });
+  }
+  const valid = await verifyPassword(input.password, credential?.verifier ?? DUMMY_VERIFIER);
+  if (!profile || !credential) throw new AppError("AUTH_FAILED", "Invalid credentials");
+  if (!valid) {
+    await recordFailedAttempt(db, credential, at);
+    throw new AppError("AUTH_FAILED", "Invalid credentials");
+  }
+  if (credential.disabledAt) throw new AppError("ACCOUNT_MIGRATED", "This local account was migrated");
+  await db.put("credentials", { ...credential, failedAttempts: 0, lockedUntil: null });
+  return profile.id;
+}
+
 export async function login(db: LocalDb, input: { username: string; password: string; remember?: boolean }, now: Now = () => new Date()): Promise<AuthState> {
   const username = normalizeUsername(input.username);
   const profile = await db.getFromIndex("profiles", "username", username);
@@ -185,12 +217,11 @@ export async function login(db: LocalDb, input: { username: string; password: st
   const valid = await verifyPassword(input.password, credential?.verifier ?? DUMMY_VERIFIER);
   if (!profile || !credential) throw new AppError("AUTH_FAILED", "Invalid credentials");
   if (!valid) {
-    const failedAttempts = credential.failedAttempts + 1;
-    const over = failedAttempts - LOGIN_BACKOFF.freeAttempts;
-    const lockedUntil = over >= 0 ? iso(new Date(at.getTime() + Math.min(LOGIN_BACKOFF.maxMs, LOGIN_BACKOFF.baseMs * 2 ** over))) : null;
-    await db.put("credentials", { ...credential, failedAttempts, lockedUntil });
+    await recordFailedAttempt(db, credential, at);
     throw new AppError("AUTH_FAILED", "Invalid credentials");
   }
+  // Step 14: an account migrated to Supabase Auth no longer opens local sessions (D-SB-05).
+  if (credential.disabledAt) throw new AppError("ACCOUNT_MIGRATED", "This local account was migrated");
   const session = newSession(profile.id, input.remember ?? false, at);
   const tx = db.transaction(["credentials", "sessions"], "readwrite");
   await Promise.all([tx.objectStore("credentials").put({ ...credential, failedAttempts: 0, lockedUntil: null }), tx.objectStore("sessions").add(session)]);
@@ -225,6 +256,7 @@ export async function resolveSession(db: LocalDb, options: { tabSessionId: strin
     .sort((a, b) => (a.id === options.preferredId ? -1 : b.id === options.preferredId ? 1 : b.lastSeenAt.localeCompare(a.lastSeenAt)));
   const session = usable[0];
   if (!session) return null;
+  if ((await db.get("credentials", session.userId))?.disabledAt) return null; // migrated (Step 14)
   const view = await loadProfileView(db);
   if (!view || view.profile.id !== session.userId) return null;
   return { view, session };

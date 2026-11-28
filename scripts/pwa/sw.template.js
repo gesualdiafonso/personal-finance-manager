@@ -74,7 +74,9 @@ async function cacheFirst(request) {
 async function networkFirstPage(request) {
   try {
     const response = await fetch(request);
-    if (response.ok && (response.headers.get("content-type") || "").includes("text/html")) {
+    // A redirected answer (e.g. a protected page sent to /entrar by the proxy, Step 14) is the
+    // HTML of ANOTHER page: never store it under the requested URL.
+    if (response.ok && !response.redirected && (response.headers.get("content-type") || "").includes("text/html")) {
       (await caches.open(SHELL_CACHE)).put(request, response.clone());
     }
     return response;
@@ -107,7 +109,8 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith("/data/")) return; // never cached here
-  if (url.pathname.startsWith("/api/")) return; // live server answers (health checks, future auth): never cached
+  if (url.pathname.startsWith("/api/")) return; // live server answers (health, session): never cached
+  if (url.pathname.startsWith("/auth/")) return; // email links (one-time tokens): always to the server
   if (url.pathname.startsWith("/_next/static/")) {
     event.respondWith(cacheFirst(request));
     return;

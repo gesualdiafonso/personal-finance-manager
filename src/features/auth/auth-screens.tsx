@@ -1,11 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
-import { AureonLogo } from "@/components/brand/aureon-logo";
-import { ThemeToggle } from "@/components/brand/brand-controls";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
 import { CURRENCY_CODES, type CurrencyCode } from "@/domain/currency";
@@ -13,79 +10,14 @@ import { normalizeUsername, usernameSchema } from "@/domain/profile";
 import { isAppError } from "@/lib/errors/app-error";
 import { es } from "@/lib/i18n/es";
 import { checkPassword } from "@/services/auth/password";
-import { useAuth } from "./auth-context";
-import { AuthSplash, LOGIN_PATH, REGISTER_PATH, safeNext } from "./auth-gate";
+import { useAuth } from "./auth-state";
+import { LOGIN_PATH, REGISTER_PATH } from "./paths";
+import { AuthFrame, AuthSplash, nextFromUrl, PasswordInput, useLeaveWhenSignedIn } from "./auth-ui";
+import { CloudLoginScreen, CloudRegisterScreen } from "./cloud-screens";
+
+export { AuthFrame, PasswordInput } from "./auth-ui";
 
 const t = es.auth;
-
-function nextFromUrl(): string {
-  if (typeof window === "undefined") return "/";
-  return safeNext(new URLSearchParams(window.location.search).get("next"));
-}
-
-/** Brand frame of the two account screens: logo, title, one card, the local-account note. */
-function AuthFrame({ title, lead, children, footer }: { title: string; lead: string; children: ReactNode; footer: ReactNode }) {
-  return (
-    <div className="flex min-h-dvh flex-col bg-paper">
-      <header className="flex items-center justify-between px-5 pt-5 tablet:px-10 tablet:pt-8">
-        <AureonLogo className="h-7 w-auto" />
-        <ThemeToggle />
-      </header>
-      <main id="contenido" className="mx-auto grid w-full max-w-[28rem] flex-1 content-center gap-8 px-5 py-10">
-        <div className="grid gap-3">
-          <span className="brand-rule" aria-hidden="true" />
-          <h1 className="type-title-page-mobile tablet:type-title-page">{title}</h1>
-          <p className="type-body text-ink-2">{lead}</p>
-        </div>
-        <div className="rounded-sm border border-line bg-surface p-5 tablet:p-6">{children}</div>
-        <div className="grid gap-4 text-center">{footer}</div>
-        <p className="type-caption text-ink-3">{t.localNote}</p>
-      </main>
-    </div>
-  );
-}
-
-/** Password input with a show/hide switch (the value never leaves the field). */
-export function PasswordInput({
-  value,
-  onChange,
-  autoComplete,
-  name,
-  fieldProps,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  autoComplete: "current-password" | "new-password";
-  name: string;
-  fieldProps: { id: string; "aria-invalid": boolean; "aria-describedby": string | undefined };
-}) {
-  const [visible, setVisible] = useState(false);
-  return (
-    <div className="relative">
-      <Input
-        {...fieldProps}
-        name={name}
-        type={visible ? "text" : "password"}
-        autoComplete={autoComplete}
-        autoCapitalize="off"
-        spellCheck={false}
-        className="pr-12"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      />
-      <button
-        type="button"
-        onClick={() => setVisible((v) => !v)}
-        aria-label={visible ? t.hide : t.show}
-        aria-pressed={visible}
-        title={visible ? t.hide : t.show}
-        className="absolute inset-y-0 right-0 grid w-11 place-items-center rounded-r-sm text-ink-2 hover:text-ink focus-visible:outline-2 focus-visible:outline-focus-ring"
-      >
-        {visible ? <EyeOff aria-hidden="true" className="size-4.5" /> : <Eye aria-hidden="true" className="size-4.5" />}
-      </button>
-    </div>
-  );
-}
 
 function RememberCheckbox({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -108,22 +40,17 @@ function errorMessage(error: unknown): string {
   return es.errors.codes.UNKNOWN;
 }
 
-/**
- * Redirects a user who arrives here already signed in. `ownSubmit` is set by the screen's own
- * form, which then redirects itself (with its own destination).
- */
-function useLeaveWhenSignedIn(target: () => string, ownSubmit: { current: boolean }) {
-  const { status } = useAuth();
-  const router = useRouter();
-  useEffect(() => {
-    if (status === "signed-in" && !ownSubmit.current) router.replace(target());
-  }, [status, router, target, ownSubmit]);
-  return status;
-}
-
 const toProfile = () => "/perfil";
 
 export function LoginScreen() {
+  return useAuth().mode === "cloud" ? <CloudLoginScreen /> : <LocalLoginScreen />;
+}
+
+export function RegisterScreen() {
+  return useAuth().mode === "cloud" ? <CloudRegisterScreen /> : <LocalRegisterScreen />;
+}
+
+function LocalLoginScreen() {
   const { signIn, hasAccount, endedReason } = useAuth();
   const router = useRouter();
   const ownSubmit = useRef(false);
@@ -204,7 +131,7 @@ export function LoginScreen() {
 
 type RegisterField = "fullName" | "username" | "email" | "password" | "confirmation";
 
-export function RegisterScreen() {
+function LocalRegisterScreen() {
   const { signUp, hasAccount } = useAuth();
   const router = useRouter();
   const ownSubmit = useRef(false);

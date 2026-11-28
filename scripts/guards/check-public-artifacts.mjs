@@ -24,9 +24,11 @@ function walk(dir, out = []) {
   return out;
 }
 
-const roots = ["public", ".next/static", ".next/server"].map((r) => resolve(r));
-if (!existsSync(resolve(".next"))) {
-  console.error("✗ .next/ not found — run `npm run build` first");
+// NEXT_DIST_DIR: also check the Supabase-mode build of the E2E suite (Step 14).
+const dist = /^\.next[a-z0-9-]*$/.test(process.env.NEXT_DIST_DIR ?? "") ? process.env.NEXT_DIST_DIR : ".next";
+const roots = ["public", `${dist}/static`, `${dist}/server`].map((r) => resolve(r));
+if (!existsSync(resolve(dist))) {
+  console.error(`✗ ${dist}/ not found — run \`npm run build\` first`);
   process.exit(1);
 }
 const SECRET_KEY = /sb_secret_[A-Za-z0-9_-]{16,}/;

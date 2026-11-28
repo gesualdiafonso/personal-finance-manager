@@ -1,4 +1,4 @@
-# AUREON — Scripts SQL para o Supabase (Step 13)
+# AUREON — Scripts SQL para o Supabase (Step 13 + 09 do Step 14)
 
 Estes ficheiros criam a base de dados do AUREON no teu projeto Supabase. **És tu que os executas, um a um, no SQL Editor do painel.** Nada aqui é aplicado automaticamente: nem pela app, nem por CLI, nem por CI.
 
@@ -36,6 +36,7 @@ Se o editor mostrar um aviso sobre operações destrutivas ou RLS, lê-o. Os scr
 | 7 | `06_functions_and_triggers.sql` | Sim | Triggers de manutenção, integridade e auditoria; inicialização de utilizadores (trigger em `auth.users`) |
 | 8 | `07_rls_enablement.sql` | Sim (idempotente) | Confirma RLS ativa, nenhuma concessão a clientes, nenhuma política |
 | 9 | `08_verification.sql` | Não (só leitura) | Verificação final de tudo |
+| 10 | `09_profile_access.sql` | Sim (idempotente) | **Step 14, opcional:** cada utilizador autenticado lê e altera só o seu perfil (2 políticas em `profiles` e privilégios por coluna). Termina com a sua própria verificação. Depois, volta a correr o 08 (§11) |
 | — | `99_uninstall_empty_install.sql` | **Destrutivo** | Só para recuperação de uma instalação **vazia** (§6) |
 
 ## 4. Resultado esperado
@@ -146,3 +147,24 @@ Mais detalhe:
 - [Mapeamento TypeScript ↔ PostgreSQL](../../docs/database/TYPESCRIPT-POSTGRES-MAPPING.md)
 - [Segurança da base](../../docs/database/SECURITY.md)
 - [Validação](../../docs/database/STEP-13-VALIDATION.md)
+
+## 11. Script 09 — acesso ao próprio perfil (Step 14)
+
+Para que serve: com Supabase Auth ativo, a página Perfil grava também na nuvem o nome, o telefone, o país e a região (`public.profiles`), sempre com a sessão do próprio utilizador e a chave publicável. Sem o 09, a app funciona na mesma: o perfil fica só no dispositivo e a página avisa disso.
+
+- **Quando:** depois de 01–08 aplicados e com o 08 a mostrar 0 falhas.
+- **Como:** igual aos outros (§2). É idempotente, por isso pode ser repetido.
+- **Resultado esperado:** 8 linhas, todas com `ok = true`:
+  - RLS ativa;
+  - as 2 políticas `aureon_profiles_select_own` e `aureon_profiles_update_own`, só para `authenticated`;
+  - nenhum privilégio de tabela;
+  - `SELECT` só nas colunas `id, username, full_name, phone, country, region, created_at, updated_at`;
+  - `UPDATE` só em `full_name, phone, country, region`;
+  - sem `INSERT`/`DELETE`/`contact_email`;
+  - nada para `anon`;
+  - as outras 16 tabelas com 0 políticas.
+- **Depois:** volta a correr `08_verification.sql`. Deve continuar a mostrar `RESUMO … 0 com erro`, porque o 08 aceita exatamente estas 2 políticas em `profiles`.
+- **Se abortar com "já tem outras políticas":** alguém criou políticas em `profiles`. Nada foi alterado. Revê-as antes de continuar.
+- **Atenção:** depois do 09, **não voltes a correr o 07**. O 07 aborta se existirem políticas, e nesse caso não muda nada.
+- **Reverter:** o bloco no cabeçalho do ficheiro (2 `drop policy` + `revoke`).
+- **Validação local:** `database/tests/run-local.sh` aplica o 09 duas vezes, corre `database/tests/behaviour-09.sql` (15 verificações por papel: A só vê e altera a sua linha, não muda `username`/`contact_email`/`id`, não insere nem apaga, `anon` sem acesso) e confirma o 08 com 0 falhas. Isto foi feito em PostgreSQL 16 local, nos dois clusters de emulação. **Não foi executado em nenhum projeto Supabase.**

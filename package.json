@@ -17,6 +17,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "build:e2e:supabase": "node scripts/e2e/build-supabase-mode.mjs",
+    "test:e2e:supabase": "playwright test -c playwright.supabase.config.ts",
     "tokens:build": "tsx scripts/design-tokens/build-tokens-css.ts",
     "tokens:check": "tsx scripts/design-tokens/build-tokens-css.ts --check",
     "schemas:build": "tsx scripts/data/generate-json-schemas.ts",

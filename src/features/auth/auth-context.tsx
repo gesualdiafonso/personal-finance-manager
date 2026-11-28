@@ -1,10 +1,15 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { getLocalDb, notifyDataChanged } from "@/hooks/use-local-data";
 import { setNumericDateFormat } from "@/lib/formatting/date";
+import { parseSupabaseConfig } from "@/lib/supabase/config";
 import * as auth from "@/services/auth/auth-service";
-import type { AuthState, ProfileUpdate, ProfileView, RegistrationInput, RegistrationResult } from "@/services/auth/auth-service";
+import type { AuthState } from "@/services/auth/auth-service";
+import { AuthContext, type AuthContextValue } from "./auth-state";
+import { CloudAuthProvider } from "./cloud-auth-provider";
+
+export { useAuth, useProfile } from "./auth-state";
 
 /**
  * Who is signed in on this browser, for the whole application (D-AUTH-04). One provider at
@@ -23,20 +28,12 @@ const CHECK_MS = 60_000;
 
 type Status = "loading" | "signed-out" | "signed-in";
 
-interface AuthContextValue {
-  status: Status;
-  hasAccount: boolean;
-  state: AuthState | null;
-  /** Set when a session ended on its own (expiry, logout elsewhere): shown on the login page. */
-  endedReason: "expired" | null;
-  signIn: (input: { username: string; password: string; remember: boolean }) => Promise<void>;
-  signUp: (input: RegistrationInput) => Promise<RegistrationResult>;
-  signOut: () => Promise<void>;
-  saveProfile: (update: ProfileUpdate) => Promise<ProfileView>;
-  changePassword: (input: { current: string; next: string; confirmation: string }) => Promise<void>;
-}
+/** Supabase configured at build time → Supabase Auth (Step 14); otherwise the local account. */
+export const AUTH_MODE = parseSupabaseConfig().status === "configured" ? "cloud" : "local";
 
-const AuthContext = createContext<AuthContextValue | null>(null);
+export function AuthProvider({ children }: { children: ReactNode }) {
+  return AUTH_MODE === "cloud" ? <CloudAuthProvider>{children}</CloudAuthProvider> : <LocalAuthProvider>{children}</LocalAuthProvider>;
+}
 
 function readTabSession(): string | null {
   try {
@@ -54,7 +51,8 @@ function writeTabSession(id: string | null) {
   }
 }
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+/** Step 10 local account (Supabase not configured). Behaviour unchanged. */
+export function LocalAuthProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<Status>("loading");
   const [hasAccount, setHasAccount] = useState(false);
   const [state, setState] = useState<AuthState | null>(null);
@@ -121,9 +119,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<AuthContextValue>(
     () => ({
+      mode: "local",
       status,
       hasAccount,
       state,
+      view: state?.view ?? null,
+      identity: null,
+      offline: false,
+      linkSummary: null,
+      localAccountHint: null,
+      cloudProfileSynced: null,
+      cloud: null,
       endedReason,
       async signIn(input) {
         const db = await getLocalDb();
@@ -167,15 +173,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth needs <AuthProvider>");
-  return ctx;
-}
-
-/** The signed-in user's global profile (inside protected routes it is always present). */
-export function useProfile(): ProfileView | null {
-  return useContext(AuthContext)?.state?.view ?? null;
 }

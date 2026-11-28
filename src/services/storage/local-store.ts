@@ -48,6 +48,14 @@ import { validateIntegrity, type DataFileMap, type OfficialDataSet } from "@/ser
  */
 export const LOCAL_DB_NAME = "pfm-local";
 /**
+ * Step 14: database of a Supabase identity that does not own `pfm-local` (a second person on the
+ * same browser, or someone who chose not to link the existing data). Same schema, fully apart.
+ */
+export function localDbNameFor(userId: string): string {
+  if (!/^[0-9a-f-]{36}$/i.test(userId)) throw new AppError("VALIDATION_FAILED", "Invalid user id");
+  return `${LOCAL_DB_NAME}~${userId.toLowerCase()}`;
+}
+/**
  * v3 (Step 06): adds the goals and goalContributions stores.
  * v4 (local authentication): adds profiles, credentials and sessions — kept apart from the
  * financial stores, never exported, never cleared by "Borrar datos locales" (D-AUTH-05).
@@ -88,11 +96,33 @@ interface SnapshotRecord {
   schemaVersion: string;
   files: DataFileMap;
 }
-interface DeviceRecord {
+interface DeviceIdRecord {
   key: "device";
   deviceId: string;
   createdAt: string;
 }
+/**
+ * Step 14: the Supabase identity that owns this database (D-SB-04). Written once, in the same
+ * transaction that disables the migrated local credential; never removed by the app.
+ */
+export interface OwnerRecord {
+  key: "owner";
+  /** auth.users.id of the owner. */
+  userId: string;
+  /** Profile record of this database shown for that identity (the migrated local profile, or one created for it). */
+  profileId: string;
+  linkedAt: string;
+  /** "migration": local account verified; "confirmed": data without an account, confirmed by the user; "empty": nothing to link. */
+  via: "migration" | "confirmed" | "empty";
+}
+/** Step 14: a migration that was started (ownership verified) but not yet committed. */
+export interface CloudMigrationRecord {
+  key: "cloud-migration";
+  userId: string;
+  localProfileId: string | null;
+  startedAt: string;
+}
+type DeviceRecord = DeviceIdRecord | OwnerRecord | CloudMigrationRecord;
 interface SettingsRecord {
   key: "financial";
   settings: FinancialSettings;
@@ -157,6 +187,9 @@ export interface CredentialRecord {
   /** Consecutive failed logins and the moment logins are accepted again (back-off). */
   failedAttempts: number;
   lockedUntil: string | null;
+  /** Step 14: set when this local account was migrated to Supabase Auth (the verifier is kept, unused). */
+  migratedTo?: string;
+  disabledAt?: string;
 }
 
 /** A login on this device. The id is random and opaque; no credential is stored in it. */
@@ -220,10 +253,10 @@ function createV4Stores(db: IDBPDatabase<PfmLocalSchema>): void {
 const V1_STORES = ["accounts", "categories", "cards", "bills", "recurrences", "budgets", "transactions", "outbox", "publications"] as const;
 
 /** Opens the local store, creating it or upgrading it (v1 → v2 never discards a record). */
-export async function openLocalStore(now: () => Date = () => new Date()): Promise<LocalDb> {
+export async function openLocalStore(now: () => Date = () => new Date(), name: string = LOCAL_DB_NAME): Promise<LocalDb> {
   if (typeof indexedDB === "undefined") throw new AppError("STORAGE_UNAVAILABLE", "IndexedDB is not available in this environment");
   try {
-    return await openDB<PfmLocalSchema>(LOCAL_DB_NAME, LOCAL_DB_VERSION, {
+    return await openDB<PfmLocalSchema>(name, LOCAL_DB_VERSION, {
       async upgrade(db, oldVersion, _newVersion, transaction) {
         if (oldVersion < 1) {
           createV2Stores(db);
@@ -273,8 +306,8 @@ export async function openLocalStore(now: () => Date = () => new Date()): Promis
 
 export async function ensureDeviceId(db: LocalDb, now: () => Date = () => new Date()): Promise<string> {
   const existing = await db.get("device", "device");
-  if (existing) return existing.deviceId;
-  const record: DeviceRecord = { key: "device", deviceId: uuidv7(), createdAt: toIsoWithOffset(now()) };
+  if (existing && existing.key === "device") return existing.deviceId;
+  const record: DeviceIdRecord = { key: "device", deviceId: uuidv7(), createdAt: toIsoWithOffset(now()) };
   try {
     await db.put("device", record);
   } catch (cause) {

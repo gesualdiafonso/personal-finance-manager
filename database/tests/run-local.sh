@@ -27,3 +27,15 @@ echo "$out" | grep -q "Desinstalação recusada" && echo "PASS 99 refuses to uni
 # After installation, the preflight must flag the existing tables.
 "${P[@]}" -d "$DB" -f sql/00_preflight_checks.sql | grep -q "ERRO" && echo "PASS 00 flags an existing installation"
 "${P[@]}" -d "$DB" -f sql/08_verification.sql
+# Step 14 — 09_profile_access.sql: applies, is idempotent, verifies itself, behaves, and 08 stays green.
+out=$("${P[@]}" -d "$DB" -A -t -f sql/09_profile_access.sql)
+echo "$out" | grep -q "|f$" && { echo "FAIL 09 self-verification: $out" >&2; exit 1; }
+echo "PASS 09 applied (self-verification all true)"
+out=$("${P[@]}" -d "$DB" -A -t -f sql/09_profile_access.sql)
+echo "$out" | grep -q "|f$" && { echo "FAIL 09 rerun: $out" >&2; exit 1; }
+echo "PASS rerun 09 is idempotent"
+"${P[@]}" -d "$DB" -f tests/behaviour-09.sql
+if out=$("${P[@]}" -d "$DB" -f sql/07_rls_enablement.sql 2>&1); then echo "FAIL 07 after 09 should stop (policies exist)" >&2; exit 1; fi
+echo "$out" | grep -q "políticas" && echo "PASS 07 after 09 stops and changes nothing"
+summary=$("${P[@]}" -d "$DB" -A -t -f sql/08_verification.sql | head -1)
+case "$summary" in *"|0 com erro|OK") echo "PASS 08 after 09: $summary";; *) echo "FAIL 08 after 09: $summary" >&2; exit 1;; esac

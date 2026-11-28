@@ -45,7 +45,7 @@ export function CloudStatus() {
         <h2 id="nube" className="type-heading">
           {t.title}
         </h2>
-        <p className="type-body-sm text-ink-2">{t.hint}</p>
+        <p className="type-body-sm text-ink-2">{config.status === "configured" ? t.hintActive : t.hint}</p>
       </div>
       <div className="grid min-w-0 content-start gap-3 desktop:col-span-8">
         <p className="flex flex-wrap items-center gap-2 type-body-sm">

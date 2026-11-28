@@ -178,17 +178,23 @@ checks(categoria, objeto, esperado, encontrado, ok) as (
          exists (select 1 from pg_type t where t.typname = e.domain_name and t.typnamespace = 'public'::regnamespace)
   from expected_domains e
   union all
-  -- RLS ativa e sem políticas (fechado até ao Step 15)
-  select 'RLS', e.table_name, 'ativa, 0 políticas',
+  -- RLS ativa e sem políticas (fechado até ao Step 15). Exceção conhecida: as duas políticas
+  -- de 09_profile_access.sql (Step 14) em profiles, se esse script já foi executado.
+  select 'RLS', e.table_name,
+         case when e.table_name = 'profiles' then 'ativa, 0 políticas (ou as 2 de 09)' else 'ativa, 0 políticas' end,
          case when c.oid is null then 'tabela em falta'
               else case when c.relrowsecurity then 'ativa' else 'DESATIVADA' end || ', '
                 || (select count(*) from pg_policies p where p.schemaname = 'public' and p.tablename = e.table_name) || ' políticas' end,
-         coalesce(c.relrowsecurity, false) and (select count(*) from pg_policies p where p.schemaname = 'public' and p.tablename = e.table_name) = 0
+         coalesce(c.relrowsecurity, false)
+           and (select count(*) = 0
+                       or (e.table_name = 'profiles' and count(*) = 2
+                           and bool_and(p.policyname in ('aureon_profiles_select_own', 'aureon_profiles_update_own')))
+                from pg_policies p where p.schemaname = 'public' and p.tablename = e.table_name)
   from expected_tables e
   left join pg_class c on c.relname = e.table_name and c.relnamespace = 'public'::regnamespace
   union all
-  -- Privilégios: nada para anon nem authenticated
-  select 'privilégios', e.table_name, 'anon e authenticated sem privilégios',
+  -- Privilégios de TABELA: nada para anon nem authenticated (09 concede só por coluna em profiles)
+  select 'privilégios', e.table_name, 'anon e authenticated sem privilégios de tabela',
          case when c.oid is null then 'tabela em falta'
               else concat_ws(', ',
                 case when has_table_privilege('anon', c.oid, 'select, insert, update, delete, truncate, references, trigger') then 'anon TEM privilégios' end,

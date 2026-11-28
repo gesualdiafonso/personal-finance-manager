@@ -13,9 +13,10 @@ import { formatInstant } from "@/features/exchange/format";
 import { isAppError } from "@/lib/errors/app-error";
 import { es } from "@/lib/i18n/es";
 import type { ProfileView } from "@/services/auth/auth-service";
-import { checkPassword } from "@/services/auth/password";
-import { useAuth, useProfile } from "./auth-context";
-import { PasswordInput } from "./auth-screens";
+import { checkPassword, CLOUD_PASSWORD_MIN_LENGTH } from "@/services/auth/password";
+import { CloudAuthError, useAuth, useProfile } from "./auth-state";
+import { PasswordInput } from "./auth-ui";
+import { cloudErrorMessage } from "./cloud-screens";
 
 const t = es.profile;
 
@@ -95,7 +96,8 @@ export function ProfilePage() {
 }
 
 function ProfileContent({ view }: { view: ProfileView }) {
-  const { saveProfile, state, signOut } = useAuth();
+  const { saveProfile, state, signOut, mode, identity, cloud, cloudProfileSynced } = useAuth();
+  const isCloud = mode === "cloud";
   const feedback = useFeedback();
   const [draft, setDraft] = useState<Draft>(() => toDraft(view));
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -126,6 +128,10 @@ function ProfileContent({ view }: { view: ProfileView }) {
       });
       feedback(t.saved);
     } catch (err) {
+      if (err instanceof CloudAuthError) {
+        setErrors({ form: cloudErrorMessage(err) });
+        return;
+      }
       const fields = isAppError(err) ? err.details : [];
       const next: Record<string, string> = { form: t.saveFailed };
       if (fields.some((f) => f.startsWith("email"))) next.email = es.auth.emailInvalid;
@@ -163,9 +169,20 @@ function ProfileContent({ view }: { view: ProfileView }) {
         <Section id="perfil-personal" title={t.personal} hint={t.personalHint}>
           <div className="grid items-start gap-5 tablet:grid-cols-2">
             <Field label={es.auth.fullName}>{(p) => <Input {...p} name="fullName" autoComplete="name" maxLength={80} value={draft.fullName} onChange={(e) => set("fullName", e.target.value)} />}</Field>
-            <Field label={es.auth.email} error={errors.email}>
-              {(p) => <Input {...p} name="email" type="email" autoComplete="email" maxLength={120} value={draft.email} onChange={(e) => set("email", e.target.value)} />}
-            </Field>
+            {isCloud ? (
+              <Field label={es.cloudAuth.profileEmail} help={es.cloudAuth.profileEmailHint}>
+                {(p) => (
+                  <div className="flex items-center gap-2">
+                    <Input {...p} name="accountEmail" type="email" value={identity?.email ?? ""} readOnly data-testid="profile-account-email" />
+                    {identity?.emailConfirmed && <span className="shrink-0 type-caption text-forest">{es.cloudAuth.profileEmailVerified}</span>}
+                  </div>
+                )}
+              </Field>
+            ) : (
+              <Field label={es.auth.email} error={errors.email}>
+                {(p) => <Input {...p} name="email" type="email" autoComplete="email" maxLength={120} value={draft.email} onChange={(e) => set("email", e.target.value)} />}
+              </Field>
+            )}
             <Field label={t.phone} error={errors.phone}>
               {(p) => <Input {...p} name="phone" type="tel" autoComplete="tel" maxLength={24} value={draft.phone} onChange={(e) => set("phone", e.target.value)} />}
             </Field>
@@ -265,6 +282,11 @@ function ProfileContent({ view }: { view: ProfileView }) {
               {errors.form}
             </p>
           )}
+          {isCloud && cloudProfileSynced !== null && (
+            <p role="status" className="type-body-sm text-ink-2" data-testid="cloud-profile-sync">
+              {cloudProfileSynced ? es.cloudAuth.profileSynced : es.cloudAuth.profileLocalOnly}
+            </p>
+          )}
           <div className="flex justify-end">
             <Button type="submit" variant="primary" disabled={saving} aria-busy={saving}>
               {saving ? es.common.saving : t.save}
@@ -273,11 +295,12 @@ function ProfileContent({ view }: { view: ProfileView }) {
         </Section>
       </form>
 
-      <Section id="perfil-seguridad" title={t.security} hint={t.securityHint}>
-        <ChangePasswordForm username={view.profile.username} />
+      <Section id="perfil-seguridad" title={t.security} hint={isCloud ? es.cloudAuth.securityHint : t.securityHint}>
+        <ChangePasswordForm username={isCloud ? (identity?.email ?? "") : view.profile.username} cloud={isCloud} />
         <div className="grid gap-3 border-t border-line pt-5">
           {state && <p className="type-body-sm text-ink-2">{t.session(state.session.remember, formatInstant(state.session.expiresAt))}</p>}
-          <div>
+          {isCloud && <p className="type-body-sm text-ink-2">{es.cloudAuth.session}</p>}
+          <div className="flex flex-wrap gap-3">
             <Button
               type="button"
               variant="secondary"
@@ -286,6 +309,11 @@ function ProfileContent({ view }: { view: ProfileView }) {
               <LogOut aria-hidden="true" className="size-4" />
               {t.logout}
             </Button>
+            {cloud && (
+              <Button type="button" variant="ghost" onClick={() => void cloud.signOutEverywhere()}>
+                {es.cloudAuth.signOutEverywhere}
+              </Button>
+            )}
           </div>
         </div>
       </Section>
@@ -293,7 +321,7 @@ function ProfileContent({ view }: { view: ProfileView }) {
   );
 }
 
-function ChangePasswordForm({ username }: { username: string }) {
+function ChangePasswordForm({ username, cloud = false }: { username: string; cloud?: boolean }) {
   const { changePassword } = useAuth();
   const feedback = useFeedback();
   const [values, setValues] = useState({ current: "", next: "", confirmation: "" });
@@ -303,7 +331,7 @@ function ChangePasswordForm({ username }: { username: string }) {
 
   async function submit(e: FormEvent) {
     e.preventDefault();
-    const problem = checkPassword(values.next, { username });
+    const problem = checkPassword(values.next, cloud ? { minLength: CLOUD_PASSWORD_MIN_LENGTH } : { username });
     const next: Record<string, string> = {};
     if (!values.current) next.current = es.auth.required;
     if (problem) next.next = es.auth.passwordProblems[problem]!;
@@ -316,7 +344,11 @@ function ChangePasswordForm({ username }: { username: string }) {
       setValues({ current: "", next: "", confirmation: "" });
       feedback(t.passwordChanged);
     } catch (err) {
-      if (isAppError(err) && err.code === "AUTH_FAILED") setErrors({ current: es.errors.codes.AUTH_FAILED });
+      if (err instanceof CloudAuthError) {
+        if (err.code === "invalid-credentials") setErrors({ current: es.cloudAuth.errors["invalid-credentials"]! });
+        else if (err.code === "weak-password" || err.code === "same-password") setErrors({ next: cloudErrorMessage(err) });
+        else setErrors({ form: cloudErrorMessage(err) });
+      } else if (isAppError(err) && err.code === "AUTH_FAILED") setErrors({ current: es.errors.codes.AUTH_FAILED });
       else if (isAppError(err) && err.code === "WEAK_PASSWORD") setErrors({ next: es.auth.passwordProblems[err.details[0] ?? ""] ?? es.errors.codes.WEAK_PASSWORD });
       else setErrors({ form: es.errors.codes.UNKNOWN });
     } finally {
@@ -331,7 +363,7 @@ function ChangePasswordForm({ username }: { username: string }) {
         {(p) => <PasswordInput fieldProps={p} name="currentPassword" autoComplete="current-password" value={values.current} onChange={(v) => set("current", v)} />}
       </Field>
       <div className="grid items-start gap-5 tablet:grid-cols-2">
-        <Field label={t.newPassword} help={es.auth.passwordHelp} error={errors.next}>
+        <Field label={t.newPassword} help={cloud ? es.cloudAuth.passwordHelp : es.auth.passwordHelp} error={errors.next}>
           {(p) => <PasswordInput fieldProps={p} name="newPassword" autoComplete="new-password" value={values.next} onChange={(v) => set("next", v)} />}
         </Field>
         <Field label={t.confirmNewPassword} error={errors.confirmation}>

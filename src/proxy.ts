@@ -1,14 +1,14 @@
 import type { NextRequest } from "next/server";
-import { updateSupabaseSession } from "@/lib/supabase/proxy";
+import { protectRequest } from "@/lib/supabase/proxy";
 
 /**
- * Next.js 16 proxy (formerly middleware). Step 12: only keeps a Supabase session fresh when one
- * exists; otherwise it lets every request through unchanged. No redirects yet — the local login
- * remains the active protection until Step 14 (docs/SUPABASE_SETUP.md §Integración futura).
+ * Next.js 16 proxy (formerly middleware).
+ * - Supabase not configured: every request goes through unchanged (local mode, Step 10 login).
+ * - Supabase configured (Step 14): the session is refreshed and every non-public page requires a
+ *   verified Supabase session — otherwise a server-side redirect to /entrar (D-SB-03).
  */
 export async function proxy(request: NextRequest) {
-  const { response } = await updateSupabaseSession(request);
-  return response;
+  return protectRequest(request);
 }
 
 export const config = {

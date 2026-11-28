@@ -26,6 +26,8 @@ export type AppErrorCode =
   | "USERNAME_TAKEN"
   | "WEAK_PASSWORD"
   | "UNAUTHENTICATED"
+  | "ACCOUNT_MIGRATED"
+  | "IDENTITY_MISMATCH"
   | "UNKNOWN";
 
 export class AppError extends Error {

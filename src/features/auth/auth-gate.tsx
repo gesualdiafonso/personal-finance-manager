@@ -2,48 +2,47 @@
 
 import { useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { AureonMonogram } from "@/components/brand/aureon-logo";
 import { es } from "@/lib/i18n/es";
-import { useAuth } from "./auth-context";
+import { useAuth } from "./auth-state";
+import { AuthSplash } from "./auth-ui";
+import { LinkLocalDataScreen, VerificationPendingScreen } from "./cloud-screens";
+import { LOGIN_PATH, safeNext } from "./paths";
 
-export const LOGIN_PATH = "/entrar";
-export const REGISTER_PATH = "/registro";
+export { LOGIN_PATH, REGISTER_PATH, safeNext } from "./paths";
 
-/** Where to go back after signing in: only paths of this app, never another origin. */
-export function safeNext(raw: string | null | undefined): string {
-  if (!raw || !raw.startsWith("/") || raw.startsWith("//") || raw.startsWith("/entrar") || raw.startsWith("/registro")) return "/";
-  return raw;
-}
-
-/** Neutral splash while the session is checked: no financial content, no navigation. */
-export function AuthSplash() {
-  return (
-    <div className="grid min-h-dvh place-items-center" data-testid="auth-checking">
-      <div className="grid justify-items-center gap-3">
-        <AureonMonogram className="size-10 animate-pulse motion-reduce:animate-none" />
-        <p role="status" className="type-body-sm text-ink-2">
-          {es.auth.checking}
-        </p>
-      </div>
-    </div>
-  );
-}
+export { AuthSplash } from "./auth-ui";
 
 /**
  * Protects every route of the application group: nothing inside it — navigation included —
- * renders until a valid local session is confirmed. Without one, it sends the user to
- * /entrar — always the login screen first — remembering the page asked for.
- * The static HTML of these routes therefore holds only this splash, never financial panels.
+ * renders until a valid session is confirmed. Without one, it sends the user to /entrar —
+ * always the login screen first — remembering the page asked for.
+ * Cloud mode (Step 14): the proxy already refused the request on the server; this gate covers
+ * the PWA shell served offline, an identity whose data is not linked yet ("needs-link") and
+ * an unverified email. The static HTML of these routes holds only this splash.
  */
 export function AuthGate({ children }: { children: ReactNode }) {
-  const { status } = useAuth();
+  const { status, endedReason, offline } = useAuth();
   const router = useRouter();
   useEffect(() => {
     if (status !== "signed-out") return;
     const next = safeNext(window.location.pathname + window.location.search + window.location.hash);
-    // Always the login screen first; it offers account creation from there.
-    router.replace(next === "/" ? LOGIN_PATH : `${LOGIN_PATH}?next=${encodeURIComponent(next)}`);
-  }, [status, router]);
+    const params = new URLSearchParams();
+    if (next !== "/") params.set("next", next);
+    if (endedReason === "expired") params.set("motivo", "expired");
+    const query = params.toString();
+    router.replace(query ? `${LOGIN_PATH}?${query}` : LOGIN_PATH);
+  }, [status, router, endedReason]);
+  if (status === "needs-link") return <LinkLocalDataScreen />;
+  if (status === "needs-verification") return <VerificationPendingScreen />;
   if (status !== "signed-in") return <AuthSplash />;
-  return <>{children}</>;
+  return (
+    <>
+      {offline && (
+        <p role="status" data-testid="offline-session" className="bg-paper-2 px-4 py-2 text-center type-body-sm text-ink-2">
+          {es.cloudAuth.offlineBanner}
+        </p>
+      )}
+      {children}
+    </>
+  );
 }
