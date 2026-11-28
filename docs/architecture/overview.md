@@ -1,5 +1,7 @@
 # Arquitetura — visão geral
 
+> **Step 11 (2026-11-28):** decidida a migração para Supabase PostgreSQL + Auth com IndexedDB como cache offline ([ADR-006](../decisions/ADR-006-supabase-hibrido.md)). Este documento descreve a arquitetura **atual**; a de destino está em [supabase-blueprint.md](../audit/supabase-blueprint.md).
+
 O AUREON (antes PFM) é uma aplicação Next.js (App Router) **sem servidor de dados**. Todas as páginas são pré-renderizadas como estáticas. Os dados financeiros nunca passam pelo servidor: vivem no IndexedDB do dispositivo e chegam lá a partir de ficheiros JSON oficiais (no futuro, de uma publicação cifrada).
 
 ```text

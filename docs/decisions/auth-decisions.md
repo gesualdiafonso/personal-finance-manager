@@ -1,5 +1,7 @@
 # Autenticação local e perfil global — decisões (autónomas, documentadas)
 
+> **Step 11:** a autenticação local será substituída por Supabase Auth ([ADR-006](ADR-006-supabase-hibrido.md)). Estas decisões descrevem o código atual até essa migração.
+
 | Id | Decisão | Motivo |
 | --- | --- | --- |
 | D-AUTH-01 | **Uma conta local por dispositivo.** Um segundo registo é recusado (`ACCOUNT_EXISTS`; `USERNAME_TAKEN` para o mesmo username). A conta que se regista é dona dos dados financeiros já existentes, que não são alterados | A aplicação é single-user e todos os registos vivem num único IndexedDB: várias contas veriam os mesmos dados, e um "login" que não separa nada seria enganador. Adicionar `ownerId` a cada registo mudaria os dados oficiais sem benefício |

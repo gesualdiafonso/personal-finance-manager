@@ -1,6 +1,6 @@
 # ADR-001 — Sem base de dados
 
-- **Estado:** aceite (Step 00, auditoria final; confirmado no Step 01 §2.1)
+- **Estado:** **substituída por [ADR-006](ADR-006-supabase-hibrido.md)** (Step 11, 2026-11-28). Continua a descrever o código atual até ao Step 12; histórico: aceite no Step 00, confirmada no Step 01 §2.1.
 - **Substitui:** a stack do brief original (STEP 00 §1), que previa "Cloud-first, com persistência através do Supabase" e PostgreSQL.
 
 ## Decisão

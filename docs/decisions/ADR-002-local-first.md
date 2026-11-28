@@ -1,6 +1,6 @@
 # ADR-002 — Local-first, sem escrita no GitHub a partir da app
 
-- **Estado:** aceite (decisão D1, Step 00)
+- **Estado:** **substituída em parte por [ADR-006](ADR-006-supabase-hibrido.md)** (Step 11): o IndexedDB passa a cache offline e fila de sincronização; a nuvem é a fonte oficial. Histórico: aceite (decisão D1, Step 00).
 
 ## Decisão
 

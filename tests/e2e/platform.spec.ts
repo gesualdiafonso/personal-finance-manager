@@ -96,3 +96,29 @@ test.describe("PWA groundwork", () => {
     expect(body).not.toContain("__PFM_SW_VERSION__");
   });
 });
+
+test.describe("Supabase foundation (Step 12, not configured)", () => {
+  test("pages carry the CSP; the app stays local; the health route answers a controlled status", async ({ page, request }) => {
+    const res = await request.get("/");
+    const csp = res.headers()["content-security-policy"] ?? "";
+    expect(csp).toContain("frame-ancestors 'none'");
+    expect(csp).toContain("object-src 'none'");
+    expect(csp).toMatch(/connect-src 'self' https:\/\/dolarapi\.com(;|$)/); // no Supabase origin when not configured
+
+    const health = await request.get("/api/health/supabase");
+    expect(health.status()).toBe(503);
+    expect(health.headers()["cache-control"]).toBe("no-store");
+    expect(await health.json()).toMatchObject({ status: "not-configured" });
+
+    const errors: string[] = [];
+    page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
+    await page.goto("/configuracion");
+    await expect(page.getByTestId("auth-checking")).toHaveCount(0);
+    await expect(page.getByTestId("cloud-config-status")).toHaveText("No configurada");
+    await page.getByRole("button", { name: "Comprobar conexión" }).click();
+    await expect(page.getByTestId("cloud-health-result")).toContainText("Sin configurar");
+    // The browser logs the deliberate 503 of the health route (useful to uptime monitors) as a
+    // "Failed to load resource" line; anything else — CSP violations included — is a failure.
+    expect(errors.filter((e) => !/status of 503/.test(e))).toEqual([]);
+  });
+});

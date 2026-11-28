@@ -4,6 +4,7 @@ import { AboutBrand } from "@/features/settings/about-brand";
 import { AppearanceSettings } from "@/features/settings/appearance-settings";
 import { LocalDataPanel } from "@/features/settings/local-data-panel";
 import { CurrencySettings } from "@/features/exchange/currency-settings";
+import { CloudStatus } from "@/features/settings/cloud-status";
 import { AREAS } from "@/lib/config/navigation";
 import { ProfileSummary } from "@/features/auth/profile-summary";
 
@@ -17,6 +18,7 @@ export default function SettingsPage() {
       <ProfileSummary />
       <AppearanceSettings />
       <CurrencySettings />
+      <CloudStatus />
       <LocalDataPanel />
       <AboutBrand />
     </>

@@ -34,3 +34,17 @@ O brief original do Step 00 tem, segundo o responsável do produto, as secções
 | SEC-06 | Actions fixadas por SHA | Usa `@v4`; fixar quando o repositório existir |
 | SEC-07 | Só a revisão atual do pacote no alojamento | Depende da publicação (OD-7) |
 | SEC-08 | 2FA na conta GitHub; repositório sem colaboradores | Configuração da conta, fora do código |
+
+## Migração para Supabase (Step 11, ADR-006)
+
+Por decidir antes de dados reais chegarem à nuvem (Step 18). Detalhe: [STEP-11-ARCHITECTURE-AUDIT.md §9](../audit/STEP-11-ARCHITECTURE-AUDIT.md) e [supabase-blueprint.md §5](../audit/supabase-blueprint.md).
+
+| Id | Pergunta | Recomendação | Bloqueia |
+| --- | --- | --- | --- |
+| OD-11 | Que campos cifra a aplicação? | Texto livre (nomes, descrições, notas, perfil); valores, datas e moedas em claro | Step 15 |
+| OD-12 | De onde vem a chave de dados? | Chave aleatória embrulhada por frase de dados + chave de recuperação | Step 15 |
+| OD-13 | Recuperação | Chave de recuperação obrigatória antes de ativar a cifragem (substitui OD-AUTH-1) | Step 15 |
+| OD-14 | Email de confirmação/recuperação | SMTP próprio em produção | Step 14 |
+| OD-15 | Região do projeto Supabase | `sa-east-1` | Step 12 |
+
+**Obsoletas com o ADR-006:** OD-1, OD-2, OD-4, OD-7 (pipeline de publicação por GitHub).

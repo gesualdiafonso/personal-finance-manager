@@ -207,8 +207,10 @@ describe("Settings → Moneda y cambio", () => {
     await u.click(within(section).getByRole("button", { name: "Guardar configuración" }));
     await waitFor(async () => expect((await getFinancialSettings(await getLocalDb()))?.exchange?.rateSets[0]?.manual.USD?.rate).toBe("1450.5"));
 
-    const converter = await within(section).findByTestId("fx-converter");
-    await waitFor(() => expect(within(converter).getByLabelText("Cotización")).toHaveValue("1.450,5"));
+    // The settings form remounts after saving: query the converter again instead of keeping a
+    // reference that may belong to the form before the remount.
+    await waitFor(() => expect(within(screen.getByTestId("fx-converter")).getByLabelText("Cotización")).toHaveValue("1.450,5"));
+    const converter = screen.getByTestId("fx-converter");
     const amount = within(converter).getByLabelText("Monto (USD)");
     await u.clear(amount);
     await u.type(amount, "100");

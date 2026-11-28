@@ -107,6 +107,7 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith("/data/")) return; // never cached here
+  if (url.pathname.startsWith("/api/")) return; // live server answers (health checks, future auth): never cached
   if (url.pathname.startsWith("/_next/static/")) {
     event.respondWith(cacheFirst(request));
     return;

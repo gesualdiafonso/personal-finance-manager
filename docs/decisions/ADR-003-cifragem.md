@@ -1,6 +1,6 @@
 # ADR-003 — Repositório privado e publicação cifrada
 
-- **Estado:** aceite (decisão D2, Step 00)
+- **Estado:** aceite (decisão D2, Step 00); **estendida por [ADR-006](ADR-006-supabase-hibrido.md)** (cifragem adicional ao nível da aplicação sobre a nuvem).
 
 ## Decisão
 

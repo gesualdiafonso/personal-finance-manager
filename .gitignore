@@ -51,3 +51,4 @@ next-env.d.ts
 
 # delivery archives (built locally, never committed)
 /delivery/
+/tests/e2e/.auth/

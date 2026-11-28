@@ -1,5 +1,7 @@
 # Configuração de ambiente
 
+> **Step 12:** a referência atual das variáveis (incluindo Supabase) está em [../ENVIRONMENT.md](../ENVIRONMENT.md) e a configuração do painel em [../SUPABASE_SETUP.md](../SUPABASE_SETUP.md).
+
 **O Step 01 não precisa de nenhuma variável de ambiente.** A app não tem backend, base de dados nem API remota. `.env.example` documenta as variáveis opcionais.
 
 | Variável | Onde | Para quê |

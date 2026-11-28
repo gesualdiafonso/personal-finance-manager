@@ -19,7 +19,9 @@ if (typeof HTMLDialogElement !== "undefined" && !HTMLDialogElement.prototype.sho
 // jsdom has no matchMedia; tests set `prefers-color-scheme` through this flag.
 const media = { dark: false };
 (globalThis as { __prefersDark?: typeof media }).__prefersDark = media;
-Object.defineProperty(window, "matchMedia", {
+// Tests marked `@vitest-environment node` (server code) have no window/document.
+const hasDom = typeof window !== "undefined";
+if (hasDom) Object.defineProperty(window, "matchMedia", {
   configurable: true,
   value: (query: string) => ({
     matches: query.includes("dark") ? media.dark : false,
@@ -37,8 +39,9 @@ beforeEach(async () => {
   // A fresh, empty IndexedDB for every test (and no connection kept from the previous one).
   await resetLocalDb();
   globalThis.indexedDB = new IDBFactory();
-  window.localStorage.clear();
   media.dark = false;
+  if (!hasDom) return;
+  window.localStorage.clear();
   document.documentElement.removeAttribute("data-theme");
 });
 
